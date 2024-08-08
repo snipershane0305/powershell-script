@@ -1,4 +1,4 @@
-write-host "must have powershell 7 installed" -ForegroundColor red
+write-host "must run with powershell 7" -ForegroundColor red
 pause
 if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) { Start-Process pwsh.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs; exit }
 
@@ -22,7 +22,7 @@ fsutil behavior set encryptpagingfile 0   #disables encryption on the pagefile.s
 fsutil behavior set mftzone 4             #sets the mft zone to 800MB (the mft zone stores entries about everything about every file)
 fsutil behavior set quotanotify 7200      #sets quota report to 2 hours
 fsutil behavior set disabledeletenotify 0 #enables trim on disk
-fsutil behavior set disableLastAccess 1   #disables last access time stamp on directories 
+fsutil behavior set disableLastAccess 1   #disables last access time stamp on directories
 fsutil behavior set disable8dot3 1        #unused file type
 
 write-host "applying bcdedits" -ForegroundColor red
