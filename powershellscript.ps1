@@ -12,9 +12,9 @@ write-host "enabling memory compression" -ForegroundColor red
 Enable-MMAgent -mc #enabled memory compression (saves some memory but takes cpu cycles to compress and uncompress the memory)
 
 write-host "removing home and gallery from explorer" -ForegroundColor red
-REG DELETE \"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Desktop\\NameSpace\\{e88865ea-0e1c-4e20-9aa6-edcd0212c87c}\" /f
-REG DELETE \"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Desktop\\NameSpace\\{f874310e-b6b7-47dc-bc84-b9e6b38f5903}\" /f
-REG ADD \"HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced\" /f /v \"LaunchTo\" /t REG_DWORD /d \"1\"
+REG DELETE \"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Desktop\\NameSpace\\{e88865ea-0e1c-4e20-9aa6-edcd0212c87c}\" /f | Out-Null
+REG DELETE \"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Desktop\\NameSpace\\{f874310e-b6b7-47dc-bc84-b9e6b38f5903}\" /f | Out-Null
+REG ADD \"HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced\" /f /v \"LaunchTo\" /t REG_DWORD /d \"1\" | Out-Null
 
 write-host "applying fsutil settings" -ForegroundColor red
 fsutil behavior set disablecompression 1  #disables ntfs compression
@@ -26,17 +26,17 @@ fsutil behavior set disableLastAccess 1   #disables last access time stamp on di
 fsutil behavior set disable8dot3 1        #unused file type
 
 write-host "applying bcdedits" -ForegroundColor red
-bcdedit /set useplatformtick yes       #uses a hardware timer for ticks which is most reliable
-bcdedit /set disabledynamictick yes    #disables platform tick from being dynamic which is more stable
-bcdedit /set useplatformclock no       #disable use of platform clock which is less stable
-bcdedit /set tscsyncpolicy enhanced    #sets time stamp counter synchronization policy to enhanced
-bcdedit /set MSI Default               #sets the use of interrupt type to message signaled interrupts which was added for PCI 2.2 which is newer than the old line based interrupts
-bcdedit /set x2apicpolicy Enable       #uses the newer apic mode
-bcdedit /deletevalue uselegacyapicmode #deletes old legacy apic mode
-bcdedit /set usephysicaldestination no #disables physical apic for x2apicpolicy
-bcdedit /set usefirmwarepcisettings no #disables BIOS PCI resources
+bcdedit /set useplatformtick yes    #uses a hardware timer for ticks which is most reliable
+bcdedit /set disabledynamictick yes #disables platform tick from being dynamic which is more stable
+bcdedit /set useplatformclock no    #disable use of platform clock which is less stable
+bcdedit /set tscsyncpolicy enhanced #sets time stamp counter synchronization policy to enhanced
+bcdedit /set MSI Default            #sets the use of interrupt type to message signaled interrupts which was added for PCI 2.2 which is newer than the old line based interrupts
+bcdedit /set x2apicpolicy Enable    #uses the newer apic mode
+bcdedit /deletevalue uselegacyapicmode | Out-Null #deletes old legacy apic mode
+bcdedit /set usephysicaldestination no            #disables physical apic for x2apicpolicy
+bcdedit /set usefirmwarepcisettings no            #disables BIOS PCI resources
 bcdedit /set linearaddress57 OptOut
-bcdedit /set nx OptIn                  #enables data execution prevention which improves security
+bcdedit /set nx OptIn                             #enables data execution prevention which improves security
 
 write-host "applying network settings" -ForegroundColor red
 netsh int tcp set global rss = enabled         #enables recieve side scaling which lets more than one cpu core handle tcp
@@ -60,26 +60,26 @@ Set-NetTCPSetting -SettingName InternetCustom -InitialCongestionWindow 10 #raise
 Disable-NetAdapterLso -Name * #disables large send offload which uses NIC instead of cpu (using the cpu for handing network tasks can help latency if your cpu is strong enough)
 
 write-host "setting dns" -ForegroundColor red
-Set-DnsClientServerAddress -interfaceindex 1 -serveraddresses ("9.9.9.9","1.1.1.1")
-Set-DnsClientServerAddress -interfaceindex 2 -serveraddresses ("9.9.9.9","1.1.1.1")
-Set-DnsClientServerAddress -interfaceindex 3 -serveraddresses ("9.9.9.9","1.1.1.1")
-Set-DnsClientServerAddress -interfaceindex 4 -serveraddresses ("9.9.9.9","1.1.1.1")
-Set-DnsClientServerAddress -interfaceindex 5 -serveraddresses ("9.9.9.9","1.1.1.1")
-Set-DnsClientServerAddress -interfaceindex 6 -serveraddresses ("9.9.9.9","1.1.1.1")
-Set-DnsClientServerAddress -interfaceindex 7 -serveraddresses ("9.9.9.9","1.1.1.1")
-Set-DnsClientServerAddress -interfaceindex 8 -serveraddresses ("9.9.9.9","1.1.1.1")
-Set-DnsClientServerAddress -interfaceindex 9 -serveraddresses ("9.9.9.9","1.1.1.1")
-Set-DnsClientServerAddress -interfaceindex 10 -serveraddresses ("9.9.9.9","1.1.1.1")
-Set-DnsClientServerAddress -interfaceindex 11 -serveraddresses ("9.9.9.9","1.1.1.1")
-Set-DnsClientServerAddress -interfaceindex 12 -serveraddresses ("9.9.9.9","1.1.1.1")
-Set-DnsClientServerAddress -interfaceindex 13 -serveraddresses ("9.9.9.9","1.1.1.1")
-Set-DnsClientServerAddress -interfaceindex 14 -serveraddresses ("9.9.9.9","1.1.1.1")
-Set-DnsClientServerAddress -interfaceindex 15 -serveraddresses ("9.9.9.9","1.1.1.1")
-Set-DnsClientServerAddress -interfaceindex 16 -serveraddresses ("9.9.9.9","1.1.1.1")
-Set-DnsClientServerAddress -interfaceindex 17 -serveraddresses ("9.9.9.9","1.1.1.1")
-Set-DnsClientServerAddress -interfaceindex 18 -serveraddresses ("9.9.9.9","1.1.1.1")
-Set-DnsClientServerAddress -interfaceindex 19 -serveraddresses ("9.9.9.9","1.1.1.1")
-Set-DnsClientServerAddress -interfaceindex 20 -serveraddresses ("9.9.9.9","1.1.1.1")
+Set-DnsClientServerAddress -interfaceindex 1 -serveraddresses ("9.9.9.9","1.1.1.1") | Out-Null
+Set-DnsClientServerAddress -interfaceindex 2 -serveraddresses ("9.9.9.9","1.1.1.1") | Out-Null
+Set-DnsClientServerAddress -interfaceindex 3 -serveraddresses ("9.9.9.9","1.1.1.1") | Out-Null
+Set-DnsClientServerAddress -interfaceindex 4 -serveraddresses ("9.9.9.9","1.1.1.1") | Out-Null
+Set-DnsClientServerAddress -interfaceindex 5 -serveraddresses ("9.9.9.9","1.1.1.1") | Out-Null
+Set-DnsClientServerAddress -interfaceindex 6 -serveraddresses ("9.9.9.9","1.1.1.1") | Out-Null
+Set-DnsClientServerAddress -interfaceindex 7 -serveraddresses ("9.9.9.9","1.1.1.1") | Out-Null
+Set-DnsClientServerAddress -interfaceindex 8 -serveraddresses ("9.9.9.9","1.1.1.1") | Out-Null
+Set-DnsClientServerAddress -interfaceindex 9 -serveraddresses ("9.9.9.9","1.1.1.1") | Out-Null
+Set-DnsClientServerAddress -interfaceindex 10 -serveraddresses ("9.9.9.9","1.1.1.1") | Out-Null
+Set-DnsClientServerAddress -interfaceindex 11 -serveraddresses ("9.9.9.9","1.1.1.1") | Out-Null
+Set-DnsClientServerAddress -interfaceindex 12 -serveraddresses ("9.9.9.9","1.1.1.1") | Out-Null
+Set-DnsClientServerAddress -interfaceindex 13 -serveraddresses ("9.9.9.9","1.1.1.1") | Out-Null
+Set-DnsClientServerAddress -interfaceindex 14 -serveraddresses ("9.9.9.9","1.1.1.1") | Out-Null
+Set-DnsClientServerAddress -interfaceindex 15 -serveraddresses ("9.9.9.9","1.1.1.1") | Out-Null
+Set-DnsClientServerAddress -interfaceindex 16 -serveraddresses ("9.9.9.9","1.1.1.1") | Out-Null
+Set-DnsClientServerAddress -interfaceindex 17 -serveraddresses ("9.9.9.9","1.1.1.1") | Out-Null
+Set-DnsClientServerAddress -interfaceindex 18 -serveraddresses ("9.9.9.9","1.1.1.1") | Out-Null
+Set-DnsClientServerAddress -interfaceindex 19 -serveraddresses ("9.9.9.9","1.1.1.1") | Out-Null
+Set-DnsClientServerAddress -interfaceindex 20 -serveraddresses ("9.9.9.9","1.1.1.1") | Out-Null
 
 write-host "setting services" -ForegroundColor red
 sc config AJRouter start= disabled
