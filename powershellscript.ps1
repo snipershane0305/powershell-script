@@ -12,9 +12,9 @@ write-host "enabling memory compression" -ForegroundColor red
 Enable-MMAgent -mc #enabled memory compression (saves some memory but takes cpu cycles to compress and uncompress the memory)
 
 write-host "removing home and gallery from explorer" -ForegroundColor red
-REG DELETE \"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Desktop\\NameSpace\\{e88865ea-0e1c-4e20-9aa6-edcd0212c87c}\" /f | Out-Null
-REG DELETE \"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Desktop\\NameSpace\\{f874310e-b6b7-47dc-bc84-b9e6b38f5903}\" /f | Out-Null
-REG ADD \"HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced\" /f /v \"LaunchTo\" /t REG_DWORD /d \"1\" | Out-Null
+REG DELETE \"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Desktop\\NameSpace\\{e88865ea-0e1c-4e20-9aa6-edcd0212c87c}\" /f
+REG DELETE \"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Desktop\\NameSpace\\{f874310e-b6b7-47dc-bc84-b9e6b38f5903}\" /f
+REG ADD \"HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced\" /f /v \"LaunchTo\" /t REG_DWORD /d \"1\"
 
 write-host "applying fsutil settings" -ForegroundColor red
 fsutil behavior set disablecompression 1  #disables ntfs compression
@@ -60,26 +60,26 @@ Set-NetTCPSetting -SettingName InternetCustom -InitialCongestionWindow 10 #raise
 Disable-NetAdapterLso -Name * #disables large send offload which uses NIC instead of cpu (using the cpu for handing network tasks can help latency if your cpu is strong enough)
 
 write-host "setting dns" -ForegroundColor red
-Set-DnsClientServerAddress -interfaceindex 1 -serveraddresses ("9.9.9.9","1.1.1.1") | Out-Null
-Set-DnsClientServerAddress -interfaceindex 2 -serveraddresses ("9.9.9.9","1.1.1.1") | Out-Null
-Set-DnsClientServerAddress -interfaceindex 3 -serveraddresses ("9.9.9.9","1.1.1.1") | Out-Null
-Set-DnsClientServerAddress -interfaceindex 4 -serveraddresses ("9.9.9.9","1.1.1.1") | Out-Null
-Set-DnsClientServerAddress -interfaceindex 5 -serveraddresses ("9.9.9.9","1.1.1.1") | Out-Null
-Set-DnsClientServerAddress -interfaceindex 6 -serveraddresses ("9.9.9.9","1.1.1.1") | Out-Null
-Set-DnsClientServerAddress -interfaceindex 7 -serveraddresses ("9.9.9.9","1.1.1.1") | Out-Null
-Set-DnsClientServerAddress -interfaceindex 8 -serveraddresses ("9.9.9.9","1.1.1.1") | Out-Null
-Set-DnsClientServerAddress -interfaceindex 9 -serveraddresses ("9.9.9.9","1.1.1.1") | Out-Null
-Set-DnsClientServerAddress -interfaceindex 10 -serveraddresses ("9.9.9.9","1.1.1.1") | Out-Null
-Set-DnsClientServerAddress -interfaceindex 11 -serveraddresses ("9.9.9.9","1.1.1.1") | Out-Null
-Set-DnsClientServerAddress -interfaceindex 12 -serveraddresses ("9.9.9.9","1.1.1.1") | Out-Null
-Set-DnsClientServerAddress -interfaceindex 13 -serveraddresses ("9.9.9.9","1.1.1.1") | Out-Null
-Set-DnsClientServerAddress -interfaceindex 14 -serveraddresses ("9.9.9.9","1.1.1.1") | Out-Null
-Set-DnsClientServerAddress -interfaceindex 15 -serveraddresses ("9.9.9.9","1.1.1.1") | Out-Null
-Set-DnsClientServerAddress -interfaceindex 16 -serveraddresses ("9.9.9.9","1.1.1.1") | Out-Null
-Set-DnsClientServerAddress -interfaceindex 17 -serveraddresses ("9.9.9.9","1.1.1.1") | Out-Null
-Set-DnsClientServerAddress -interfaceindex 18 -serveraddresses ("9.9.9.9","1.1.1.1") | Out-Null
-Set-DnsClientServerAddress -interfaceindex 19 -serveraddresses ("9.9.9.9","1.1.1.1") | Out-Null
-Set-DnsClientServerAddress -interfaceindex 20 -serveraddresses ("9.9.9.9","1.1.1.1") | Out-Null
+Set-DnsClientServerAddress -interfaceindex 1 -serveraddresses ("9.9.9.9","1.1.1.1")
+Set-DnsClientServerAddress -interfaceindex 2 -serveraddresses ("9.9.9.9","1.1.1.1")
+Set-DnsClientServerAddress -interfaceindex 3 -serveraddresses ("9.9.9.9","1.1.1.1")
+Set-DnsClientServerAddress -interfaceindex 4 -serveraddresses ("9.9.9.9","1.1.1.1")
+Set-DnsClientServerAddress -interfaceindex 5 -serveraddresses ("9.9.9.9","1.1.1.1")
+Set-DnsClientServerAddress -interfaceindex 6 -serveraddresses ("9.9.9.9","1.1.1.1")
+Set-DnsClientServerAddress -interfaceindex 7 -serveraddresses ("9.9.9.9","1.1.1.1")
+Set-DnsClientServerAddress -interfaceindex 8 -serveraddresses ("9.9.9.9","1.1.1.1")
+Set-DnsClientServerAddress -interfaceindex 9 -serveraddresses ("9.9.9.9","1.1.1.1")
+Set-DnsClientServerAddress -interfaceindex 10 -serveraddresses ("9.9.9.9","1.1.1.1")
+Set-DnsClientServerAddress -interfaceindex 11 -serveraddresses ("9.9.9.9","1.1.1.1")
+Set-DnsClientServerAddress -interfaceindex 12 -serveraddresses ("9.9.9.9","1.1.1.1")
+Set-DnsClientServerAddress -interfaceindex 13 -serveraddresses ("9.9.9.9","1.1.1.1")
+Set-DnsClientServerAddress -interfaceindex 14 -serveraddresses ("9.9.9.9","1.1.1.1")
+Set-DnsClientServerAddress -interfaceindex 15 -serveraddresses ("9.9.9.9","1.1.1.1")
+Set-DnsClientServerAddress -interfaceindex 16 -serveraddresses ("9.9.9.9","1.1.1.1")
+Set-DnsClientServerAddress -interfaceindex 17 -serveraddresses ("9.9.9.9","1.1.1.1")
+Set-DnsClientServerAddress -interfaceindex 18 -serveraddresses ("9.9.9.9","1.1.1.1")
+Set-DnsClientServerAddress -interfaceindex 19 -serveraddresses ("9.9.9.9","1.1.1.1")
+Set-DnsClientServerAddress -interfaceindex 20 -serveraddresses ("9.9.9.9","1.1.1.1")
 
 write-host "setting services" -ForegroundColor red
 sc config AJRouter start= disabled
