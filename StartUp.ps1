@@ -119,26 +119,16 @@ Set-NetTCPSetting -SettingName InternetCustom -InitialCongestionWindow 10 #raise
 Disable-NetAdapterLso -Name * #disables large send offload which uses NIC instead of cpu (using the cpu for handing network tasks can help latency if your cpu is strong enough)
 
 write-host "setting dns" -ForegroundColor red
-Set-DnsClientServerAddress -interfaceindex 1 -serveraddresses ("9.9.9.9","1.1.1.1")
-Set-DnsClientServerAddress -interfaceindex 2 -serveraddresses ("9.9.9.9","1.1.1.1")
-Set-DnsClientServerAddress -interfaceindex 3 -serveraddresses ("9.9.9.9","1.1.1.1")
-Set-DnsClientServerAddress -interfaceindex 4 -serveraddresses ("9.9.9.9","1.1.1.1")
-Set-DnsClientServerAddress -interfaceindex 5 -serveraddresses ("9.9.9.9","1.1.1.1")
-Set-DnsClientServerAddress -interfaceindex 6 -serveraddresses ("9.9.9.9","1.1.1.1")
-Set-DnsClientServerAddress -interfaceindex 7 -serveraddresses ("9.9.9.9","1.1.1.1")
-Set-DnsClientServerAddress -interfaceindex 8 -serveraddresses ("9.9.9.9","1.1.1.1")
-Set-DnsClientServerAddress -interfaceindex 9 -serveraddresses ("9.9.9.9","1.1.1.1")
-Set-DnsClientServerAddress -interfaceindex 10 -serveraddresses ("9.9.9.9","1.1.1.1")
-Set-DnsClientServerAddress -interfaceindex 11 -serveraddresses ("9.9.9.9","1.1.1.1")
-Set-DnsClientServerAddress -interfaceindex 12 -serveraddresses ("9.9.9.9","1.1.1.1")
-Set-DnsClientServerAddress -interfaceindex 13 -serveraddresses ("9.9.9.9","1.1.1.1")
-Set-DnsClientServerAddress -interfaceindex 14 -serveraddresses ("9.9.9.9","1.1.1.1")
-Set-DnsClientServerAddress -interfaceindex 15 -serveraddresses ("9.9.9.9","1.1.1.1")
-Set-DnsClientServerAddress -interfaceindex 16 -serveraddresses ("9.9.9.9","1.1.1.1")
-Set-DnsClientServerAddress -interfaceindex 17 -serveraddresses ("9.9.9.9","1.1.1.1")
-Set-DnsClientServerAddress -interfaceindex 18 -serveraddresses ("9.9.9.9","1.1.1.1")
-Set-DnsClientServerAddress -interfaceindex 19 -serveraddresses ("9.9.9.9","1.1.1.1")
-Set-DnsClientServerAddress -interfaceindex 20 -serveraddresses ("9.9.9.9","1.1.1.1")
+Set-DnsClientServerAddress -interfaceindex 1 -serveraddresses ("9.9.9.11","9.9.9.9")
+Set-DnsClientServerAddress -interfaceindex 2 -serveraddresses ("9.9.9.11","9.9.9.9")
+Set-DnsClientServerAddress -interfaceindex 3 -serveraddresses ("9.9.9.11","9.9.9.9")
+Set-DnsClientServerAddress -interfaceindex 4 -serveraddresses ("9.9.9.11","9.9.9.9")
+Set-DnsClientServerAddress -interfaceindex 5 -serveraddresses ("9.9.9.11","9.9.9.9")
+Set-DnsClientServerAddress -interfaceindex 6 -serveraddresses ("9.9.9.11","9.9.9.9")
+Set-DnsClientServerAddress -interfaceindex 7 -serveraddresses ("9.9.9.11","9.9.9.9")
+Set-DnsClientServerAddress -interfaceindex 8 -serveraddresses ("9.9.9.11","9.9.9.9")
+Set-DnsClientServerAddress -interfaceindex 9 -serveraddresses ("9.9.9.11","9.9.9.9")
+Set-DnsClientServerAddress -interfaceindex 10 -serveraddresses ("9.9.9.11","9.9.9.9")
 
 write-host "setting services" -ForegroundColor red
 sc config AJRouter start= disabled
@@ -155,6 +145,7 @@ sc config Spooler start= disabled
 sc config wercplsupport start= disabled
 sc config RmSvc start= disabled
 sc config RasMan start= disabled
+sc config lmhosts start= disabled
 sc config RemoteRegistry start= disabled
 sc config SysMain start= disabled
 sc config WerSvc start= disabled
@@ -188,7 +179,6 @@ sc config DusmSvc start= demand
 sc config Dhcp start= demand
 sc config AppReadiness start= demand
 sc config ALG start= demand
-sc config lmhosts start= demand
 sc config TokenBroker start= demand
 sc config EventLog start= demand
 sc config diagsvc start= demand
@@ -350,7 +340,7 @@ sc config XboxGipSvc start= demand
 sc config XblGameSave start= demand
 
 write-host "applying registry file" -ForegroundColor red
-reg import D:\powershellscript\registry.reg
+reg import .\registry.reg
 
 write-host "done" -ForegroundColor red
 pause
