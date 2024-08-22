@@ -76,34 +76,6 @@ Set-DnsClientServerAddress -interfaceindex 18 -serveraddresses ("9.9.9.9","1.1.1
 Set-DnsClientServerAddress -interfaceindex 19 -serveraddresses ("9.9.9.9","1.1.1.1")
 Set-DnsClientServerAddress -interfaceindex 20 -serveraddresses ("9.9.9.9","1.1.1.1")
 
-write-host "setting services" -ForegroundColor red
-sc config DiagTrack start= disabled
-sc config DispBrokerDesktopSvc start= disabled
-sc config iphlpsvc start= disabled
-sc config DsmSvc start= disabled
-sc config Spooler start= disabled
-sc config wlidsvc start= disabled
-sc config RmSvc start= disabled
-sc config MapsBroker start= disabled
-sc config lmhosts start= disabled
-sc config VSS start= disabled
-sc config TokenBroker start= disabled
-sc config DusmSvc start= demand
-sc config Dhcp start= demand
-sc config DPS start= demand
-sc config ShellHWDetection start= demand
-sc config SysMain start= demand
-sc config Themes start= demand
-sc config ProfSvc start=demand
-sc config EventLog start= demand
-sc config LanmanWorkstation start= demand
-sc config UsoSvc start= demand
-sc config WSearch start= demand
-sc config CDPSvc start= demand
-sc config edgeupdate start= demand
-sc config PcaSvc start= demand
-sc config StorSvc start= demand
-
 write-host "applying registry file" -ForegroundColor red
 reg import .\registry.reg
 
