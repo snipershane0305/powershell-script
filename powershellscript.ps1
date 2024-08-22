@@ -11,11 +11,6 @@ powercfg.exe /hibernate off #disables hiberation (writes memory to disk and save
 write-host "enabling memory compression" -ForegroundColor red
 Enable-MMAgent -mc #enabled memory compression (saves some memory but takes cpu cycles to compress and uncompress the memory)
 
-write-host "removing home and gallery from explorer" -ForegroundColor red
-REG DELETE \"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Desktop\\NameSpace\\{e88865ea-0e1c-4e20-9aa6-edcd0212c87c}\" /f
-REG DELETE \"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Desktop\\NameSpace\\{f874310e-b6b7-47dc-bc84-b9e6b38f5903}\" /f
-REG ADD \"HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced\" /f /v \"LaunchTo\" /t REG_DWORD /d \"1\"
-
 write-host "applying fsutil settings" -ForegroundColor red
 fsutil behavior set disablecompression 1  #disables ntfs compression
 fsutil behavior set encryptpagingfile 0   #disables encryption on the pagefile.sys file which is disk space that is used as memory and is less performant
