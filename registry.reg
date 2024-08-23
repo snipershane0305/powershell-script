@@ -1,21 +1,21 @@
 Windows Registry Editor Version 5.00
-
+;disabled throttling and disables slight delay in windows
 [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile]
 "NetworkThrottlingIndex"=dword:ffffffff
 "SystemResponsiveness"=dword:00000000
-
+;tcp optimization
 [HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Psched]
 "NonBestEffortLimit"=dword:00000000
-
+;tcp optimization
 [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters]
 "EnableConnectionRateLimiting"=dword:00000000
-
+;tcp optimization
 [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\AFD\Parameters]
 "FastSendDatagramThreshold"=dword:00064000
-
+;disables preemtion for gpus
 [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Scheduler]
 "EnablePreemption"=dword:00000001
-
+;optimized the multimedia api
 [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games]
 "Affinity"=dword:00000000
 "Background Only"="False"
@@ -24,25 +24,22 @@ Windows Registry Editor Version 5.00
 "Priority"=dword:00000002
 "Scheduling Category"="High"
 "SFIO Priority"="High"
-
+;determines DPC time slices for proccesses
 [HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Control\PriorityControl]
 "Win32PrioritySeparation"=dword:2A
-
+;optimization to fragmented memory heap if system has above 1GB of installed memory
 [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager]
 "HeapDeCommitFreeBlockThreshold"=dword:262144
-
+;disabled threads handling DPC calls 
 [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\kernel]
 "ThreadedDpcEnable"=dword:00000000
-
+;allows you to control the timer resolution by setting it globaly and controlling it with an application
 [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\kernel]
 "GlobalTimerResolutionRequests"=dword:00000001
-
-[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management]
-"largeSystemCache"=dword:1
-
+;disabled prefetching
 [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management\PrefetchParameters]
 "EnablePrefetcher"=dword:00000000
-
+;disables the windows log file
 [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\CrashControl]
 "EnableLogFile"=dword:00000000
 
@@ -69,7 +66,7 @@ Windows Registry Editor Version 5.00
 
 [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\StorageSense\Parameters\StoragePolicy]
 "01"=dword:00000000
-
+;disabled hiberboot which could cause windows to not fully shut down on reboot
 [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Power]
 "HiberbootEnabled"=dword:0
 
@@ -78,16 +75,16 @@ Windows Registry Editor Version 5.00
 
 [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FlyoutMenuSettings]
 "ShowHibernateOption"=dword:00000000
-
+;disables hibernation
 [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Power]
 "HibernateEnabled"=dword:00000000
-
+;lowers queue size
 [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\kbdclass\Parameters]
 "KeyboardDataQueueSize"=dword:00000010
-
+;lowers queue size
 [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\mouclass\Parameters]
 "MouseDataQueueSize"=dword:00000010
-
+;disables mouse accel
 [HKEY_USERS\.DEFAULT\Control Panel\Mouse]
 "MouseSpeed"="0"
 "MouseThreshold1"="0"
@@ -95,6 +92,7 @@ Windows Registry Editor Version 5.00
 
 [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\csrss.exe]
 
+;optimizes csrss.exe which handles mouse input
 [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\csrss.exe\PerfOptions]
 "CpuPriorityClass"=dword:00000004
 "IoPriority"=dword:00000003
