@@ -73,6 +73,8 @@ Set-DnsClientServerAddress -interfaceindex 10 -serveraddresses ("9.9.9.11","9.9.
 
 write-host "setting services" -ForegroundColor red
 sc config AJRouter start= disabled
+sc config wuauserv start= disabled  #disabled windows updates!
+sc config UsoSvc start= disabled    #disabled windows updates!
 sc config DiagTrack start= disabled
 sc config dmwappushservice start= disabled
 sc config DolbyDAXAPI start= disabled
@@ -181,7 +183,6 @@ sc config WiaRpc start= demand
 sc config TieringEngineService start= demand
 sc config TapiSrv start= demand
 sc config Themes start= demand
-sc config UsoSvc start= demand
 sc config upnphost start= demand
 sc config UevAgentService start= demand
 sc config vds start= demand
@@ -276,7 +277,6 @@ sc config icssvc start= demand
 sc config spectrum start= demand
 sc config PushToInstall start= demand
 sc config W32Time start= demand
-sc config wuauserv start= demand
 sc config XboxGipSvc start= demand
 sc config XblGameSave start= demand
 
