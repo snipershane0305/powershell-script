@@ -83,6 +83,9 @@ C:\memreduct.exe -clean:full
 
 #paste newest powershell script here and change registry file location
 
+write-host "merging registry file" -ForegroundColor red
+reg import .\registry.reg
+
 write-host "Disabling powershell telemetry" -ForegroundColor red
 [Environment]::SetEnvironmentVariable('POWERSHELL_TELEMETRY_OPTOUT', '1', 'Machine') #disables powershell 7 telemetry (sends data without benefit)
 
@@ -123,7 +126,7 @@ write-host "applying network settings" -ForegroundColor red
 netsh int tcp set global rss = enabled         #enables recieve side scaling which lets more than one cpu core handle tcp
 netsh int tcp set global prr= enable           #helps a tcp connection from recovering from packet loss quicker for less latency
 netsh int tcp set global initialRto=2000       #lowers initial retransmition timout which helps latency
-netsh int tcp set global ecncapability= enable #ecncapability will only be used if both the client and server support it
+netsh int tcp set global ecncapability= enable #ecncapability will notify if there is congestion to help packet loss, will only be used if both the client and server support it
 netsh int tcp set global rsc= disable          #disables receive segment coalescing which makes small packets combine, this helps with computing many packets but at the cost of latency
 netsh int tcp set supplemental Template=Internet CongestionProvider=bbr2         #sets tcp congestion provider to bbr2 which is much newer and causes less packet loss
 netsh int tcp set supplemental Template=Datacenter CongestionProvider=bbr2       #sets tcp congestion provider to bbr2 which is much newer and causes less packet loss
@@ -154,6 +157,8 @@ Set-DnsClientServerAddress -interfaceindex 10 -serveraddresses ("9.9.9.11","9.9.
 
 write-host "setting services" -ForegroundColor red
 sc config AJRouter start= disabled
+sc config wuauserv start= disabled  #disabled windows updates!
+sc config UsoSvc start= disabled    #disabled windows updates!
 sc config DiagTrack start= disabled
 sc config dmwappushservice start= disabled
 sc config DolbyDAXAPI start= disabled
@@ -262,7 +267,6 @@ sc config WiaRpc start= demand
 sc config TieringEngineService start= demand
 sc config TapiSrv start= demand
 sc config Themes start= demand
-sc config UsoSvc start= demand
 sc config upnphost start= demand
 sc config UevAgentService start= demand
 sc config vds start= demand
@@ -357,12 +361,8 @@ sc config icssvc start= demand
 sc config spectrum start= demand
 sc config PushToInstall start= demand
 sc config W32Time start= demand
-sc config wuauserv start= demand
 sc config XboxGipSvc start= demand
 sc config XblGameSave start= demand
-
-write-host "applying registry file" -ForegroundColor red
-reg import .\registry.reg
 
 write-host "done" -ForegroundColor red
 pause
