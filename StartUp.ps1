@@ -7,16 +7,16 @@ sc config wuauserv start= demand
 sc config UsoSvc start= demand
 net start wuauserv  
 net start usosvc
-Install-Module PSWindowsUpdate
-Add-WUServiceManager -MicrosoftUpdate
+Install-Module PSWindowsUpdate -Confirm:$false
+Add-WUServiceManager -MicrosoftUpdate -Confirm:$false
 Install-WindowsUpdate -MicrosoftUpdate -AcceptAll
 C:\Windows\System32\UsoClient.exe StartinteractiveScan
 C:\Windows\System32\UsoClient.exe Startdownload
 C:\Windows\System32\UsoClient.exe Startinstall
 net stop wuauserv
 net stop usosvc
-sc config wuauserv start= disable
-sc config UsoSvc start= disable
+sc config wuauserv start= disabled
+sc config UsoSvc start= disabled
 #runs windows update
 winget source update
 winget install Microsoft.VCRedist.2005.x64
