@@ -1,5 +1,8 @@
 if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) { Start-Process pwsh.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs; exit }
 
+write-host "releasing memory" -ForegroundColor red
+C:\memreduct.exe -clean:full
+
 write-host "updating system" -ForegroundColor red
 C:\"Program Files"\"Windows Defender"\MpCmdRun -SignatureUpdate #updates microsoft defender security
 #runs windows update
