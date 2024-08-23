@@ -3,12 +3,20 @@ if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
 write-host "updating system" -ForegroundColor red
 C:\"Program Files"\"Windows Defender"\MpCmdRun -SignatureUpdate #updates microsoft defender security
 #runs windows update
-sc config wuauserv start= demand  
+sc config wuauserv start= demand
+sc config UsoSvc start= demand
 net start wuauserv  
+net start usosvc
+Install-Module PSWindowsUpdate
+Add-WUServiceManager -MicrosoftUpdate
+Install-WindowsUpdate -MicrosoftUpdate -AcceptAll
 C:\Windows\System32\UsoClient.exe StartinteractiveScan
 C:\Windows\System32\UsoClient.exe Startdownload
 C:\Windows\System32\UsoClient.exe Startinstall
 net stop wuauserv
+net stop usosvc
+sc config wuauserv start= disable
+sc config UsoSvc start= disable
 #runs windows update
 winget source update
 winget install Microsoft.VCRedist.2005.x64
