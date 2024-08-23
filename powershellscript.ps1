@@ -2,6 +2,9 @@ write-host "must run with powershell 7" -ForegroundColor red
 pause
 if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) { Start-Process pwsh.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs; exit }
 
+write-host "merging registry file" -ForegroundColor red
+reg import .\registry.reg
+
 write-host "Disabling powershell telemetry" -ForegroundColor red
 [Environment]::SetEnvironmentVariable('POWERSHELL_TELEMETRY_OPTOUT', '1', 'Machine') #disables powershell 7 telemetry (sends data without benefit)
 
@@ -42,7 +45,7 @@ write-host "applying network settings" -ForegroundColor red
 netsh int tcp set global rss = enabled         #enables recieve side scaling which lets more than one cpu core handle tcp
 netsh int tcp set global prr= enable           #helps a tcp connection from recovering from packet loss quicker for less latency
 netsh int tcp set global initialRto=2000       #lowers initial retransmition timout which helps latency
-netsh int tcp set global ecncapability= enable #ecncapability will only be used if both the client and server support it
+netsh int tcp set global ecncapability= enable #ecncapability will notify if there is congestion to help packet loss, will only be used if both the client and server support it
 netsh int tcp set global rsc= disable          #disables receive segment coalescing which makes small packets combine, this helps with computing many packets but at the cost of latency
 netsh int tcp set supplemental Template=Internet CongestionProvider=bbr2         #sets tcp congestion provider to bbr2 which is much newer and causes less packet loss
 netsh int tcp set supplemental Template=Datacenter CongestionProvider=bbr2       #sets tcp congestion provider to bbr2 which is much newer and causes less packet loss
@@ -279,9 +282,6 @@ sc config PushToInstall start= demand
 sc config W32Time start= demand
 sc config XboxGipSvc start= demand
 sc config XblGameSave start= demand
-
-write-host "applying registry file" -ForegroundColor red
-reg import .\registry.reg
 
 write-host "done" -ForegroundColor red
 pause
