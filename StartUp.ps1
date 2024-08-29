@@ -1,5 +1,9 @@
 if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) { Start-Process pwsh.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs; exit }
 
+write-host "settings timer resolution to 0.5" -ForegroundColor red
+cd C:\
+.\SetTimerResolution.exe --resolution 5050 --no-console 
+
 write-host "releasing memory" -ForegroundColor red
 C:\memreduct.exe -clean:full
 start-sleep -seconds 5
