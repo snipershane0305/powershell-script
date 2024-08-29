@@ -39,7 +39,7 @@ winget install PuTTY.PuTTY
 winget install Open-Shell.Open-Shell-Menu
 winget install Guru3D.Afterburner
 winget install HandBrake.HandBrake
-winget install Microsoft.Edge --froce
+winget install Microsoft.Edge --force
 winget install Microsoft.EdgeWebView2Runtime
 winget install OBSProject.OBSStudio
 winget install Guru3D.RTSS
