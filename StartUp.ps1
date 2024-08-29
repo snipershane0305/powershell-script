@@ -2,6 +2,8 @@ if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
 
 write-host "releasing memory" -ForegroundColor red
 C:\memreduct.exe -clean:full
+start-sleep -seconds 5
+taskkill /im memreduct.exe
 
 write-host "updating system" -ForegroundColor red
 C:\"Program Files"\"Windows Defender"\MpCmdRun -SignatureUpdate #updates microsoft defender security
@@ -316,6 +318,8 @@ sc config XblGameSave start= demand
 #end of powershell script
 write-host "releasing memory" -ForegroundColor red
 C:\memreduct.exe -clean:full
+start-sleep -seconds 5
+taskkill /im memreduct.exe
 
 write-host "done" -ForegroundColor red
 pause
