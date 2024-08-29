@@ -1,4 +1,5 @@
 winget source update
+winget update --all
 #important dependencies
 winget install Microsoft.VCRedist.2005.x64
 winget install Microsoft.VCRedist.2008.x64
@@ -38,7 +39,7 @@ winget install PuTTY.PuTTY
 winget install Open-Shell.Open-Shell-Menu
 winget install Guru3D.Afterburner
 winget install HandBrake.HandBrake
-winget install Microsoft.Edge
+winget install Microsoft.Edge --froce
 winget install Microsoft.EdgeWebView2Runtime
 winget install OBSProject.OBSStudio
 winget install Guru3D.RTSS
@@ -46,7 +47,7 @@ winget install Valve.Steam
 winget install Andersama.obs-asio
 winget install Anysphere.Cursor
 winget install BleachBit.BleachBit
-winget install Discord.Discord -force
+winget install Discord.Discord --force
 winget install Logitech.OnboardMemoryManager
 winget install Microsoft.Sysinternals.Autoruns
 winget install OPAutoClicker.OPAutoClicker
