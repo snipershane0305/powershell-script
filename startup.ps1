@@ -22,6 +22,7 @@ sc config wuauserv start= disabled
 sc config UsoSvc start= disabled
 #runs windows update
 winget source update
+#important dependencies
 winget install Microsoft.VCRedist.2005.x64
 winget install Microsoft.VCRedist.2008.x64
 winget install Microsoft.VCRedist.2010.x64
@@ -47,32 +48,36 @@ winget install Microsoft.DotNet.AspNetCore.6
 winget install Microsoft.DotNet.AspNetCore.7
 winget install Microsoft.DotNet.AspNetCore.8
 winget install Microsoft.DotNet.AspNetCore.Preview
-winget install Microsoft.AppInstaller
-winget install Logitech.OnboardMemoryManager
+#important dependencies
+winget install Microsoft.WindowsTerminal
 winget install Microsoft.PowerShell
-winget install Alex313031.Thorium.AVX2
+winget install Microsoft.AppInstaller
 winget install 7zip.7zip
-winget install Discord.Discord
-winget install Guru3D.Afterburner
-winget install Valve.Steam
-winget install EclipseAdoptium.Temurin.21.JDK
-winget install PrismLauncher.PrismLauncher
-winget install OBSProject.OBSStudio
-winget install Andersama.obs-asio
-winget install Open-Shell.Open-Shell-Menu
 winget install VideoLAN.VLC
-winget install Spotify.Spotify
-winget install PuTTY.PuTTY
-winget install ebkr.r2modman
-winget install BleachBit.BleachBit
+winget install WiresharkFoundation.Wireshark
 winget install RevoUninstaller.RevoUninstaller
-winget install IObit.IObitUnlocker
-winget install Microsoft.Sysinternals.Autoruns
-winget install OPAutoClicker.OPAutoClicker
-winget install Ookla.Speedtest.CLI
+winget install EclipseAdoptium.Temurin.21.JDK
+winget install PuTTY.PuTTY
+winget install Open-Shell.Open-Shell-Menu
+winget install Guru3D.Afterburner
 winget install HandBrake.HandBrake
 winget install Microsoft.Edge
 winget install Microsoft.EdgeWebView2Runtime
+winget install OBSProject.OBSStudio
+winget install Guru3D.RTSS
+winget install Valve.Steam
+winget install Andersama.obs-asio
+winget install Anysphere.Cursor
+winget install BleachBit.BleachBit
+winget install Discord.Discord
+winget install Logitech.OnboardMemoryManager
+winget install Microsoft.Sysinternals.Autoruns
+winget install OPAutoClicker.OPAutoClicker
+winget install Ookla.Speedtest.CLI
+winget install PrismLauncher.PrismLauncher
+winget install Spotify.Spotify
+winget install Alex313031.Thorium.AVX2
+winget install ebkr.r2modman
 
 write-host "cleaning system" -ForegroundColor red
 cleanmgr.exe /d C: /VERYLOWDISK
