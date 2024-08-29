@@ -16,68 +16,12 @@ Install-WindowsUpdate -MicrosoftUpdate -AcceptAll
 C:\Windows\System32\UsoClient.exe StartinteractiveScan
 C:\Windows\System32\UsoClient.exe Startdownload
 C:\Windows\System32\UsoClient.exe Startinstall
+start-sleep -seconds 5
 net stop wuauserv
 net stop usosvc
 sc config wuauserv start= disabled
 sc config UsoSvc start= disabled
 #runs windows update
-winget source update
-#important dependencies
-winget install Microsoft.VCRedist.2005.x64
-winget install Microsoft.VCRedist.2008.x64
-winget install Microsoft.VCRedist.2010.x64
-winget install Microsoft.VCRedist.2012.x64
-winget install Microsoft.VCRedist.2013.x64
-winget install Microsoft.VCRedist.2015+.x64
-winget install Microsoft.VCLibs.Desktop.14
-winget install Microsoft.DotNet.Runtime.3_1
-winget install Microsoft.DotNet.Runtime.5
-winget install Microsoft.DotNet.Runtime.6
-winget install Microsoft.DotNet.Runtime.7
-winget install Microsoft.DotNet.Runtime.8
-winget install Microsoft.DotNet.Runtime.Preview
-winget install Microsoft.DotNet.DesktopRuntime.3_1
-winget install Microsoft.DotNet.DesktopRuntime.5
-winget install Microsoft.DotNet.DesktopRuntime.6
-winget install Microsoft.DotNet.DesktopRuntime.7
-winget install Microsoft.DotNet.DesktopRuntime.8
-winget install Microsoft.DotNet.DesktopRuntime.Preview
-winget install Microsoft.DotNet.AspNetCore.3_1
-winget install Microsoft.DotNet.AspNetCore.5
-winget install Microsoft.DotNet.AspNetCore.6
-winget install Microsoft.DotNet.AspNetCore.7
-winget install Microsoft.DotNet.AspNetCore.8
-winget install Microsoft.DotNet.AspNetCore.Preview
-#important dependencies
-winget install Microsoft.WindowsTerminal
-winget install Microsoft.PowerShell
-winget install Microsoft.AppInstaller
-winget install 7zip.7zip
-winget install VideoLAN.VLC
-winget install WiresharkFoundation.Wireshark
-winget install RevoUninstaller.RevoUninstaller
-winget install EclipseAdoptium.Temurin.21.JDK
-winget install PuTTY.PuTTY
-winget install Open-Shell.Open-Shell-Menu
-winget install Guru3D.Afterburner
-winget install HandBrake.HandBrake
-winget install Microsoft.Edge
-winget install Microsoft.EdgeWebView2Runtime
-winget install OBSProject.OBSStudio
-winget install Guru3D.RTSS
-winget install Valve.Steam
-winget install Andersama.obs-asio
-winget install Anysphere.Cursor
-winget install BleachBit.BleachBit
-winget install Discord.Discord
-winget install Logitech.OnboardMemoryManager
-winget install Microsoft.Sysinternals.Autoruns
-winget install OPAutoClicker.OPAutoClicker
-winget install Ookla.Speedtest.CLI
-winget install PrismLauncher.PrismLauncher
-winget install Spotify.Spotify
-winget install Alex313031.Thorium.AVX2
-winget install ebkr.r2modman
 
 write-host "cleaning system" -ForegroundColor red
 cleanmgr.exe /d C: /VERYLOWDISK
@@ -86,11 +30,10 @@ Get-ChildItem -Path "C:\Windows\Temp\" *.* -Recurse | Remove-Item -Force -Recurs
 Get-ChildItem -Path "$env:TEMP" *.* -Recurse | Remove-Item -Force -Recurse
 cd $env:localappdata\BleachBit\
 .\bleachbit_console.exe -c deepscan.backup deepscan.ds_store deepscan.thumbs_db deepscan.tmp deepscan.vim_swap_root deepscan.vim_swap_user internet_explorer.cache internet_explorer.cookies internet_explorer.downloads internet_explorer.forms internet_explorer.history internet_explorer.logs java.cache microsoft_edge.cache microsoft_edge.cookies microsoft_edge.dom microsoft_edge.form_history microsoft_edge.history microsoft_edge.passwords microsoft_edge.search_engines microsoft_edge.session microsoft_edge.site_preferences microsoft_edge.sync microsoft_edge.vacuum system.clipboard system.logs system.memory_dump system.muicache system.prefetch system.recycle_bin system.tmp system.updates windows_defender.backup windows_defender.history windows_defender.logs windows_defender.quarantine windows_defender.temp windows_explorer.mru windows_explorer.run windows_explorer.search_history windows_explorer.shellbags windows_explorer.thumbnails windows_media_player.cache windows_media_player.mru winrar.history winrar.temp winzip.mru wordpad.mru
-
 #paste newest powershell script here and change registry file location
 
 write-host "merging registry file" -ForegroundColor red
-reg import .\registry.reg
+reg import C:\registry.reg
 
 write-host "Disabling powershell telemetry" -ForegroundColor red
 [Environment]::SetEnvironmentVariable('POWERSHELL_TELEMETRY_OPTOUT', '1', 'Machine') #disables powershell 7 telemetry (sends data without benefit)
@@ -371,7 +314,6 @@ sc config XboxGipSvc start= demand
 sc config XblGameSave start= demand
 
 #end of powershell script
-
 write-host "releasing memory" -ForegroundColor red
 C:\memreduct.exe -clean:full
 
