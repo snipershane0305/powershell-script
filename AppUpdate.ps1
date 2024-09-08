@@ -51,8 +51,6 @@ winget install Microsoft.Sysinternals.Autoruns
 winget install OPAutoClicker.OPAutoClicker
 winget install Ookla.Speedtest.CLI
 winget install PrismLauncher.PrismLauncher
-winget install Spicetify.Spicetify
-winget install Spotify.Spotify
 winget install Alex313031.Thorium.AVX2
 winget install ebkr.r2modman
 pause
