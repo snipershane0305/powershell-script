@@ -20,9 +20,6 @@ net start usosvc
 Install-Module PSWindowsUpdate -Confirm:$false
 Add-WUServiceManager -MicrosoftUpdate -Confirm:$false
 Install-WindowsUpdate -MicrosoftUpdate -AcceptAll
-C:\Windows\System32\UsoClient.exe StartinteractiveScan
-C:\Windows\System32\UsoClient.exe Startdownload
-C:\Windows\System32\UsoClient.exe Startinstall
 start-sleep -seconds 5
 net stop wuauserv
 net stop usosvc
