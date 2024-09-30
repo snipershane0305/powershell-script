@@ -34,7 +34,6 @@ winget install 7zip.7zip
 winget install VideoLAN.VLC
 winget install WiresharkFoundation.Wireshark
 winget install RevoUninstaller.RevoUninstaller
-winget install EclipseAdoptium.Temurin.21.JDK
 winget install PuTTY.PuTTY
 winget install Open-Shell.Open-Shell-Menu
 winget install Guru3D.Afterburner
