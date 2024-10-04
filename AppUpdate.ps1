@@ -51,5 +51,4 @@ winget install OPAutoClicker.OPAutoClicker
 winget install Ookla.Speedtest.CLI
 winget install PrismLauncher.PrismLauncher
 winget install Alex313031.Thorium.AVX2
-winget install ebkr.r2modman
 pause
