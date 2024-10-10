@@ -15,12 +15,15 @@ C:\"Program Files"\"Windows Defender"\MpCmdRun -SignatureUpdate #updates microso
 #runs windows update
 sc config wuauserv start= demand
 sc config UsoSvc start= demand
+start-sleep -seconds 2
 net start wuauserv  
+start-sleep -seconds 2
 net start usosvc
+start-sleep -seconds 2
 Install-Module PSWindowsUpdate -Confirm:$false
 Add-WUServiceManager -MicrosoftUpdate -Confirm:$false
 Install-WindowsUpdate -MicrosoftUpdate -AcceptAll
-start-sleep -seconds 5
+start-sleep -seconds 3
 net stop wuauserv
 net stop usosvc
 #paste newest powershell script here and change registry file location
@@ -317,7 +320,7 @@ cd $env:localappdata\BleachBit\
 
 write-host "releasing memory" -ForegroundColor red
 C:\memreduct.exe -clean:full
-start-sleep -seconds 5
+start-sleep -seconds 3
 taskkill /im memreduct.exe
 
 write-host "done" -ForegroundColor red
