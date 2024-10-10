@@ -23,8 +23,6 @@ Install-WindowsUpdate -MicrosoftUpdate -AcceptAll
 start-sleep -seconds 5
 net stop wuauserv
 net stop usosvc
-sc config wuauserv start= disabled
-sc config UsoSvc start= disabled
 #paste newest powershell script here and change registry file location
 
 write-host "merging registry file" -ForegroundColor red
