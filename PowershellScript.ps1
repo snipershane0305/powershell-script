@@ -76,8 +76,6 @@ Set-DnsClientServerAddress -interfaceindex 10 -serveraddresses ("9.9.9.11","9.9.
 
 write-host "setting services" -ForegroundColor red
 sc config AJRouter start= disabled
-sc config wuauserv start= disabled  #disabled windows updates!
-sc config UsoSvc start= disabled    #disabled windows updates!
 sc config DiagTrack start= disabled
 sc config dmwappushservice start= disabled
 sc config DolbyDAXAPI start= disabled
@@ -120,6 +118,8 @@ sc config UserManager start= auto
 sc config LanmanServer start= auto
 sc config CryptSvc start= auto
 sc config WlanSvc start= auto
+sc config wuauserv start= demand
+sc config UsoSvc start= demand
 sc config AxInstSV start= demand
 sc config DusmSvc start= demand
 sc config Dhcp start= demand
