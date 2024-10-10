@@ -13,6 +13,8 @@ taskkill /im memreduct.exe
 write-host "updating system" -ForegroundColor red
 C:\"Program Files"\"Windows Defender"\MpCmdRun -SignatureUpdate #updates microsoft defender security
 #runs windows update
+net stop wuauserv
+net stop usosvc
 sc config wuauserv start= demand
 sc config UsoSvc start= demand
 start-sleep -seconds 2
