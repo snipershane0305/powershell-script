@@ -12,9 +12,6 @@ Windows Registry Editor Version 5.00
 ;tcp optimization
 [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\AFD\Parameters]
 "FastSendDatagramThreshold"=dword:00064000
-;disables preemtion for gpus
-[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Scheduler]
-"EnablePreemption"=dword:00000001
 ;optimized the multimedia api
 [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games]
 "Affinity"=dword:00000000
