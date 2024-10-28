@@ -11,22 +11,10 @@ winget install Microsoft.VCRedist.2012.x64
 winget install Microsoft.VCRedist.2013.x64
 winget install Microsoft.VCRedist.2015+.x64
 winget install Microsoft.VCLibs.Desktop.14
-winget install Microsoft.DotNet.Runtime.3_1
-winget install Microsoft.DotNet.Runtime.5
-winget install Microsoft.DotNet.Runtime.6
-winget install Microsoft.DotNet.Runtime.7
 winget install Microsoft.DotNet.Runtime.8
 winget install Microsoft.DotNet.Runtime.Preview
-winget install Microsoft.DotNet.DesktopRuntime.3_1
-winget install Microsoft.DotNet.DesktopRuntime.5
-winget install Microsoft.DotNet.DesktopRuntime.6
-winget install Microsoft.DotNet.DesktopRuntime.7
 winget install Microsoft.DotNet.DesktopRuntime.8
 winget install Microsoft.DotNet.DesktopRuntime.Preview
-winget install Microsoft.DotNet.AspNetCore.3_1
-winget install Microsoft.DotNet.AspNetCore.5
-winget install Microsoft.DotNet.AspNetCore.6
-winget install Microsoft.DotNet.AspNetCore.7
 winget install Microsoft.DotNet.AspNetCore.8
 winget install Microsoft.DotNet.AspNetCore.Preview
 #important dependencies
