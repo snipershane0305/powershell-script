@@ -1,4 +1,28 @@
 Windows Registry Editor Version 5.00
+;changes svchost split threshold
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control]
+"SvcHostSplitThresholdInKB"=dword:400000
+;disable prefetching
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management\PrefetchParameters]
+"EnablePrefetcher"=dword:00000000
+;disables windows update seeding with other computers
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization]
+"DODownloadMode"=dword:00000000
+;disable windows update "updating" drivers
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\DriverSearching]
+"SearchOrderConfig"=dword:00000000
+;sets theme to dark mode
+[HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize]
+"AppsUseLightTheme"=dword:00000000
+;sets theme to dark mode
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize]
+"AppsUseLightTheme"=dword:00000000
+;disable edge prelaunch
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\MicrosoftEdge\Main]
+"AllowPrelaunch"=dword:00000000
+;disable edge prelaunch
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\MicrosoftEdge\TabPreloader]
+"AllowTabPreloading"=dword:00000000
 ;disabled throttling and disables slight delay in windows
 [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile]
 "NetworkThrottlingIndex"=dword:ffffffff
