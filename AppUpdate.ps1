@@ -1,3 +1,6 @@
+winget pin add Microsoft.EdgeWebView2Runtime
+winget pin add Microsoft.Edge
+winget pin add Discord.Discord
 winget source update
 winget update --all
 #important dependencies
@@ -42,13 +45,12 @@ winget install OBSProject.OBSStudio
 winget install Guru3D.RTSS
 winget install Valve.Steam
 winget install Andersama.obs-asio
-winget install Anysphere.Cursor
 winget install BleachBit.BleachBit
-winget install Discord.Discord
-winget install Logitech.OnboardMemoryManager
 winget install Microsoft.Sysinternals.Autoruns
-winget install OPAutoClicker.OPAutoClicker
 winget install Ookla.Speedtest.CLI
 winget install PrismLauncher.PrismLauncher
 winget install Alex313031.Thorium.AVX2
+winget install Logitech.GHUB
+winget install EclipseAdoptium.Temurin.22.JRE
+winget install EclipseAdoptium.Temurin.8.JRE
 pause
