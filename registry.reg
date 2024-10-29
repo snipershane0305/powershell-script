@@ -1,4 +1,7 @@
 Windows Registry Editor Version 5.00
+;disable cleartype
+[HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer]
+"disableClearType"=dword:1
 ;changes svchost split threshold
 [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control]
 "SvcHostSplitThresholdInKB"=dword:400000
