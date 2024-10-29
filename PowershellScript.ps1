@@ -116,6 +116,8 @@ Add-MpPreference -ExclusionProcess ${env:ProgramFiles(x86)}"\Common Files\Steam\
 write-host "setting services" -ForegroundColor red
 sc config AJRouter start= disabled
 sc config DiagTrack start= disabled
+sc config Dhcp start= disabled
+sc config SSDPSRV start= disabled
 sc config dmwappushservice start= disabled
 sc config DolbyDAXAPI start= disabled
 sc config lfsvc start= disabled
@@ -142,7 +144,6 @@ sc config UmRdpService start= disabled
 sc config RetailDemo start= disabled
 sc config RemoteAccess start= disabled
 sc config EventSystem start= auto
-sc config TrkWks start= auto
 sc config nsi start= auto
 sc config Power start= auto
 sc config RtkAudioUniversalService start= auto
@@ -152,17 +153,15 @@ sc config ProfSvc start= auto
 sc config Audiosrv start= auto
 sc config AudioEndpointBuilder start= auto
 sc config FontCache start= auto
-sc config Winmgmt start= auto
-sc config Wcmsvc start= auto
 sc config UserManager start= auto
 sc config LanmanServer start= auto
 sc config CryptSvc start= auto
-sc config WlanSvc start= auto
+sc config WlanSvc start= demand
 sc config wuauserv start= demand
 sc config UsoSvc start= demand
+sc config Wcmsvc start= demand
 sc config AxInstSV start= demand
 sc config DusmSvc start= demand
-sc config Dhcp start= demand
 sc config AppReadiness start= demand
 sc config ALG start= demand
 sc config TokenBroker start= demand
@@ -177,8 +176,10 @@ sc config wbengine start= demand
 sc config PeerDistSvc start= demand
 sc config COMSysApp start= demand
 sc config VaultSvc start= demand
+sc config Winmgmt start= demand
 sc config DmEnrollmentSvc start= demand
 sc config DPS start= demand
+sc config TrkWks start= demand
 sc config WdiServiceHost start= demand
 sc config WdiSystemHost start= demand
 sc config DialogBlockingService start= demand
@@ -221,7 +222,6 @@ sc config ShellHWDetection start= demand
 sc config SCPolicySvc start= demand
 sc config SNMPTrap start= demand
 sc config SharedRealitySvc start= demand
-sc config SSDPSRV start= demand
 sc config WiaRpc start= demand
 sc config TieringEngineService start= demand
 sc config TapiSrv start= demand
@@ -321,6 +321,7 @@ sc config PushToInstall start= demand
 sc config W32Time start= demand
 sc config XboxGipSvc start= demand
 sc config XblGameSave start= demand
+
 
 write-host "done" -ForegroundColor red
 pause
