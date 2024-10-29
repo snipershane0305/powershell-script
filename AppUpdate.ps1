@@ -2,7 +2,7 @@ winget pin add Microsoft.EdgeWebView2Runtime
 winget pin add Microsoft.Edge
 winget pin add Discord.Discord
 winget source update
-winget update --all
+winget update --all --include-unknown
 #important dependencies
 winget install Microsoft.VCRedist.2005.x64
 winget install Microsoft.VCRedist.2008.x64
