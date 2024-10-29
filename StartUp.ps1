@@ -7,7 +7,7 @@ start-process $msbuild $arguments
 
 write-host "releasing memory" -ForegroundColor red
 C:\memreduct.exe -clean:full
-start-sleep -seconds 5
+start-sleep -seconds 3
 taskkill /im memreduct.exe
 
 write-host "updating system" -ForegroundColor red
@@ -17,15 +17,12 @@ net stop wuauserv
 net stop usosvc
 sc config wuauserv start= demand
 sc config UsoSvc start= demand
-start-sleep -seconds 2
 net start wuauserv  
-start-sleep -seconds 2
 net start usosvc
 start-sleep -seconds 2
 Install-Module PSWindowsUpdate -Confirm:$false
 Add-WUServiceManager -MicrosoftUpdate -Confirm:$false
 Install-WindowsUpdate -MicrosoftUpdate -AcceptAll
-start-sleep -seconds 3
 net stop wuauserv
 net stop usosvc
 #paste newest powershell script here and change registry file location
@@ -101,7 +98,6 @@ Set-DnsClientServerAddress -interfaceindex 7 -serveraddresses ("9.9.9.11","9.9.9
 Set-DnsClientServerAddress -interfaceindex 8 -serveraddresses ("9.9.9.11","9.9.9.9")
 Set-DnsClientServerAddress -interfaceindex 9 -serveraddresses ("9.9.9.11","9.9.9.9")
 Set-DnsClientServerAddress -interfaceindex 10 -serveraddresses ("9.9.9.11","9.9.9.9")
-
 #excludes some safe default paths to reduce defender scan time
 Add-MpPreference -ExclusionPath $env:LOCALAPPDATA"\Temp\NVIDIA Corporation\NV_Cache"
 Add-MpPreference -ExclusionPath $env:PROGRAMDATA"\NVIDIA Corporation\NV_Cache"
@@ -364,5 +360,4 @@ start-sleep -seconds 3
 taskkill /im memreduct.exe
 
 write-host "done" -ForegroundColor red
-Rundll32.exe advapi32.dll,ProcessIdleTasks
 pause
