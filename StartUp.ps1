@@ -31,7 +31,7 @@ net stop usosvc
 #paste newest powershell script here and change registry file location
 
 write-host "merging registry file" -ForegroundColor red
-reg import .\registry.reg
+reg import C:\registry.reg
 
 write-host "Disabling powershell telemetry" -ForegroundColor red
 [Environment]::SetEnvironmentVariable('POWERSHELL_TELEMETRY_OPTOUT', '1', 'Machine') #disables powershell 7 telemetry (sends data without benefit)
