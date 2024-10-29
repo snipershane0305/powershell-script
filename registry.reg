@@ -66,37 +66,37 @@ Windows Registry Editor Version 5.00
 ;disables the windows log file
 [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\CrashControl]
 "EnableLogFile"=dword:00000000
-
+;privacy change
 [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location]
 "Value"="Deny"
-
+;privacy change
 [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Sensor\Overrides\{BFA794E4-F964-4FDB-90F6-51056BFE4B44}]
 "SensorPermissionState"=dword:00000000
-
+;privacy change
 [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\lfsvc\Service\Configuration]
 "Status"=dword:00000000
-
+;privacy change
 [HKEY_LOCAL_MACHINE\SYSTEM\Maps]
 "AutoUpdateEnabled"=dword:00000000
-
+;privacy change
 [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CloudContent]
 "DisableWindowsConsumerFeatures"=dword:00000001
-
+;privacy change
 [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PolicyManager\default\Wifi\AllowWiFiHotSpotReporting]
 "Value"=dword:00000000
-
+;privacy change
 [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PolicyManager\default\Wifi\AllowAutoConnectToWiFiSenseHotspots]
 "value"=dword:00000000
-
+;privacy change
 [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\StorageSense\Parameters\StoragePolicy]
 "01"=dword:00000000
 ;disabled hiberboot which could cause windows to not fully shut down on reboot
 [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Power]
 "HiberbootEnabled"=dword:0
-
+;removes sleep option
 [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FlyoutMenuSettings]
 "ShowSleepOption"=dword:00000000
-
+;removes hibernation option
 [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FlyoutMenuSettings]
 "ShowHibernateOption"=dword:00000000
 ;disables hibernation
@@ -113,9 +113,8 @@ Windows Registry Editor Version 5.00
 "MouseSpeed"="0"
 "MouseThreshold1"="0"
 "MouseThreshold2"="0"
-
+;optimizes csrss.exe which handles mouse input
 [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\csrss.exe]
-
 ;optimizes csrss.exe which handles mouse input
 [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\csrss.exe\PerfOptions]
 "CpuPriorityClass"=dword:00000004
