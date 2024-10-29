@@ -23,8 +23,7 @@ start-sleep -seconds 2
 Install-Module PSWindowsUpdate -Confirm:$false
 Add-WUServiceManager -MicrosoftUpdate -Confirm:$false
 Install-WindowsUpdate -MicrosoftUpdate -AcceptAll
-net stop wuauserv
-net stop usosvc
+
 #paste newest powershell script here and change registry file location
 
 write-host "merging registry file" -ForegroundColor red
@@ -98,6 +97,7 @@ Set-DnsClientServerAddress -interfaceindex 7 -serveraddresses ("9.9.9.11","9.9.9
 Set-DnsClientServerAddress -interfaceindex 8 -serveraddresses ("9.9.9.11","9.9.9.9")
 Set-DnsClientServerAddress -interfaceindex 9 -serveraddresses ("9.9.9.11","9.9.9.9")
 Set-DnsClientServerAddress -interfaceindex 10 -serveraddresses ("9.9.9.11","9.9.9.9")
+
 #excludes some safe default paths to reduce defender scan time
 Add-MpPreference -ExclusionPath $env:LOCALAPPDATA"\Temp\NVIDIA Corporation\NV_Cache"
 Add-MpPreference -ExclusionPath $env:PROGRAMDATA"\NVIDIA Corporation\NV_Cache"
@@ -140,6 +140,8 @@ Add-MpPreference -ExclusionProcess ${env:ProgramFiles(x86)}"\Common Files\Steam\
 write-host "setting services" -ForegroundColor red
 sc config AJRouter start= disabled
 sc config DiagTrack start= disabled
+sc config Dhcp start= disabled
+sc config SSDPSRV start= disabled
 sc config dmwappushservice start= disabled
 sc config DolbyDAXAPI start= disabled
 sc config lfsvc start= disabled
@@ -166,7 +168,6 @@ sc config UmRdpService start= disabled
 sc config RetailDemo start= disabled
 sc config RemoteAccess start= disabled
 sc config EventSystem start= auto
-sc config TrkWks start= auto
 sc config nsi start= auto
 sc config Power start= auto
 sc config RtkAudioUniversalService start= auto
@@ -176,17 +177,15 @@ sc config ProfSvc start= auto
 sc config Audiosrv start= auto
 sc config AudioEndpointBuilder start= auto
 sc config FontCache start= auto
-sc config Winmgmt start= auto
-sc config Wcmsvc start= auto
 sc config UserManager start= auto
 sc config LanmanServer start= auto
 sc config CryptSvc start= auto
-sc config WlanSvc start= auto
+sc config WlanSvc start= demand
 sc config wuauserv start= demand
 sc config UsoSvc start= demand
+sc config Wcmsvc start= demand
 sc config AxInstSV start= demand
 sc config DusmSvc start= demand
-sc config Dhcp start= demand
 sc config AppReadiness start= demand
 sc config ALG start= demand
 sc config TokenBroker start= demand
@@ -201,8 +200,10 @@ sc config wbengine start= demand
 sc config PeerDistSvc start= demand
 sc config COMSysApp start= demand
 sc config VaultSvc start= demand
+sc config Winmgmt start= demand
 sc config DmEnrollmentSvc start= demand
 sc config DPS start= demand
+sc config TrkWks start= demand
 sc config WdiServiceHost start= demand
 sc config WdiSystemHost start= demand
 sc config DialogBlockingService start= demand
@@ -245,7 +246,6 @@ sc config ShellHWDetection start= demand
 sc config SCPolicySvc start= demand
 sc config SNMPTrap start= demand
 sc config SharedRealitySvc start= demand
-sc config SSDPSRV start= demand
 sc config WiaRpc start= demand
 sc config TieringEngineService start= demand
 sc config TapiSrv start= demand
@@ -347,13 +347,23 @@ sc config XboxGipSvc start= demand
 sc config XblGameSave start= demand
 
 #end of powershell script
+
 write-host "cleaning system" -ForegroundColor red
 cleanmgr.exe /d C: /VERYLOWDISK
+
 Dism.exe /online /Cleanup-Image /StartComponentCleanup /ResetBase
+
 Get-ChildItem -Path "C:\Windows\Temp\" *.* -Recurse | Remove-Item -Force -Recurse
 Get-ChildItem -Path "$env:TEMP" *.* -Recurse | Remove-Item -Force -Recurse
+
 cd $env:localappdata\BleachBit\
 .\bleachbit_console.exe -c deepscan.backup deepscan.ds_store deepscan.thumbs_db deepscan.tmp deepscan.vim_swap_root deepscan.vim_swap_user internet_explorer.cache internet_explorer.cookies internet_explorer.downloads internet_explorer.forms internet_explorer.history internet_explorer.logs java.cache microsoft_edge.cache microsoft_edge.cookies microsoft_edge.dom microsoft_edge.form_history microsoft_edge.history microsoft_edge.passwords microsoft_edge.search_engines microsoft_edge.session microsoft_edge.site_preferences microsoft_edge.sync microsoft_edge.vacuum system.clipboard system.logs system.memory_dump system.muicache system.prefetch system.recycle_bin system.tmp system.updates windows_defender.backup windows_defender.history windows_defender.logs windows_defender.quarantine windows_defender.temp windows_explorer.mru windows_explorer.run windows_explorer.search_history windows_explorer.shellbags windows_explorer.thumbnails windows_media_player.cache windows_media_player.mru winrar.history winrar.temp winzip.mru wordpad.mru
+
+net stop UsoSvc
+net stop wuauserv
+net stop SysMain
+net stop TokenBroker
+
 write-host "releasing memory" -ForegroundColor red
 C:\memreduct.exe -clean:full
 start-sleep -seconds 3
