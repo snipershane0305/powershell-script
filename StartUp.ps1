@@ -1,5 +1,8 @@
 if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) { Start-Process pwsh.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs; exit }
 
+write-host "starting idle processes" -ForegroundColor red
+start-process -filepath c:\ForceIdleBackgroundTasks
+
 write-host "releasing memory" -ForegroundColor red
 C:\memreduct.exe -clean:full
 start-sleep -seconds 3
@@ -166,7 +169,7 @@ sc config FontCache start= auto
 sc config UserManager start= auto
 sc config LanmanServer start= auto
 sc config CryptSvc start= auto
-sc config WlanSvc start= demand
+sc config WlanSvc start= auto
 sc config wuauserv start= demand
 sc config UsoSvc start= demand
 sc config Wcmsvc start= demand
@@ -359,11 +362,18 @@ Get-ChildItem -Path "$env:TEMP" *.* -Recurse | Remove-Item -Force -Recurse
 cd $env:localappdata\BleachBit\
 .\bleachbit_console.exe -c deepscan.backup deepscan.ds_store deepscan.thumbs_db deepscan.tmp deepscan.vim_swap_root deepscan.vim_swap_user internet_explorer.cache internet_explorer.cookies internet_explorer.downloads internet_explorer.forms internet_explorer.history internet_explorer.logs java.cache microsoft_edge.cache microsoft_edge.cookies microsoft_edge.dom microsoft_edge.form_history microsoft_edge.history microsoft_edge.passwords microsoft_edge.search_engines microsoft_edge.session microsoft_edge.site_preferences microsoft_edge.sync microsoft_edge.vacuum system.clipboard system.logs system.memory_dump system.muicache system.prefetch system.recycle_bin system.tmp system.updates windows_defender.backup windows_defender.history windows_defender.logs windows_defender.quarantine windows_defender.temp windows_explorer.mru windows_explorer.run windows_explorer.search_history windows_explorer.shellbags windows_explorer.thumbnails windows_media_player.cache windows_media_player.mru winrar.history winrar.temp winzip.mru wordpad.mru
 
+start-sleep -seconds 15
+
 net stop UsoSvc
 net stop wuauserv
 net stop SysMain
 net stop TokenBroker
 net stop RtkAudioUniversalService
+net stop hvhost
+net stop WpnService
+net stop DispBrokerDesktopSvc
+net stop DisplayEnhancementService
+net stop OneSyncSvc_4219f
 
 write-host "releasing memory" -ForegroundColor red
 C:\memreduct.exe -clean:full
