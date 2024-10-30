@@ -1,28 +1,14 @@
 if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) { Start-Process pwsh.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs; exit }
 
-write-host "setting timer resolution to 0.5" -ForegroundColor red
-$msbuild = "C:\SetTimerResolution.exe"
-$arguments = "--resolution 5050 --no-console"
-start-process $msbuild $arguments 
-
 write-host "releasing memory" -ForegroundColor red
 C:\memreduct.exe -clean:full
 start-sleep -seconds 3
 taskkill /im memreduct.exe
 
-write-host "updating system" -ForegroundColor red
-C:\"Program Files"\"Windows Defender"\MpCmdRun -SignatureUpdate #updates microsoft defender security
-#runs windows update
-net stop wuauserv
-net stop usosvc
-sc config wuauserv start= demand
-sc config UsoSvc start= demand
-net start wuauserv  
-net start usosvc
-start-sleep -seconds 2
-Install-Module PSWindowsUpdate -Confirm:$false
-Add-WUServiceManager -MicrosoftUpdate -Confirm:$false
-Install-WindowsUpdate -MicrosoftUpdate -AcceptAll
+write-host "setting timer resolution to 0.5" -ForegroundColor red
+$process = "C:\SetTimerResolution.exe"
+$flags = "--resolution 5050 --no-console"
+start-process $process $flags 
 
 #paste newest powershell script here and change registry file location
 
@@ -347,6 +333,20 @@ sc config XboxGipSvc start= demand
 sc config XblGameSave start= demand
 
 #end of powershell script
+
+write-host "updating system" -ForegroundColor red
+C:\"Program Files"\"Windows Defender"\MpCmdRun -SignatureUpdate #updates microsoft defender security
+#runs windows update
+net stop wuauserv
+net stop usosvc
+sc config wuauserv start= demand
+sc config UsoSvc start= demand
+net start wuauserv  
+net start usosvc
+start-sleep -seconds 2
+Install-Module PSWindowsUpdate -Confirm:$false
+Add-WUServiceManager -MicrosoftUpdate -Confirm:$false
+Install-WindowsUpdate -MicrosoftUpdate -AcceptAll
 
 write-host "cleaning system" -ForegroundColor red
 cleanmgr.exe /d C: /VERYLOWDISK
