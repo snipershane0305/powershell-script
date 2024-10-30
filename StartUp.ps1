@@ -363,6 +363,7 @@ net stop UsoSvc
 net stop wuauserv
 net stop SysMain
 net stop TokenBroker
+net stop RtkAudioUniversalService
 
 write-host "releasing memory" -ForegroundColor red
 C:\memreduct.exe -clean:full
