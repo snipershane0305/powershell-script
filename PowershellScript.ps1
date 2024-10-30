@@ -156,7 +156,7 @@ sc config FontCache start= auto
 sc config UserManager start= auto
 sc config LanmanServer start= auto
 sc config CryptSvc start= auto
-sc config WlanSvc start= demand
+sc config WlanSvc start= auto
 sc config wuauserv start= demand
 sc config UsoSvc start= demand
 sc config Wcmsvc start= demand
@@ -321,7 +321,5 @@ sc config PushToInstall start= demand
 sc config W32Time start= demand
 sc config XboxGipSvc start= demand
 sc config XblGameSave start= demand
-
-
 write-host "done" -ForegroundColor red
 pause
