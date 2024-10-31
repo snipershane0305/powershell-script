@@ -373,7 +373,6 @@ net stop hvhost
 net stop WpnService
 net stop DispBrokerDesktopSvc
 net stop DisplayEnhancementService
-net stop OneSyncSvc_4219f
 net stop DoSvc
 
 write-host "releasing memory" -ForegroundColor red
