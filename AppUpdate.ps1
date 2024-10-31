@@ -41,4 +41,6 @@ winget install Alex313031.Thorium.AVX2
 winget install Logitech.GHUB
 winget install EclipseAdoptium.Temurin.22.JRE
 winget install EclipseAdoptium.Temurin.8.JRE
+winget install IObit.IObitUnlocker
+winget install pizzaboxer.Bloxstrap
 pause
