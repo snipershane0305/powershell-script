@@ -87,6 +87,30 @@ Set-DnsClientServerAddress -interfaceindex 8 -serveraddresses ("9.9.9.11","9.9.9
 Set-DnsClientServerAddress -interfaceindex 9 -serveraddresses ("9.9.9.11","9.9.9.9")
 Set-DnsClientServerAddress -interfaceindex 10 -serveraddresses ("9.9.9.11","9.9.9.9")
 
+write-host "setting defender settings" -ForegroundColor red
+set-mppreference -CloudBlockLevel 1
+set-mppreference -CloudExtendedTimeout 10
+set-mppreference -AllowSwitchToAsyncInspection $true
+set-mppreference -DisableArchiveScanning $false
+set-mppreference -DisableBehaviorMonitoring $false
+set-mppreference -DisableCatchupFullScan $true
+set-mppreference -DisableCatchupQuickScan $true
+set-mppreference -DisableEmailScanning $true
+set-mppreference -DisableIOAVProtection $false
+set-mppreference -DisableNetworkProtectionPerfTelemetry $true
+set-mppreference -DisableRealtimeMonitoring $false
+set-mppreference -DisableRemovableDriveScanning $false
+set-mppreference -DisableRestorePoint $true
+set-mppreference -EnableLowCpuPriority $true
+set-mppreference -EnableNetworkProtection enabled
+set-mppreference -MAPSReporting 0
+set-mppreference -RandomizeScheduleTaskTimes $false
+set-mppreference -RemediationScheduleDay 8
+set-mppreference -ScanAvgCPULoadFactor 5
+set-mppreference -ScanOnlyIfIdleEnabled $true
+set-mppreference -ScanParameters 1
+set-mppreference -ScanScheduleDay 8
+set-mppreference -SubmitSamplesConsent 2
 #excludes some safe default paths to reduce defender scan time
 Add-MpPreference -ExclusionPath $env:LOCALAPPDATA"\Temp\NVIDIA Corporation\NV_Cache"
 Add-MpPreference -ExclusionPath $env:PROGRAMDATA"\NVIDIA Corporation\NV_Cache"
@@ -339,6 +363,7 @@ sc config XblGameSave start= demand
 
 write-host "updating system" -ForegroundColor red
 C:\"Program Files"\"Windows Defender"\MpCmdRun -SignatureUpdate #updates microsoft defender security
+Update-MpSignature -UpdateSource MicrosoftUpdateServer
 #runs windows update
 net stop wuauserv
 net stop usosvc
@@ -351,6 +376,11 @@ Install-Module PSWindowsUpdate -Confirm:$false
 Add-WUServiceManager -MicrosoftUpdate -Confirm:$false
 Install-WindowsUpdate -MicrosoftUpdate -AcceptAll
 #runs windows update
+
+write-host "running defender scans" -ForegroundColor red
+C:\"Program Files"\"Windows Defender"\MpCmdRun -scan -ScanType 1
+Start-MpScan -scantype fullscan
+
 write-host "cleaning system" -ForegroundColor red
 cleanmgr.exe /d C: /VERYLOWDISK
 
