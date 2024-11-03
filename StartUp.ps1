@@ -374,9 +374,8 @@ Add-WUServiceManager -MicrosoftUpdate -Confirm:$false
 Install-WindowsUpdate -MicrosoftUpdate -AcceptAll
 #runs windows update
 
-write-host "running defender scans" -ForegroundColor red
+write-host "running defender scan" -ForegroundColor red
 C:\"Program Files"\"Windows Defender"\MpCmdRun -scan -ScanType 1
-Start-MpScan -scantype fullscan
 
 write-host "cleaning system" -ForegroundColor red
 cleanmgr.exe /d C: /VERYLOWDISK
