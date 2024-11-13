@@ -47,8 +47,6 @@ netsh int tcp set global prr= enable           #helps a tcp connection from reco
 netsh int tcp set global initialRto=2000       #lowers initial retransmition timout which helps latency
 Set-NetTCPSetting -SettingName internetcustom -minrto 300
 Set-NetTCPSetting -SettingName internet -minrto 300
-Set-NetTCPSetting -SettingName internetcustom -AutoTuningLevelLocal disabled
-Set-NetTCPSetting -SettingName internet -AutoTuningLevelLocal disabled
 Set-NetTCPSetting -SettingName internetcustom -ScalingHeuristics disabled
 Set-NetTCPSetting -SettingName internet -ScalingHeuristics disabled
 Set-NetTCPSetting -SettingName internetcustom -MaxSynRetransmissions 2
@@ -68,7 +66,7 @@ Set-NetOffloadGlobalSetting -ReceiveSegmentCoalescing Disabled #disables more co
 Set-NetOffloadGlobalSetting -Chimney Disabled #forces cpu to handle network instead of NIC
 Enable-NetAdapterChecksumOffload -Name *      #forces cpu to handle network instead of NIC
 Set-NetTCPSetting -SettingName InternetCustom -InitialCongestionWindow 10
-Set-NetTCPSetting -SettingName Internet -InitialCongestionWindow 10#raises the initial congestion window which makes a tcp connection start with more bandwidth
+Set-NetTCPSetting -SettingName Internet -InitialCongestionWindow 10 #raises the initial congestion window which makes a tcp connection start with more bandwidth
 Disable-NetAdapterLso -Name * #disables large send offload which uses NIC instead of cpu (using the cpu for handing network tasks can help latency if your cpu is strong enough)
 
 write-host "setting dns" -ForegroundColor red
