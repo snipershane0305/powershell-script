@@ -47,13 +47,11 @@ winget install Guru3D.RTSS
 winget install Valve.Steam
 winget install Andersama.obs-asio
 winget install BleachBit.BleachBit
-winget install Microsoft.Sysinternals.Autoruns
 winget install Ookla.Speedtest.CLI
 winget install PrismLauncher.PrismLauncher
 winget install Alex313031.Thorium.AVX2
 winget install Logitech.GHUB
 winget install EclipseAdoptium.Temurin.22.JRE
 winget install EclipseAdoptium.Temurin.8.JRE
-winget install IObit.IObitUnlocker
 winget install pizzaboxer.Bloxstrap
 pause
