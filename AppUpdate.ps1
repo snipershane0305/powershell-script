@@ -1,6 +1,7 @@
 winget pin add Microsoft.EdgeWebView2Runtime
 winget pin add Microsoft.Edge
 winget pin add Discord.Discord
+winget pin add Google.Chrome
 winget source update
 winget update --all --include-unknown
 #important dependencies
