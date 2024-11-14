@@ -1,8 +1,5 @@
 Windows Registry Editor Version 5.00
 ;disables windows update
-[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization]
-"DODownloadMode"=dword:00000000
-;disables windows update
 [HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU]
 "NoAutoUpdate"=dword:00000001
 "AUOptions"=dword:00000001
