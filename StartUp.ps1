@@ -13,7 +13,7 @@ start-process $process $flags
 #paste newest powershell script here and change registry file location
 
 write-host "merging registry file" -ForegroundColor red
-reg import .\registry.reg #merges the registry.reg registry file!
+reg import C:\registry.reg #merges the registry.reg registry file!
 
 write-host "Disabling powershell telemetry" -ForegroundColor red
 [Environment]::SetEnvironmentVariable('POWERSHELL_TELEMETRY_OPTOUT', '1', 'Machine') #disables powershell 7 telemetry (sends data without benefit)
@@ -92,29 +92,29 @@ Set-DnsClientServerAddress -interfaceindex 9 -serveraddresses ("9.9.9.11","9.9.9
 Set-DnsClientServerAddress -interfaceindex 10 -serveraddresses ("9.9.9.11","9.9.9.9") #uses quad9 dns
 
 write-host "setting defender settings" -ForegroundColor red
-set-mppreference -CloudBlockLevel 1
-set-mppreference -CloudExtendedTimeout 10
-set-mppreference -AllowSwitchToAsyncInspection $true
-set-mppreference -DisableArchiveScanning $false
-set-mppreference -DisableBehaviorMonitoring $false
-set-mppreference -DisableCatchupFullScan $true
-set-mppreference -DisableCatchupQuickScan $true
-set-mppreference -DisableEmailScanning $true
-set-mppreference -DisableIOAVProtection $false
-set-mppreference -DisableNetworkProtectionPerfTelemetry $true
-set-mppreference -DisableRealtimeMonitoring $false
-set-mppreference -DisableRemovableDriveScanning $false
-set-mppreference -DisableRestorePoint $true
-set-mppreference -EnableLowCpuPriority $true
-set-mppreference -EnableNetworkProtection enabled
-set-mppreference -MAPSReporting 0
-set-mppreference -RandomizeScheduleTaskTimes $false
-set-mppreference -RemediationScheduleDay 8
-set-mppreference -ScanAvgCPULoadFactor 5
-set-mppreference -ScanOnlyIfIdleEnabled $true
-set-mppreference -ScanParameters 1
-set-mppreference -ScanScheduleDay 8
-set-mppreference -SubmitSamplesConsent 2
+set-mppreference -CloudBlockLevel default #enables basic cloud based protection
+set-mppreference -CloudExtendedTimeout 50 #blocks file for 50 seconds for the cloud to scan it
+set-mppreference -AllowSwitchToAsyncInspection $true #performance optimization
+set-mppreference -DisableArchiveScanning $false #enabled scanning of achived files
+set-mppreference -DisableBehaviorMonitoring $false #enabled behaviormonitoring (realtime protection)
+set-mppreference -DisableCatchupFullScan $true #disables force scan if it misses a scheduled scan
+set-mppreference -DisableCatchupQuickScan $true #disables force scan if it misses a scheduled scan
+set-mppreference -DisableEmailScanning $true #disables emailscanning
+set-mppreference -DisableIOAVProtection $false #enables scanning of downloaded files
+set-mppreference -DisableNetworkProtectionPerfTelemetry $true #disables the sending of performance data to microsoft
+set-mppreference -DisableRealtimeMonitoring $false #enables realtime monitoring
+set-mppreference -DisableRemovableDriveScanning $false #enables scanning removable devives (like flash drives)
+set-mppreference -DisableRestorePoint $true #disables defender creating restore points (i have never had a restore point fix an issue!)
+set-mppreference -EnableLowCpuPriority $true #lowers the priority of defender
+set-mppreference -EnableNetworkProtection enabled #enables network protection
+set-mppreference -MAPSReporting 0 #disables the sending of data to microsoft (this doesnt disable MAPS!)
+set-mppreference -RandomizeScheduleTaskTimes $false #disables random scans
+set-mppreference -RemediationScheduleDay 8 #disables schedule scans
+set-mppreference -ScanAvgCPULoadFactor 90 #allows defender to use 90% cpu usage when running a scan
+set-mppreference -ScanOnlyIfIdleEnabled $false #disables scans when idle
+set-mppreference -ScanParameters 1 #sets schedule scans to quick scans
+set-mppreference -ScanScheduleDay 8 #disables schedule scans
+set-mppreference -SubmitSamplesConsent 2 #disables sending samples to microsoft
 #excludes some safe default paths to reduce defender scan time
 Add-MpPreference -ExclusionPath $env:LOCALAPPDATA"\Temp\NVIDIA Corporation\NV_Cache"
 Add-MpPreference -ExclusionPath $env:PROGRAMDATA"\NVIDIA Corporation\NV_Cache"
@@ -361,6 +361,7 @@ sc config W32Time start= demand
 sc config XboxGipSvc start= demand
 sc config XblGameSave start= demand
 write-host "done" -ForegroundColor red
+
 #end of powershell script
 
 write-host "updating system" -ForegroundColor red
