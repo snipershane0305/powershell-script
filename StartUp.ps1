@@ -68,8 +68,8 @@ netsh int tcp set supplemental Template=Datacenter CongestionProvider=bbr2 #sets
 netsh int tcp set supplemental Template=Compat CongestionProvider=bbr2 #sets tcp congestion provider to bbr2 which is much newer and causes less packet loss
 netsh int tcp set supplemental Template=DatacenterCustom CongestionProvider=bbr2 #sets tcp congestion provider to bbr2 which is much newer and causes less packet loss
 netsh int tcp set supplemental Template=InternetCustom CongestionProvider=bbr2 #sets tcp congestion provider to bbr2 which is much newer and causes less packet loss
-netsh int ipv4 set dynamicport tcp start=1025 num=65534 #sets the ports tcp can use
-netsh int ipv4 set dynamicport udp start=1025 num=65534 #sets the ports tcp can use
+netsh int ipv4 set dynamicport tcp start=1025 num=64511 #sets the ports tcp can use
+netsh int ipv4 set dynamicport udp start=1025 num=64511 #sets the ports tcp can use
 netsh int teredo set state disabled #disables teredo (used for ipv6)
 Set-NetOffloadGlobalSetting -PacketCoalescingFilter Disabled  #disables more coalescing
 Set-NetOffloadGlobalSetting -ReceiveSegmentCoalescing Disabled #disables more coalescing
@@ -158,7 +158,6 @@ sc config DiagTrack start= disabled
 sc config Dhcp start= disabled
 sc config SSDPSRV start= disabled
 sc config dmwappushservice start= disabled
-sc config DolbyDAXAPI start= disabled
 sc config lfsvc start= disabled
 sc config iphlpsvc start= disabled
 sc config logi_lamparray_service start= disabled
@@ -361,6 +360,7 @@ sc config W32Time start= demand
 sc config XboxGipSvc start= demand
 sc config XblGameSave start= demand
 write-host "done" -ForegroundColor red
+pause
 
 #end of powershell script
 
