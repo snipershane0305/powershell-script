@@ -382,10 +382,6 @@ write-host "running defender scan" -ForegroundColor red
 C:\"Program Files"\"Windows Defender"\MpCmdRun -scan -ScanType 1
 
 write-host "cleaning system" -ForegroundColor red
-chkdsk /scan
-sfc /scannow
-dism /Online /Cleanup-Image /RestoreHealth
-sfc /scannow
 cleanmgr.exe /d C: /VERYLOWDISK
 Dism.exe /online /Cleanup-Image /StartComponentCleanup /ResetBase
 Get-ChildItem -Path "C:\Windows\Temp\" *.* -Recurse | Remove-Item -Force -Recurse
