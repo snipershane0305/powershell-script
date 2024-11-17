@@ -518,7 +518,6 @@ net stop WbioSrvc
 net stop FrameServer
 net stop FrameServerMonitor
 net stop wcncsvc
-net stop Sense
 net stop WEPHOSTSVC
 net stop Wecsvc
 net stop EventLog
