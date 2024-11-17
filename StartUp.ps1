@@ -538,6 +538,7 @@ net stop WinHttpAutoProxySvc
 net stop wmiApSrv
 net stop LanmanWorkstation
 net stop WwanSvc
+net stop SecurityHealthService
 net stop UsoSvc
 net stop wuauserv
 net stop bits
