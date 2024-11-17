@@ -3,7 +3,7 @@ pause
 if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) { Start-Process pwsh.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs; exit }
 
 write-host "merging registry file" -ForegroundColor red
-reg import C:\registry.reg #merges the registry.reg registry file!
+reg import .\registry.reg #merges the registry.reg registry file!
 write-host "Disabling powershell telemetry" -ForegroundColor red
 [Environment]::SetEnvironmentVariable('POWERSHELL_TELEMETRY_OPTOUT', '1', 'Machine') #disables powershell 7 telemetry (sends data without benefit)
 write-host "removing home and gallery from explorer" -ForegroundColor red
