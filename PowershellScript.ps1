@@ -3,22 +3,17 @@ pause
 if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) { Start-Process pwsh.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs; exit }
 
 write-host "merging registry file" -ForegroundColor red
-reg import .\registry.reg #merges the registry.reg registry file!
-
+reg import C:\registry.reg #merges the registry.reg registry file!
 write-host "Disabling powershell telemetry" -ForegroundColor red
 [Environment]::SetEnvironmentVariable('POWERSHELL_TELEMETRY_OPTOUT', '1', 'Machine') #disables powershell 7 telemetry (sends data without benefit)
-
 write-host "removing home and gallery from explorer" -ForegroundColor red
 REG DELETE \"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Desktop\\NameSpace\\{e88865ea-0e1c-4e20-9aa6-edcd0212c87c}\" /f #removes buttons from explorer i dont use
 REG DELETE \"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Desktop\\NameSpace\\{f874310e-b6b7-47dc-bc84-b9e6b38f5903}\" /f #removes buttons from explorer i dont use 
 REG ADD \"HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced\" /f /v \"LaunchTo\" /t REG_DWORD /d \"1\" #removes buttons from explorer i dont use
-
 write-host "disabling hibernation" -ForegroundColor red
 powercfg.exe /hibernate off #disables hiberation (writes memory to disk and saves power at cost of performance, only useful for laptops)
-
 write-host "enabling memory compression" -ForegroundColor red
 Enable-MMAgent -mc #enabled memory compression (saves some memory but takes cpu cycles to compress and uncompress the memory)
-
 write-host "applying fsutil settings" -ForegroundColor red
 fsutil behavior set disablecompression 1 #disables ntfs compression
 fsutil behavior set encryptpagingfile 0 #disables encryption on the pagefile.sys file which is disk space that is used as memory and is less performant
@@ -27,7 +22,6 @@ fsutil behavior set quotanotify 7200 #sets quota report to 2 hours
 fsutil behavior set disabledeletenotify 0 #enables trim on disk
 fsutil behavior set disableLastAccess 1 #disables last access time stamp on directories
 fsutil behavior set disable8dot3 1 #unused file type
-
 write-host "applying bcdedits" -ForegroundColor red
 bcdedit /set useplatformtick yes #uses a hardware timer for ticks which is most reliable
 bcdedit /set disabledynamictick yes #disables platform tick from being dynamic which is more stable
@@ -40,7 +34,6 @@ bcdedit /set usephysicaldestination no #disables physical apic for x2apicpolicy
 bcdedit /set usefirmwarepcisettings no #disables BIOS PCI resources
 bcdedit /set linearaddress57 OptOut #disables 57 bit virtual memory and keeps it at 48 bit (you dont need 128 petabytes of virtual memory!)
 bcdedit /set nx OptIn #enables data execution prevention which improves security
-
 write-host "applying network settings" -ForegroundColor red
 netsh int tcp set global rss = enabled #enables recieve side scaling which lets more than one core handle tcp
 netsh int tcp set global prr= enable #helps a tcp connection from recovering from packet loss quicker for less latency
@@ -80,7 +73,6 @@ Set-NetOffloadGlobalSetting -ReceiveSegmentCoalescing Disabled #disables more co
 Set-NetOffloadGlobalSetting -Chimney Disabled #forces cpu to handle network instead of NIC
 Enable-NetAdapterChecksumOffload -Name * #forces cpu to handle network instead of NIC
 Disable-NetAdapterLso -Name * #disables large send offload which uses NIC instead of cpu (using the cpu for handing network tasks can help latency if your cpu is strong enough)
-
 write-host "setting dns" -ForegroundColor red
 Set-DnsClientServerAddress -interfaceindex 1 -serveraddresses ("9.9.9.11","9.9.9.9") #uses quad9 dns
 Set-DnsClientServerAddress -interfaceindex 2 -serveraddresses ("9.9.9.11","9.9.9.9") #uses quad9 dns
@@ -92,7 +84,6 @@ Set-DnsClientServerAddress -interfaceindex 7 -serveraddresses ("9.9.9.11","9.9.9
 Set-DnsClientServerAddress -interfaceindex 8 -serveraddresses ("9.9.9.11","9.9.9.9") #uses quad9 dns
 Set-DnsClientServerAddress -interfaceindex 9 -serveraddresses ("9.9.9.11","9.9.9.9") #uses quad9 dns
 Set-DnsClientServerAddress -interfaceindex 10 -serveraddresses ("9.9.9.11","9.9.9.9") #uses quad9 dns
-
 write-host "setting defender settings" -ForegroundColor red
 set-mppreference -CloudBlockLevel default #enables basic cloud based protection
 set-mppreference -CloudExtendedTimeout 50 #blocks file for 50 seconds for the cloud to scan it
@@ -153,12 +144,12 @@ Add-MpPreference -ExclusionPath $env:SystemRoot"\System32\Configuration\DSCEngin
 Add-MpPreference -ExclusionPath $env:SystemRoot"\System32\Configuration\DSCResourceStateCache.mof"
 Add-MpPreference -ExclusionPath $env:SystemRoot"\System32\Configuration\ConfigurationStatus"
 Add-MpPreference -ExclusionProcess ${env:ProgramFiles(x86)}"\Common Files\Steam\SteamService.exe"
-
 write-host "setting services" -ForegroundColor red #all these sould be safe!
 sc config AJRouter start= disabled
 sc config DiagTrack start= disabled
 sc config Dhcp start= disabled
 sc config SSDPSRV start= disabled
+sc config wbengine start= disabled
 sc config dmwappushservice start= disabled
 sc config lfsvc start= disabled
 sc config iphlpsvc start= disabled
