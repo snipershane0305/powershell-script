@@ -15,13 +15,13 @@ powercfg.exe /hibernate off #disables hiberation (writes memory to disk and save
 write-host "enabling memory compression" -ForegroundColor red
 Enable-MMAgent -mc #enabled memory compression (saves some memory but takes cpu cycles to compress and uncompress the memory)
 write-host "applying fsutil settings" -ForegroundColor red
-fsutil behavior set disablecompression 1 #disables ntfs compression
+fsutil behavior set disablecompression 1 #disables ntfs compression which isnt effective
 fsutil behavior set encryptpagingfile 0 #disables encryption on the pagefile.sys file which is disk space that is used as memory and is less performant
 fsutil behavior set mftzone 4 #sets the mft zone to 800MB (the mft zone stores entries about everything about every file)
 fsutil behavior set quotanotify 7200 #sets quota report to 2 hours
 fsutil behavior set disabledeletenotify 0 #enables trim on disk
 fsutil behavior set disableLastAccess 1 #disables last access time stamp on directories
-fsutil behavior set disable8dot3 1 #unused file type
+fsutil behavior set disable8dot3 1 #unused
 write-host "applying bcdedits" -ForegroundColor red
 bcdedit /set useplatformtick yes #uses a hardware timer for ticks which is most reliable
 bcdedit /set disabledynamictick yes #disables platform tick from being dynamic which is more stable
@@ -95,6 +95,7 @@ set-mppreference -DisableCatchupQuickScan $true #disables force scan if it misse
 set-mppreference -DisableEmailScanning $true #disables emailscanning
 set-mppreference -DisableIOAVProtection $false #enables scanning of downloaded files
 set-mppreference -DisableNetworkProtectionPerfTelemetry $true #disables the sending of performance data to microsoft
+Set-MpPreference -DisableCoreServiceTelemetry $true #disables the sending of performance data to microsoft
 set-mppreference -DisableRealtimeMonitoring $false #enables realtime monitoring
 set-mppreference -DisableRemovableDriveScanning $false #enables scanning removable devives (like flash drives)
 set-mppreference -DisableRestorePoint $true #disables defender creating restore points (i have never had a restore point fix an issue!)
