@@ -28,10 +28,12 @@ Install-WindowsUpdate -MicrosoftUpdate -AcceptAll
 #paste newest powershell script here and change registry file location
 
 write-host "merging registry file" -ForegroundColor red
-reg import c:\registry.reg #merges the registry.reg registry file!
+#merges the registry.reg registry file!
+reg import c:\registry.reg
 
 write-host "Disabling powershell telemetry" -ForegroundColor red
-[Environment]::SetEnvironmentVariable('POWERSHELL_TELEMETRY_OPTOUT', '1', 'Machine') #disables powershell 7 telemetry (sends data without benefit)
+#disables powershell 7 telemetry (sends data without benefit)
+[Environment]::SetEnvironmentVariable('POWERSHELL_TELEMETRY_OPTOUT', '1', 'Machine')
 
 write-host "removing home and gallery from explorer" -ForegroundColor red
 REG DELETE \"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Desktop\\NameSpace\\{e88865ea-0e1c-4e20-9aa6-edcd0212c87c}\" /f #removes buttons from explorer i dont use
@@ -185,7 +187,7 @@ Add-MpPreference -ExclusionProcess ${env:ProgramFiles(x86)}"\Common Files\Steam\
 write-host "setting services" -ForegroundColor red #all these sould be safe!
 sc config AJRouter start= disabled
 sc config DiagTrack start= disabled
-sc config Dhcp start= disabled
+sc config Dhcp start= disabled #YOU WILL NEED TO SET A STATIC IP OR YOU WILL FAIL TO CONNECT TO THE INTERNET
 sc config SSDPSRV start= disabled
 sc config wbengine start= disabled
 sc config dmwappushservice start= disabled
@@ -565,7 +567,6 @@ net stop SecurityHealthService
 net stop UsoSvc
 net stop wuauserv
 net stop bits
-
 sc config wuauserv start= disabled
 sc config UsoSvc start= disabled
 sc config bits start= disabled
