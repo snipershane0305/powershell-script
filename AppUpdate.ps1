@@ -2,6 +2,7 @@ winget pin add Microsoft.EdgeWebView2Runtime
 winget pin add Microsoft.Edge
 winget pin add Discord.Discord
 winget pin add Google.Chrome
+winget pin add Logitech.GHUB
 winget source update
 winget update --all --include-unknown
 #important dependencies
@@ -50,7 +51,6 @@ winget install BleachBit.BleachBit
 winget install Ookla.Speedtest.CLI
 winget install PrismLauncher.PrismLauncher
 winget install Alex313031.Thorium.AVX2
-winget install Logitech.GHUB
 winget install EclipseAdoptium.Temurin.22.JRE
 winget install EclipseAdoptium.Temurin.8.JRE
 winget install pizzaboxer.Bloxstrap
