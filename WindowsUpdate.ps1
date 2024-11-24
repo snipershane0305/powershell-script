@@ -17,3 +17,4 @@ Install-WindowsUpdate -MicrosoftUpdate -AcceptAll
 net stop bits
 net stop wuauserv
 net stop usosvc
+pause
