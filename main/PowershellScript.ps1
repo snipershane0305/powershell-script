@@ -25,8 +25,6 @@ Install-Module PSWindowsUpdate -Confirm:$false
 Add-WUServiceManager -MicrosoftUpdate -Confirm:$false
 Install-WindowsUpdate -MicrosoftUpdate -AcceptAll
 
-#paste newest powershell script here and change registry file location
-
 write-host "merging registry file" -ForegroundColor red
 #merges the registry.reg registry file!
 reg import c:\registry.reg
@@ -393,8 +391,6 @@ sc config W32Time start= demand
 sc config XboxGipSvc start= demand
 sc config XblGameSave start= demand
 write-host "done" -ForegroundColor red
-
-#end of powershell script
 
 write-host "cleaning system" -ForegroundColor red
 cleanmgr.exe /d C: /VERYLOWDISK
