@@ -2,6 +2,7 @@ if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
 write-host "releasing memory" -ForegroundColor red
 C:\memreduct.exe -clean:full
 Start-Sleep -Seconds 5
+taskkill /im memreduct.exe
 write-host "setting timer resolution to 0.5" -ForegroundColor red #changes the timer resolution to a lower value for slightly lower latency
 $process = "C:\SetTimerResolution.exe"
 $flags = "--resolution 5050 --no-console"
