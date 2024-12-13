@@ -1,8 +1,7 @@
 if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) { Start-Process pwsh.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs; exit }
-
 write-host "releasing memory" -ForegroundColor red
 C:\memreduct.exe -clean:full
-
+Start-Sleep -Seconds 5
 write-host "setting timer resolution to 0.5" -ForegroundColor red #changes the timer resolution to a lower value for slightly lower latency
 $process = "C:\SetTimerResolution.exe"
 $flags = "--resolution 5050 --no-console"
@@ -109,16 +108,12 @@ Enable-NetAdapterChecksumOffload -Name * #forces cpu to handle network instead o
 Disable-NetAdapterLso -Name * #disables large send offload which uses NIC instead of cpu (using the cpu for handing network tasks can help latency if your cpu is strong enough)
 
 write-host "setting dns" -ForegroundColor red
-Set-DnsClientServerAddress -interfaceindex 1 -serveraddresses ("9.9.9.11","9.9.9.9") #uses quad9 dns
-Set-DnsClientServerAddress -interfaceindex 2 -serveraddresses ("9.9.9.11","9.9.9.9") #uses quad9 dns
-Set-DnsClientServerAddress -interfaceindex 3 -serveraddresses ("9.9.9.11","9.9.9.9") #uses quad9 dns
-Set-DnsClientServerAddress -interfaceindex 4 -serveraddresses ("9.9.9.11","9.9.9.9") #uses quad9 dns
-Set-DnsClientServerAddress -interfaceindex 5 -serveraddresses ("9.9.9.11","9.9.9.9") #uses quad9 dns
-Set-DnsClientServerAddress -interfaceindex 6 -serveraddresses ("9.9.9.11","9.9.9.9") #uses quad9 dns
-Set-DnsClientServerAddress -interfaceindex 7 -serveraddresses ("9.9.9.11","9.9.9.9") #uses quad9 dns
-Set-DnsClientServerAddress -interfaceindex 8 -serveraddresses ("9.9.9.11","9.9.9.9") #uses quad9 dns
-Set-DnsClientServerAddress -interfaceindex 9 -serveraddresses ("9.9.9.11","9.9.9.9") #uses quad9 dns
-Set-DnsClientServerAddress -interfaceindex 10 -serveraddresses ("9.9.9.11","9.9.9.9") #uses quad9 dns
+#sets dns server to quad9's secure and ENC capatible dns
+$adapters = Get-NetAdapter | Where-Object { $_.Status -eq 'Up' }
+foreach ($adapter in $adapters) {
+    $interfaceIndex = $adapter.ifIndex
+    Set-DnsClientServerAddress -InterfaceIndex $interfaceIndex -ServerAddresses "9.9.9.11"
+}
 
 write-host "setting defender settings" -ForegroundColor red
 set-mppreference -CloudBlockLevel default #enables basic cloud based protection
@@ -226,6 +221,7 @@ sc config UserManager start= auto
 sc config LanmanServer start= auto
 sc config CryptSvc start= auto
 sc config WlanSvc start= auto
+c config WwanSvc start= auto
 sc config wuauserv start= demand
 sc config UsoSvc start= demand
 sc config Wcmsvc start= demand
@@ -314,7 +310,6 @@ sc config dot3svc start= demand
 sc config AssignedAccessManagerSvc start= demand
 sc config wmiApSrv start= demand
 sc config LanmanWorkstation start= demand
-sc config WwanSvc start= demand
 sc config XblAuthManager start= demand
 sc config XboxNetApiSvc start= demand
 sc config tzautoupdate start= demand
@@ -408,176 +403,12 @@ C:\windows\explorer.exe
 cd $env:localappdata\BleachBit\
 .\bleachbit_console.exe -c deepscan.backup deepscan.ds_store deepscan.thumbs_db deepscan.tmp deepscan.vim_swap_root deepscan.vim_swap_user internet_explorer.cache internet_explorer.cookies internet_explorer.downloads internet_explorer.forms internet_explorer.history internet_explorer.logs java.cache microsoft_edge.cache microsoft_edge.cookies microsoft_edge.dom microsoft_edge.form_history microsoft_edge.history microsoft_edge.passwords microsoft_edge.search_engines microsoft_edge.session microsoft_edge.site_preferences microsoft_edge.sync microsoft_edge.vacuum system.clipboard system.logs system.memory_dump system.muicache system.prefetch system.recycle_bin system.tmp system.updates windows_defender.backup windows_defender.history windows_defender.logs windows_defender.quarantine windows_defender.temp windows_explorer.mru windows_explorer.run windows_explorer.search_history windows_explorer.shellbags windows_explorer.thumbnails windows_media_player.cache windows_media_player.mru winrar.history winrar.temp winzip.mru wordpad.mru
 #THIS WILL DELETE MICROSOFT EDGE DATA
-
-write-host "stopping services" -ForegroundColor red
-net stop AxInstSV
-net stop AJRouter
-net stop AppReadiness
-net stop AppIDSvc
-net stop ALG
-net stop AppMgmt
-net stop AppXSvc
-net stop AssignedAccessManagerSvc
-net stop tzautoupdate
-net stop BthAvctpSvc
-net stop BrokerInfrastructure
-net stop BDESVC
-net stop wbengine
-net stop BTAGService
-net stop bthserv
-net stop PeerDistSvc
-net stop autotimesvc
-net stop CertPropSvc
-net stop ClipSVC
-net stop CDPSvc
-net stop DusmSvc
-net stop dcsvc
-net stop DoSvc
-net stop DeviceInstall
-net stop DmEnrollmentSvc
-net stop dmwappushservice
-net stop DsmSvc
-net stop DevQueryBroker
-net stop Dhcp
-net stop diagsvc
-net stop DialogBlockingService
-net stop DisplayEnhancementService
-net stop DispBrokerDesktopSvc
-net stop TrkWks
-net stop MSDTC
-net stop MapsBroker
-net stop embeddedmode
-net stop EFS
-net stop EntAppSvc
-net stop EapHost
-net stop fhsvc
-net stop fdPHost
-net stop FDResPub
-net stop GameInputSvc
-net stop lfsvc
-net stop GraphicsPerfSvc
-net stop IKEEXT
-net stop SharedAccess
-net stop InventorySvc
-net stop iphlpsvc
-net stop IpxlatCfgSvc
-net stop PolicyAgent
-net stop KtmRm
-net stop LxpSvc
-net stop lltdsvc
-net stop wlpasvc
-net stop wlidsvc
-net stop AppVClient
-net stop cloudidsvc
-net stop MSiSCSI
-net stop MsKeyboardFilter
-net stop NgcSvc
-net stop NgcCtnrSvc
-net stop swprv
-net stop smphost
-net stop InstallService
-net stop uhssvc
-net stop SmsRouter
-net stop NaturalAuthentication
-net stop Netlogon
-net stop NcdAutoSetup
-net stop Netman
-net stop NcaSvc
-net stop NlaSvc
-net stop NetSetupSvc
-net stop CscService
-net stop defragsvc
-net stop WpcMonSvc
-net stop SEMgrSvc
-net stop PNRPsvc
-net stop p2psvc
-net stop p2pimsvc
-net stop PerfHost
-net stop pla
-net stop PhoneSvc
-net stop PNRPAutoReg
-net stop WPDBusEnum
-net stop Spooler
-net stop PrintNotify
-net stop wercplsupport
-net stop RmSvc
-net stop TroubleshootingSvc
-net stop rpcapd
-net stop RpcLocator
-net stop RemoteRegistry
-net stop RetailDemo
-net stop RemoteAccess
-net stop seclogon
-net stop SstpSvc
-net stop SensorDataService
-net stop SensrSvc
-net stop SensorService
-net stop LanmanServer
-net stop shpamsvc
-net stop ShellHWDetection
-net stop SCardSvr
-net stop ScDeviceEnum
-net stop SCPolicySvc
-net stop SNMPTrap
-net stop sppsvc
-net stop SharedRealitySvc
-net stop svsvc
-net stop SSDPSRV
-net stop WiaRpc
-net stop TieringEngineService
-net stop SysMain
-net stop SgrmBroker
-net stop lmhosts
-net stop TapiSrv
-net stop Themes
-net stop upnphost
-net stop UevAgentService
-net stop vds
-net stop VSS
-net stop VacSvc
-net stop WalletService
-net stop WarpJITSvc
-net stop TokenBroker
-net stop webthreatdefsvc
-net stop WebClient
-net stop WFDSConMgrSvc
-net stop SDRSVC
-net stop WbioSrvc
-net stop FrameServer
-net stop FrameServerMonitor
-net stop wcncsvc
-net stop WEPHOSTSVC
-net stop Wecsvc
-net stop EventLog
-net stop StiSvc
-net stop wisvc
-net stop msiserver
-net stop LicenseManager
-net stop WManSvc
-net stop MixedRealityOpenXRSvc
-net stop icssvc
-net stop TrustedInstaller
-net stop spectrum
-net stop perceptionsimulation
-net stop PushToInstall
-net stop WinRM
-net stop WSearch
-net stop WinHttpAutoProxySvc
-net stop wmiApSrv
-net stop LanmanWorkstation
-net stop WwanSvc
-net stop SecurityHealthService
-net stop UsoSvc
-net stop wuauserv
-net stop bits
 sc config wuauserv start= disabled
 sc config UsoSvc start= disabled
 sc config bits start= disabled
 
 write-host "releasing memory" -ForegroundColor red
-taskkill /im memreduct.exe
 C:\memreduct.exe -clean:full
-Start-Sleep -Seconds 5
 taskkill /im memreduct.exe
 write-host "done" -ForegroundColor red
 pause
