@@ -53,5 +53,4 @@ winget install Alex313031.Thorium.AVX2
 winget install EclipseAdoptium.Temurin.22.JRE
 winget install EclipseAdoptium.Temurin.8.JRE
 winget install pizzaboxer.Bloxstrap
-qBittorrent.qBittorrent
-pause
+winget install qBittorrent.qBittorrent
