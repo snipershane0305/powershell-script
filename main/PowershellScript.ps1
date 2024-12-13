@@ -1,7 +1,7 @@
 if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) { Start-Process pwsh.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs; exit }
 write-host "releasing memory" -ForegroundColor red
 C:\memreduct.exe -clean:full
-Start-Sleep -Seconds 5
+Start-Sleep -Seconds 1511
 taskkill /im memreduct.exe
 write-host "setting timer resolution to 0.5" -ForegroundColor red #changes the timer resolution to a lower value for slightly lower latency
 $process = "C:\SetTimerResolution.exe"
@@ -9,16 +9,17 @@ $flags = "--resolution 5050 --no-console"
 start-process $process $flags
 
 write-host "cleaning system" -ForegroundColor red
-taskkill /f /t /im Explorer.exe
 cleanmgr.exe /d C: /VERYLOWDISK
 Dism.exe /online /Cleanup-Image /StartComponentCleanup /ResetBase
 Get-ChildItem -Path "$env:TEMP" *.* -Recurse | Remove-Item -Force -Recurse
 Get-ChildItem -Path "C:\Windows\Temp\" *.* -Recurse | Remove-Item -Force -Recurse
+taskkill /f /t /im Explorer.exe
 Get-ChildItem -Path "$env:localappdata\Microsoft\Windows\Temporary Internet Files\" *.* -Recurse | Remove-Item -Force -Recurse
 Get-ChildItem -Path "C:\ProgramData\Microsoft\Windows Defender\Scans\History\Service\" *.* -Recurse | Remove-Item -Force -Recurse
 Get-ChildItem -Path "C:\ProgramData\Microsoft\Windows Defender\Definition Updates\Backup\" *.* -Recurse | Remove-Item -Force -Recurse
 Get-ChildItem -Path "C:\ProgramData\Microsoft\Windows Defender\Scans\History\Results\Quick\" *.* -Recurse | Remove-Item -Force -Recurse
 Get-ChildItem -Path "C:\ProgramData\Microsoft\Windows Defender\Scans\History\Results\Resource\" *.* -Recurse | Remove-Item -Force -Recurse
+Start-Sleep -Seconds 1
 C:\windows\explorer.exe
 #THIS WILL DELETE MICROSOFT EDGE DATA
 cd $env:localappdata\BleachBit\
@@ -239,7 +240,7 @@ sc config UserManager start= auto
 sc config LanmanServer start= auto
 sc config CryptSvc start= auto
 sc config WlanSvc start= auto
-c config WwanSvc start= auto
+dc config WwanSvc start= auto
 sc config wuauserv start= demand
 sc config UsoSvc start= demand
 sc config Wcmsvc start= demand
@@ -408,9 +409,13 @@ write-host "done" -ForegroundColor red
 sc config wuauserv start= disabled
 sc config UsoSvc start= disabled
 sc config bits start= disabled
+net stop wuauserv
+net stop UsoSvc
+net stop bits
 
 write-host "releasing memory" -ForegroundColor red
 C:\memreduct.exe -clean:full
+Start-Sleep -Seconds 5
 taskkill /im memreduct.exe
 write-host "done" -ForegroundColor red
 pause
