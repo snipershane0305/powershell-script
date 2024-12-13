@@ -32,6 +32,7 @@ winget install Microsoft.DotNet.AspNetCore.7
 winget install Microsoft.DotNet.AspNetCore.8
 winget install Microsoft.DotNet.AspNetCore.Preview
 #important dependencies
+winget install Insecure.Npcap
 winget install Microsoft.WindowsTerminal
 winget install Microsoft.PowerShell
 winget install Microsoft.AppInstaller
@@ -44,14 +45,13 @@ winget install Open-Shell.Open-Shell-Menu
 winget install Guru3D.Afterburner
 winget install HandBrake.HandBrake
 winget install OBSProject.OBSStudio
-winget install Guru3D.RTSS
 winget install Valve.Steam
 winget install Andersama.obs-asio
 winget install BleachBit.BleachBit
-winget install Ookla.Speedtest.CLI
 winget install PrismLauncher.PrismLauncher
 winget install Alex313031.Thorium.AVX2
 winget install EclipseAdoptium.Temurin.22.JRE
 winget install EclipseAdoptium.Temurin.8.JRE
 winget install pizzaboxer.Bloxstrap
+qBittorrent.qBittorrent
 pause
