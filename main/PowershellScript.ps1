@@ -1,7 +1,10 @@
 if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) { Start-Process pwsh.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs; exit }
+net stop wuauserv
+net stop UsoSvc
+net stop bits
 write-host "releasing memory" -ForegroundColor red
 C:\memreduct.exe -clean:full
-Start-Sleep -Seconds 1511
+Start-Sleep -Seconds 10
 taskkill /im memreduct.exe
 write-host "setting timer resolution to 0.5" -ForegroundColor red #changes the timer resolution to a lower value for slightly lower latency
 $process = "C:\SetTimerResolution.exe"
@@ -13,18 +16,6 @@ cleanmgr.exe /d C: /VERYLOWDISK
 Dism.exe /online /Cleanup-Image /StartComponentCleanup /ResetBase
 Get-ChildItem -Path "$env:TEMP" *.* -Recurse | Remove-Item -Force -Recurse
 Get-ChildItem -Path "C:\Windows\Temp\" *.* -Recurse | Remove-Item -Force -Recurse
-taskkill /f /t /im Explorer.exe
-Get-ChildItem -Path "$env:localappdata\Microsoft\Windows\Temporary Internet Files\" *.* -Recurse | Remove-Item -Force -Recurse
-Get-ChildItem -Path "C:\ProgramData\Microsoft\Windows Defender\Scans\History\Service\" *.* -Recurse | Remove-Item -Force -Recurse
-Get-ChildItem -Path "C:\ProgramData\Microsoft\Windows Defender\Definition Updates\Backup\" *.* -Recurse | Remove-Item -Force -Recurse
-Get-ChildItem -Path "C:\ProgramData\Microsoft\Windows Defender\Scans\History\Results\Quick\" *.* -Recurse | Remove-Item -Force -Recurse
-Get-ChildItem -Path "C:\ProgramData\Microsoft\Windows Defender\Scans\History\Results\Resource\" *.* -Recurse | Remove-Item -Force -Recurse
-Start-Sleep -Seconds 1
-C:\windows\explorer.exe
-#THIS WILL DELETE MICROSOFT EDGE DATA
-cd $env:localappdata\BleachBit\
-.\bleachbit_console.exe -c deepscan.backup deepscan.ds_store deepscan.thumbs_db deepscan.tmp deepscan.vim_swap_root deepscan.vim_swap_user internet_explorer.cache internet_explorer.cookies internet_explorer.downloads internet_explorer.forms internet_explorer.history internet_explorer.logs java.cache microsoft_edge.cache microsoft_edge.cookies microsoft_edge.dom microsoft_edge.form_history microsoft_edge.history microsoft_edge.passwords microsoft_edge.search_engines microsoft_edge.session microsoft_edge.site_preferences microsoft_edge.sync microsoft_edge.vacuum system.clipboard system.logs system.memory_dump system.muicache system.prefetch system.recycle_bin system.tmp system.updates windows_defender.backup windows_defender.history windows_defender.logs windows_defender.quarantine windows_defender.temp windows_explorer.mru windows_explorer.run windows_explorer.search_history windows_explorer.shellbags windows_explorer.thumbnails windows_media_player.cache windows_media_player.mru winrar.history winrar.temp winzip.mru wordpad.mru
-#THIS WILL DELETE MICROSOFT EDGE DATA
 
 write-host "updating system" -ForegroundColor red
 #updates microsoft defender
@@ -42,6 +33,10 @@ start-sleep -seconds 2
 Install-Module PSWindowsUpdate -Confirm:$false
 Add-WUServiceManager -MicrosoftUpdate -Confirm:$false
 Install-WindowsUpdate -MicrosoftUpdate -AcceptAll
+start-sleep -seconds 2
+net stop wuauserv
+net stop UsoSvc
+net stop bits
 
 write-host "merging registry file" -ForegroundColor red
 #merges the registry.reg registry file!
@@ -199,7 +194,6 @@ Add-MpPreference -ExclusionProcess ${env:ProgramFiles(x86)}"\Common Files\Steam\
 write-host "setting services" -ForegroundColor red #all these sould be safe!
 sc config AJRouter start= disabled
 sc config DiagTrack start= disabled
-sc config Dhcp start= disabled #YOU WILL NEED TO SET A STATIC IP OR YOU WILL FAIL TO CONNECT TO THE INTERNET
 sc config SSDPSRV start= disabled
 sc config wbengine start= disabled
 sc config dmwappushservice start= disabled
@@ -227,9 +221,9 @@ sc config UmRdpService start= disabled
 sc config RetailDemo start= disabled
 sc config RemoteAccess start= disabled
 sc config EventSystem start= auto
+sc config Dhcp start= auto
 sc config nsi start= auto
 sc config Power start= auto
-sc config RtkAudioUniversalService start= auto
 sc config SamSs start= auto
 sc config SENS start= auto
 sc config ProfSvc start= auto
@@ -240,7 +234,7 @@ sc config UserManager start= auto
 sc config LanmanServer start= auto
 sc config CryptSvc start= auto
 sc config WlanSvc start= auto
-dc config WwanSvc start= auto
+sc config WwanSvc start= auto
 sc config wuauserv start= demand
 sc config UsoSvc start= demand
 sc config Wcmsvc start= demand
@@ -406,16 +400,14 @@ sc config XboxGipSvc start= demand
 sc config XblGameSave start= demand
 write-host "done" -ForegroundColor red
 #disables windows update services
+net stop wuauserv
+net stop UsoSvc
+net stop bits
 sc config wuauserv start= disabled
 sc config UsoSvc start= disabled
 sc config bits start= disabled
 net stop wuauserv
 net stop UsoSvc
 net stop bits
-
-write-host "releasing memory" -ForegroundColor red
-C:\memreduct.exe -clean:full
-Start-Sleep -Seconds 5
-taskkill /im memreduct.exe
 write-host "done" -ForegroundColor red
 pause
