@@ -66,6 +66,11 @@ fsutil behavior set disabledeletenotify 0 #enables trim on disk
 fsutil behavior set disableLastAccess 1 #disables last access time stamp on directories
 fsutil behavior set disable8dot3 1 #unused
 
+write-host "trimming C: drive" -ForegroundColor red
+$systemDrive = (Get-WmiObject -Class Win32_OperatingSystem).SystemDrive
+Optimize-Volume -DriveLetter $systemDrive -ReTrim
+Optimize-Volume -DriveLetter $systemDrive -SlabConsolidate
+
 write-host "applying bcdedits" -ForegroundColor red
 bcdedit /set useplatformtick yes #uses a hardware timer for ticks which is most reliable
 bcdedit /set disabledynamictick yes #disables platform tick from being dynamic which is more stable
