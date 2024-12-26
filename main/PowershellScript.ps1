@@ -2,6 +2,8 @@ if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
 net stop wuauserv
 net stop UsoSvc
 net stop bits
+net stop DoSvc
+net stop sysmain
 write-host "releasing memory" -ForegroundColor red
 C:\memreduct.exe -clean:full
 Start-Sleep -Seconds 10
@@ -202,6 +204,7 @@ sc config SSDPSRV start= disabled
 sc config wbengine start= disabled
 sc config dmwappushservice start= disabled
 sc config lfsvc start= disabled
+sc config DoSvc start= disabled
 sc config iphlpsvc start= disabled
 sc config logi_lamparray_service start= disabled
 sc config edgeupdate start= disabled
@@ -246,7 +249,6 @@ sc config ALG start= demand
 sc config TokenBroker start= demand
 sc config EventLog start= demand
 sc config diagsvc start= demand
-sc config RtkBtManServ start= demand
 sc config bthserv start= demand
 sc config AppMgmt start= demand
 sc config wbengine start= demand
@@ -392,11 +394,17 @@ write-host "done" -ForegroundColor red
 net stop wuauserv
 net stop UsoSvc
 net stop bits
+net stop DoSvc
+net stop sysmain
 sc config wuauserv start= disabled
 sc config UsoSvc start= disabled
 sc config bits start= disabled
+sc config DoSvc start= disabled
+sc config sysmain start= disabled
 net stop wuauserv
 net stop UsoSvc
 net stop bits
+net stop DoSvc
+net stop sysmain
 write-host "done" -ForegroundColor red
 pause
