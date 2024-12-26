@@ -6,7 +6,7 @@ net stop DoSvc
 net stop sysmain
 write-host "releasing memory" -ForegroundColor red
 C:\memreduct.exe -clean:full
-Start-Sleep -Seconds 10
+Start-Sleep -Seconds 5
 taskkill /im memreduct.exe
 write-host "setting timer resolution to 0.5" -ForegroundColor red #changes the timer resolution to a lower value for slightly lower latency
 $process = "C:\SetTimerResolution.exe"
@@ -30,12 +30,12 @@ sc config bits start=demand
 net start bits
 net start wuauserv  
 net start usosvc
-start-sleep -seconds 2
+start-sleep -seconds 1
 #runs windows update
 Install-Module PSWindowsUpdate -Confirm:$false
 Add-WUServiceManager -MicrosoftUpdate -Confirm:$false
 Install-WindowsUpdate -MicrosoftUpdate -AcceptAll
-start-sleep -seconds 2
+start-sleep -seconds 1
 net stop wuauserv
 net stop UsoSvc
 net stop bits
