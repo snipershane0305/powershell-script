@@ -4,14 +4,6 @@ net stop UsoSvc
 net stop bits
 net stop DoSvc
 net stop sysmain
-write-host "releasing memory" -ForegroundColor red
-C:\memreduct.exe -clean:full
-Start-Sleep -Seconds 5
-taskkill /im memreduct.exe
-write-host "setting timer resolution to 0.5" -ForegroundColor red #changes the timer resolution to a lower value for slightly lower latency
-$process = "C:\SetTimerResolution.exe"
-$flags = "--resolution 5050 --no-console"
-start-process $process $flags
 
 write-host "cleaning system" -ForegroundColor red
 cleanmgr.exe /d C: /VERYLOWDISK
@@ -39,6 +31,11 @@ start-sleep -seconds 1
 net stop wuauserv
 net stop UsoSvc
 net stop bits
+
+write-host "setting timer resolution to 0.5" -ForegroundColor red #changes the timer resolution to a lower value for slightly lower latency
+$process = "C:\SetTimerResolution.exe"
+$flags = "--resolution 5050 --no-console"
+start-process $process $flags
 
 write-host "merging registry file" -ForegroundColor red
 #merges the registry.reg registry file!
@@ -389,22 +386,34 @@ sc config PushToInstall start= demand
 sc config W32Time start= demand
 sc config XboxGipSvc start= demand
 sc config XblGameSave start= demand
-write-host "done" -ForegroundColor red
-#disables windows update services
-net stop wuauserv
-net stop UsoSvc
-net stop bits
+
+write-host "closing services and processes" -ForegroundColor red
+net stop wuauserv #disables windows update services
+net stop UsoSvc #disables windows update services
+net stop bits #disables windows update services
 net stop DoSvc
 net stop sysmain
-sc config wuauserv start= disabled
-sc config UsoSvc start= disabled
-sc config bits start= disabled
+sc config wuauserv start= disabled #disables windows update services
+sc config UsoSvc start= disabled #disables windows update services
+sc config bits start= disabled #disables windows update services
 sc config DoSvc start= disabled
 sc config sysmain start= disabled
-net stop wuauserv
-net stop UsoSvc
-net stop bits
+net stop wuauserv #disables windows update services
+net stop UsoSvc #disables windows update services
+net stop bits #disables windows update services
 net stop DoSvc
 net stop sysmain
+net stop TrustedInstaller
+taskkill /f /im WMI*
+taskkill /f /im dism*
+taskkill /f /im dllhost*
+taskkill /f /im taskhostw*
+taskkill /f /im tiworker*
+taskkill /f /im WMI*
+
+write-host "releasing memory" -ForegroundColor red
+C:\memreduct.exe -clean:full
+Start-Sleep -Seconds 5
+taskkill /im memreduct.exe
 write-host "done" -ForegroundColor red
 pause
