@@ -41,6 +41,9 @@ write-host "merging registry file" -ForegroundColor red
 #merges the registry.reg registry file!
 reg import c:\registry.reg
 
+write-host "starting defender quick scan" -ForegroundColor red
+C:\"Program Files (x86)"\"Windows Defender"\MpCmdRun.exe -scan -scantype 1
+
 write-host "Disabling powershell telemetry" -ForegroundColor red
 #disables powershell 7 telemetry (sends data without benefit)
 [Environment]::SetEnvironmentVariable('POWERSHELL_TELEMETRY_OPTOUT', '1', 'Machine')
