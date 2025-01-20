@@ -31,6 +31,8 @@ start-sleep -seconds 1
 net stop wuauserv
 net stop UsoSvc
 net stop bits
+net stop DoSvc
+net stop sysmain
 
 write-host "setting timer resolution to 0.5" -ForegroundColor red #changes the timer resolution to a lower value for slightly lower latency
 $process = "C:\SetTimerResolution.exe"
@@ -197,6 +199,8 @@ Add-MpPreference -ExclusionPath $env:SystemRoot"\System32\Configuration\DSCEngin
 Add-MpPreference -ExclusionPath $env:SystemRoot"\System32\Configuration\DSCResourceStateCache.mof"
 Add-MpPreference -ExclusionPath $env:SystemRoot"\System32\Configuration\ConfigurationStatus"
 Add-MpPreference -ExclusionProcess ${env:ProgramFiles(x86)}"\Common Files\Steam\SteamService.exe"
+
+start-sleep -seconds 30
 
 write-host "setting services" -ForegroundColor red #all these sould be safe!
 sc config DiagTrack start= disabled
@@ -416,7 +420,5 @@ taskkill /f /im WMI*
 
 write-host "releasing memory" -ForegroundColor red
 C:\memreduct.exe -clean:full
-Start-Sleep -Seconds 5
-taskkill /im memreduct.exe
 write-host "done" -ForegroundColor red
 pause
