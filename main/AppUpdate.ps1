@@ -50,7 +50,9 @@ winget install Andersama.obs-asio
 winget install BleachBit.BleachBit
 winget install PrismLauncher.PrismLauncher
 winget install Alex313031.Thorium.AVX2
-winget install EclipseAdoptium.Temurin.22.JRE
+winget install EclipseAdoptium.Temurin.23.JRE
+winget install EclipseAdoptium.Temurin.17.JRE
+winget install EclipseAdoptium.Temurin.11.JRE
 winget install EclipseAdoptium.Temurin.8.JRE
 winget install pizzaboxer.Bloxstrap
 winget install qBittorrent.qBittorrent
