@@ -1,4 +1,29 @@
 if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) { Start-Process pwsh.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs; exit }
+$forcestopservices = @(
+"wuauserv"
+"usosvc"
+"bits"
+"sysmain"
+)
+$updateservices = @(
+"wuauserv"
+"usosvc"
+"bits"
+)
+$forcestopprocesses = @(
+"tiworker*"
+"taskhostw*"
+"dllhost*"
+"dism*"
+"WMI*"
+)
+$disabledservices = @(
+)
+$manualservices = @(
+)
+$autoservices = @(
+)
+
 write-host "cleaning system" -ForegroundColor red
 Dism.exe /online /Cleanup-Image /StartComponentCleanup /ResetBase
 #clears temp folders
@@ -6,11 +31,6 @@ Get-ChildItem -Path "$env:TEMP" *.* -Recurse | Remove-Item -Force -Recurse
 Get-ChildItem -Path "C:\Windows\Temp\" *.* -Recurse | Remove-Item -Force -Recurse
 
 write-host "updating system" -ForegroundColor red
-$updateservices = @(
-"wuauserv"
-"usosvc"
-"bits"
-)
 #updates microsoft defender
 C:\"Program Files"\"Windows Defender"\MpCmdRun -SignatureUpdate
 Update-MpSignature -UpdateSource MicrosoftUpdateServer
@@ -389,24 +409,10 @@ sc config XblGameSave start= demand
 
 write-host "closing services and processes" -ForegroundColor red
 #stops services i dont want running
-$forcestopservices = @(
-"wuauserv"
-"usosvc"
-"bits"
-"dosvc"
-"sysmain"
-)
 Stop-Service $forcestopservices
 Get-Service -Name $forcestopservices -ErrorAction SilentlyContinue | Set-Service -StartupType disabled
 Stop-Service $forcestopservices
 Get-Service -Name $forcestopservices -ErrorAction SilentlyContinue | Set-Service -StartupType disabled
-$forcestopprocesses = @(
-"tiworker*"
-"taskhostw*"
-"dllhost*"
-"dism*"
-"WMI*"
-)
 Get-Process -Name $forcestopprocesses -ErrorAction SilentlyContinue | Stop-Process -force
 
 write-host "releasing memory" -ForegroundColor red
