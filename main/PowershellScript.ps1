@@ -1,42 +1,36 @@
 if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) { Start-Process pwsh.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs; exit }
-net stop wuauserv
-net stop UsoSvc
-net stop bits
-net stop DoSvc
-net stop sysmain
-
 write-host "cleaning system" -ForegroundColor red
 Dism.exe /online /Cleanup-Image /StartComponentCleanup /ResetBase
+#clears temp folders
 Get-ChildItem -Path "$env:TEMP" *.* -Recurse | Remove-Item -Force -Recurse
 Get-ChildItem -Path "C:\Windows\Temp\" *.* -Recurse | Remove-Item -Force -Recurse
 
 write-host "updating system" -ForegroundColor red
+$updateservices = @(
+"wuauserv"
+"usosvc"
+"bits"
+)
 #updates microsoft defender
 C:\"Program Files"\"Windows Defender"\MpCmdRun -SignatureUpdate
 Update-MpSignature -UpdateSource MicrosoftUpdateServer
 #starts needed windows update services
-sc config wuauserv start= demand
-sc config UsoSvc start= demand
-sc config bits start=demand
-net start bits
-net start wuauserv  
-net start usosvc
-start-sleep -seconds 1
+Get-Service -Name $updateservices -ErrorAction SilentlyContinue | Set-Service -StartupType manual
+Start-Service $updateservices
+start-sleep -seconds 3
 #runs windows update
 Install-Module PSWindowsUpdate -Confirm:$false
 Add-WUServiceManager -MicrosoftUpdate -Confirm:$false
 Install-WindowsUpdate -MicrosoftUpdate -AcceptAll
-start-sleep -seconds 1
-net stop wuauserv
-net stop UsoSvc
-net stop bits
-net stop DoSvc
-net stop sysmain
+start-sleep -seconds 3
+#stops update services
+Stop-Service $updateservices
+Get-Service -Name $updateservices -ErrorAction SilentlyContinue | Set-Service -StartupType disabled
 
 write-host "setting timer resolution to 0.5" -ForegroundColor red #changes the timer resolution to a lower value for slightly lower latency
-$process = "C:\SetTimerResolution.exe"
-$flags = "--resolution 5050 --no-console"
-start-process $process $flags
+$SetTimerResolution = "C:\SetTimerResolution.exe"
+$resolution = "--resolution 5050 --no-console"
+start-process $SetTimerResolution $resolution
 
 write-host "merging registry file" -ForegroundColor red
 #merges the registry.reg registry file!
@@ -199,7 +193,7 @@ Add-MpPreference -ExclusionPath $env:SystemRoot"\System32\Configuration\DSCResou
 Add-MpPreference -ExclusionPath $env:SystemRoot"\System32\Configuration\ConfigurationStatus"
 Add-MpPreference -ExclusionProcess ${env:ProgramFiles(x86)}"\Common Files\Steam\SteamService.exe"
 
-start-sleep -seconds 30
+start-sleep -seconds 15
 
 write-host "setting services" -ForegroundColor red #all these sould be safe!
 sc config DiagTrack start= disabled
@@ -394,33 +388,26 @@ sc config XboxGipSvc start= demand
 sc config XblGameSave start= demand
 
 write-host "closing services and processes" -ForegroundColor red
-net stop wuauserv #disables windows update services
-net stop UsoSvc #disables windows update services
-net stop bits #disables windows update services
-net stop DoSvc
-net stop sysmain
-sc config wuauserv start= disabled #disables windows update services
-sc config UsoSvc start= disabled #disables windows update services
-sc config bits start= disabled #disables windows update services
-sc config DoSvc start= disabled
-sc config sysmain start= disabled
-net stop wuauserv #disables windows update services
-net stop UsoSvc #disables windows update services
-net stop bits #disables windows update services
-net stop DoSvc
-net stop sysmain
-net stop TrustedInstaller
-sc config wuauserv start= disabled #disables windows update services
-sc config UsoSvc start= disabled #disables windows update services
-sc config bits start= disabled #disables windows update services
-sc config DoSvc start= disabled
-sc config sysmain start= disabled
-taskkill /f /im WMI*
-taskkill /f /im dism*
-taskkill /f /im dllhost*
-taskkill /f /im taskhostw*
-taskkill /f /im tiworker*
-taskkill /f /im WMI*
+#stops services i dont want running
+$forcestopservices = @(
+"wuauserv"
+"usosvc"
+"bits"
+"dosvc"
+"sysmain"
+)
+Stop-Service $forcestopservices
+Get-Service -Name $forcestopservices -ErrorAction SilentlyContinue | Set-Service -StartupType disabled
+Stop-Service $forcestopservices
+Get-Service -Name $forcestopservices -ErrorAction SilentlyContinue | Set-Service -StartupType disabled
+$forcestopprocesses = @(
+"tiworker*"
+"taskhostw*"
+"dllhost*"
+"dism*"
+"WMI*"
+)
+Get-Process -Name $forcestopprocesses -ErrorAction SilentlyContinue | Stop-Process -force
 
 write-host "releasing memory" -ForegroundColor red
 C:\memreduct.exe -clean:full
