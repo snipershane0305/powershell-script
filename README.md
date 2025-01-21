@@ -1,6 +1,8 @@
 This repository is for my powershell script that was made to configure a bunch of settings to improve the privacy and performance for windows and to keep these settings because windows loves reverting changes randomly.
 This script changes ALOT so make sure this wont brick anything you need.
 
+Also check out wiki section for more information about these configurations.
+
 put the StartUpScript.ps1 file in C:\Users\YOUR USERNAME HERE\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup directory, anything in this directory will start when windows boots and logins
 
 then put the PowershellScript.ps1, AppUpdate.ps1, memreduct.exe, SetTimerResolution.exe, and registry.reg into the "C:\" directory
