@@ -6,7 +6,6 @@ net stop DoSvc
 net stop sysmain
 
 write-host "cleaning system" -ForegroundColor red
-cleanmgr.exe /d C: /VERYLOWDISK
 Dism.exe /online /Cleanup-Image /StartComponentCleanup /ResetBase
 Get-ChildItem -Path "$env:TEMP" *.* -Recurse | Remove-Item -Force -Recurse
 Get-ChildItem -Path "C:\Windows\Temp\" *.* -Recurse | Remove-Item -Force -Recurse
