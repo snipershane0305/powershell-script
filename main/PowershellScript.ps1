@@ -23,13 +23,15 @@ $manualservices = @(
 )
 $autoservices = @(
 )
-
 write-host "cleaning system" -ForegroundColor red
 Dism.exe /online /Cleanup-Image /StartComponentCleanup /ResetBase
 #clears temp folders
 Get-ChildItem -Path "$env:TEMP" *.* -Recurse | Remove-Item -Force -Recurse
 Get-ChildItem -Path "C:\Windows\Temp\" *.* -Recurse | Remove-Item -Force -Recurse
-
+write-host "removing home and gallery from explorer" -ForegroundColor red
+REG DELETE \"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Desktop\\NameSpace\\{e88865ea-0e1c-4e20-9aa6-edcd0212c87c}\" /f #removes buttons from explorer i dont use
+REG DELETE \"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Desktop\\NameSpace\\{f874310e-b6b7-47dc-bc84-b9e6b38f5903}\" /f #removes buttons from explorer i dont use 
+REG ADD \"HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced\" /f /v \"LaunchTo\" /t REG_DWORD /d \"1\" #removes buttons from explorer i dont use
 write-host "updating system" -ForegroundColor red
 #updates microsoft defender
 C:\"Program Files"\"Windows Defender"\MpCmdRun -SignatureUpdate
@@ -46,27 +48,23 @@ start-sleep -seconds 3
 #stops update services
 Stop-Service $updateservices
 Get-Service -Name $updateservices -ErrorAction SilentlyContinue | Set-Service -StartupType disabled
-
 write-host "setting timer resolution to 0.5" -ForegroundColor red #changes the timer resolution to a lower value for slightly lower latency
 $SetTimerResolution = "C:\SetTimerResolution.exe"
 $resolution = "--resolution 5050 --no-console"
 start-process $SetTimerResolution $resolution
-
 write-host "merging registry file" -ForegroundColor red
 #merges the registry.reg registry file!
 reg import c:\registry.reg
-
 write-host "starting defender quick scan" -ForegroundColor red
 C:\"Program Files (x86)"\"Windows Defender"\MpCmdRun.exe -scan -scantype 1
+write-host "trimming C: drive" -ForegroundColor red
+$systemDrive = (Get-WmiObject -Class Win32_OperatingSystem).SystemDrive
+Optimize-Volume -DriveLetter $systemDrive -ReTrim
+Optimize-Volume -DriveLetter $systemDrive -SlabConsolidate
 
 write-host "Disabling powershell telemetry" -ForegroundColor red
 #disables powershell 7 telemetry (sends data without benefit)
 [Environment]::SetEnvironmentVariable('POWERSHELL_TELEMETRY_OPTOUT', '1', 'Machine')
-
-write-host "removing home and gallery from explorer" -ForegroundColor red
-REG DELETE \"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Desktop\\NameSpace\\{e88865ea-0e1c-4e20-9aa6-edcd0212c87c}\" /f #removes buttons from explorer i dont use
-REG DELETE \"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Desktop\\NameSpace\\{f874310e-b6b7-47dc-bc84-b9e6b38f5903}\" /f #removes buttons from explorer i dont use 
-REG ADD \"HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced\" /f /v \"LaunchTo\" /t REG_DWORD /d \"1\" #removes buttons from explorer i dont use
 
 write-host "disabling hibernation" -ForegroundColor red
 powercfg.exe /hibernate off #disables hiberation (writes memory to disk and saves power at cost of performance, only useful for laptops)
@@ -82,11 +80,6 @@ fsutil behavior set quotanotify 7200 #sets quota report to 2 hours
 fsutil behavior set disabledeletenotify 0 #enables trim on disk
 fsutil behavior set disableLastAccess 1 #disables last access time stamp on directories
 fsutil behavior set disable8dot3 1 #unused
-
-write-host "trimming C: drive" -ForegroundColor red
-$systemDrive = (Get-WmiObject -Class Win32_OperatingSystem).SystemDrive
-Optimize-Volume -DriveLetter $systemDrive -ReTrim
-Optimize-Volume -DriveLetter $systemDrive -SlabConsolidate
 
 write-host "applying bcdedits" -ForegroundColor red
 bcdedit /set useplatformtick yes #uses a hardware timer for ticks which is most reliable
@@ -118,7 +111,6 @@ netsh int tcp set supplemental Template=Internet CongestionProvider=ctcp #sets t
 netsh int tcp set supplemental Template=custom CongestionProvider=ctcp #sets tcp congestion provider to ctcp which is better for latency and stability
 netsh int tcp set supplemental Template=compat CongestionProvider=ctcp #sets tcp congestion provider to ctcp which is better for latency and stability
 netsh int tcp set supplemental Template=datacenter CongestionProvider=ctcp #sets tcp congestion provider to ctcp which is better for latency and stability
-
 Set-NetTCPSetting -SettingName internet -minrto 300 #lowers initial retransmition timout which helps latency
 Set-NetTCPSetting -SettingName Internetcustom -minrto 300 #lowers initial retransmition timout which helps latency
 Set-NetTCPSetting -SettingName compat -minrto 300 #lowers initial retransmition timout which helps latency
@@ -136,7 +128,6 @@ Set-NetTCPSetting -SettingName Internet -InitialCongestionWindow 10 #raises the 
 Set-NetTCPSetting -SettingName Internetcustom -InitialCongestionWindow 10 #raises the initial congestion window which makes a tcp connection start with more bandwidth
 Set-NetTCPSetting -SettingName datacenter -InitialCongestionWindow 10 #raises the initial congestion window which makes a tcp connection start with more bandwidth
 Set-NetTCPSetting -SettingName datacenter -InitialCongestionWindow 10 #raises the initial congestion window which makes a tcp connection start with more bandwidth
-
 Set-NetOffloadGlobalSetting -PacketCoalescingFilter Disabled  #disables more coalescing
 Set-NetOffloadGlobalSetting -ReceiveSegmentCoalescing Disabled #disables more coalescing
 Set-NetOffloadGlobalSetting -Chimney Disabled #forces cpu to handle network instead of NIC
@@ -150,7 +141,6 @@ foreach ($adapter in $adapters) {
     $interfaceIndex = $adapter.ifIndex
     Set-DnsClientServerAddress -InterfaceIndex $interfaceIndex -ServerAddresses "9.9.9.11"
 }
-
 write-host "setting defender settings" -ForegroundColor red
 set-mppreference -CloudBlockLevel default #enables basic cloud based protection
 set-mppreference -CloudExtendedTimeout 50 #blocks file for 50 seconds for the cloud to scan it
@@ -212,7 +202,6 @@ Add-MpPreference -ExclusionPath $env:SystemRoot"\System32\Configuration\DSCEngin
 Add-MpPreference -ExclusionPath $env:SystemRoot"\System32\Configuration\DSCResourceStateCache.mof"
 Add-MpPreference -ExclusionPath $env:SystemRoot"\System32\Configuration\ConfigurationStatus"
 Add-MpPreference -ExclusionProcess ${env:ProgramFiles(x86)}"\Common Files\Steam\SteamService.exe"
-
 start-sleep -seconds 15
 
 write-host "setting services" -ForegroundColor red #all these sould be safe!
@@ -407,7 +396,7 @@ sc config W32Time start= demand
 sc config XboxGipSvc start= demand
 sc config XblGameSave start= demand
 
-write-host "closing services and processes" -ForegroundColor red
+write-host "stopping services and processes" -ForegroundColor red
 #stops services i dont want running
 Stop-Service $forcestopservices
 Get-Service -Name $forcestopservices -ErrorAction SilentlyContinue | Set-Service -StartupType disabled
