@@ -411,6 +411,11 @@ net stop bits #disables windows update services
 net stop DoSvc
 net stop sysmain
 net stop TrustedInstaller
+sc config wuauserv start= disabled #disables windows update services
+sc config UsoSvc start= disabled #disables windows update services
+sc config bits start= disabled #disables windows update services
+sc config DoSvc start= disabled
+sc config sysmain start= disabled
 taskkill /f /im WMI*
 taskkill /f /im dism*
 taskkill /f /im dllhost*
