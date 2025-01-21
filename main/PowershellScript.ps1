@@ -86,7 +86,6 @@ bcdedit /set usephysicaldestination no #disables physical apic for x2apicpolicy
 bcdedit /set usefirmwarepcisettings no #disables BIOS PCI resources
 bcdedit /set linearaddress57 OptOut #disables 57 bit virtual memory and keeps it at 48 bit (you dont need 128 petabytes of virtual memory!)
 bcdedit /set nx OptIn #enables data execution prevention which improves security
-bcdedit /set firstmegabytepolicy UseAll #changes how the operating system uses the first megabyte of memory during boot by letting it UseAll
 
 write-host "applying network settings" -ForegroundColor red
 netsh int tcp set global rss = enabled #enables recieve side scaling which lets more than one core handle tcp
