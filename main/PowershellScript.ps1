@@ -78,7 +78,7 @@ Optimize-Volume -DriveLetter $systemDrive -SlabConsolidate
 write-host "applying bcdedits" -ForegroundColor red
 bcdedit /set useplatformtick yes #uses a hardware timer for ticks which is most reliable
 bcdedit /set disabledynamictick yes #disables platform tick from being dynamic which is more stable
-bcdedit /set useplatformclock no #disable use of platform clock which is less stable
+bcdedit /set useplatformclock yes #enables HPET (high percision event timer)
 bcdedit /set tscsyncpolicy enhanced #sets time stamp counter synchronization policy to enhanced
 bcdedit /set MSI Default #sets the use of interrupt type to message signaled interrupts which was added for PCI 2.2 which is newer than the old line based interrupts
 bcdedit /set x2apicpolicy Enable #uses the newer apic mode
@@ -87,6 +87,7 @@ bcdedit /set usephysicaldestination no #disables physical apic for x2apicpolicy
 bcdedit /set usefirmwarepcisettings no #disables BIOS PCI resources
 bcdedit /set linearaddress57 OptOut #disables 57 bit virtual memory and keeps it at 48 bit (you dont need 128 petabytes of virtual memory!)
 bcdedit /set nx OptIn #enables data execution prevention which improves security
+bcdedit /set firstmegabytepolicy UseAll #changes how the operating system uses the first megabyte of memory during boot by letting it UseAll
 
 write-host "applying network settings" -ForegroundColor red
 netsh int tcp set global rss = enabled #enables recieve side scaling which lets more than one core handle tcp
