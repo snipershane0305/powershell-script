@@ -96,48 +96,106 @@ bcdedit /set linearaddress57 OptOut #disables 57 bit virtual memory and keeps it
 bcdedit /set nx OptIn #enables data execution prevention which improves security
 
 write-host "applying network settings" -ForegroundColor red
-netsh int tcp set global rss = enabled #enables recieve side scaling which lets more than one core handle tcp
-netsh int tcp set global prr= enable #helps a tcp connection from recovering from packet loss quicker for less latency
-netsh int tcp set global nonsackrttresiliency=enabled #improves the reliability of tcp over high-latency networks
-netsh int tcp set global ecncapability= enable #ecncapability will notify if there is congestion to help packet loss, will only be used if both the client and server support it
-netsh int tcp set global rsc= disable #disables receive segment coalescing which makes small packets combine, this helps with computing many packets but at the cost of latency
+netsh winsock set autotuning on
 netsh int teredo set state disabled #disables teredo (used for ipv6)
 netsh int ipv4 set dynamicport tcp start=1025 num=64511 #sets the ports tcp can use
 netsh int ipv4 set dynamicport udp start=1025 num=64511 #sets the ports tcp can use
-
-netsh int tcp set supplemental template=internet enablecwndrestart= enabled #enables cwndreset which help the congestion window to change faster allowing for more through put quicker
-netsh int tcp set supplemental template=custom enablecwndrestart= enabled #enables cwndreset which help the congestion window to change faster allowing for more through put quicker
-netsh int tcp set supplemental template=compat enablecwndrestart= enabled #enables cwndreset which help the congestion window to change faster allowing for more through put quicker
-netsh int tcp set supplemental template=datacenter enablecwndrestart= enabled #enables cwndreset which help the congestion window to change faster allowing for more through put quicker
-
+netsh int tcp set security mpp=disabled
+netsh int tcp set global autotuninglevel=normal
+netsh int tcp set global timestamps=enabled
+netsh int tcp set global maxsynretransmissions=2
+netsh int tcp set global fastopen=enabled
+netsh int tcp set global fastopenfallback=enabled
+netsh int tcp set global hystart=enabled
+netsh int tcp set global pacingprofile=off
+netsh int tcp set global rss=enabled #enables recieve side scaling which lets more than one core handle tcp
+netsh int tcp set global prr=enable #helps a tcp connection from recovering from packet loss quicker for less latency
+netsh int tcp set global nonsackrttresiliency=enabled #improves the reliability of tcp over high-latency networks
+netsh int tcp set global ecncapability=enable #ecncapability will notify if there is congestion to help packet loss, will only be used if both the client and server support it
+netsh int tcp set global rsc=disable #disables receive segment coalescing which makes small packets combine, this helps with computing many packets but at the cost of latency
+netsh int tcp set supplemental template=internet enablecwndrestart=enabled #enables cwndreset which help the congestion window to change faster allowing for more through put quicker
+netsh int tcp set supplemental template=custom enablecwndrestart=enabled #enables cwndreset which help the congestion window to change faster allowing for more through put quicker
+netsh int tcp set supplemental template=compat enablecwndrestart=enabled #enables cwndreset which help the congestion window to change faster allowing for more through put quicker
+netsh int tcp set supplemental template=datacenter enablecwndrestart=enabled #enables cwndreset which help the congestion window to change faster allowing for more through put quicker
 netsh int tcp set supplemental Template=Internet CongestionProvider=ctcp #sets tcp congestion provider to ctcp which is better for latency and stability
 netsh int tcp set supplemental Template=custom CongestionProvider=ctcp #sets tcp congestion provider to ctcp which is better for latency and stability
 netsh int tcp set supplemental Template=compat CongestionProvider=ctcp #sets tcp congestion provider to ctcp which is better for latency and stability
 netsh int tcp set supplemental Template=datacenter CongestionProvider=ctcp #sets tcp congestion provider to ctcp which is better for latency and stability
-
 Set-NetTCPSetting -SettingName internet -minrto 300 #lowers initial retransmition timout which helps latency
 Set-NetTCPSetting -SettingName Internetcustom -minrto 300 #lowers initial retransmition timout which helps latency
 Set-NetTCPSetting -SettingName datacentercustom -minrto 300 #lowers initial retransmition timout which helps latency
+Set-NetTCPSetting -SettingName datacenter -minrto 300 #lowers initial retransmition timout which helps latency
 Set-NetTCPSetting -SettingName compat -minrto 300 #lowers initial retransmition timout which helps latency
-
+Set-NetTCPSetting -SettingName Internet -InitialCongestionWindow 20 #raises the initial congestion window which makes a tcp connection start with more bandwidth
+Set-NetTCPSetting -SettingName Internetcustom -InitialCongestionWindow 20 #raises the initial congestion window which makes a tcp connection start with more bandwidth
+Set-NetTCPSetting -SettingName datacentercustom -InitialCongestionWindow 20 #raises the initial congestion window which makes a tcp connection start with more bandwidth
+Set-NetTCPSetting -SettingName datacenter -InitialCongestionWindow 20 #raises the initial congestion window which makes a tcp connection start with more bandwidth
+Set-NetTCPSetting -SettingName compat -InitialCongestionWindow 20 #raises the initial congestion window which makes a tcp connection start with more bandwidth
+Set-NetTCPSetting -SettingName internet -CongestionProvider CTCP
+Set-NetTCPSetting -SettingName InternetCustom -CongestionProvider CTCP
+Set-NetTCPSetting -SettingName datacentercustom -CongestionProvider CTCP
+Set-NetTCPSetting -SettingName datacenter -CongestionProvider CTCP
+Set-NetTCPSetting -SettingName compat -CongestionProvider CTCP
+Set-NetTCPSetting -SettingName internet -CwndRestart true
+Set-NetTCPSetting -SettingName Internetcustom -CwndRestart true
+Set-NetTCPSetting -SettingName datacentercustom -CwndRestart true
+Set-NetTCPSetting -SettingName datacenter -CwndRestart true
+Set-NetTCPSetting -SettingName compat -CwndRestart true
+Set-NetTCPSetting -SettingName internet -DelayedAckTimeout 10
+Set-NetTCPSetting -SettingName Internetcustom -DelayedAckTimeout 10
+Set-NetTCPSetting -SettingName datacentercustom -DelayedAckTimeout 10
+Set-NetTCPSetting -SettingName datacenter -DelayedAckTimeout 10
+Set-NetTCPSetting -SettingName compat -DelayedAckTimeout 10
+Set-NetTCPSetting -SettingName internet -DelayedAckFrequency 2
+Set-NetTCPSetting -SettingName Internetcustom -DelayedAckFrequency 2
+Set-NetTCPSetting -SettingName datacentercustom -DelayedAckFrequency 2
+Set-NetTCPSetting -SettingName datacenter -DelayedAckFrequency 2
+Set-NetTCPSetting -SettingName compat -DelayedAckFrequency 2
+Set-NetTCPSetting -SettingName internet -MemoryPressureProtection disabled
+Set-NetTCPSetting -SettingName Internetcustom -MemoryPressureProtection disabled
+Set-NetTCPSetting -SettingName datacentercustom -MemoryPressureProtection disabled
+Set-NetTCPSetting -SettingName datacenter -MemoryPressureProtection disabled
+Set-NetTCPSetting -SettingName compat -MemoryPressureProtection disabled
+Set-NetTCPSetting -SettingName internet -AutoTuningLevelLocal normal
+Set-NetTCPSetting -SettingName Internetcustom -AutoTuningLevelLocal normal
+Set-NetTCPSetting -SettingName datacentercustom -AutoTuningLevelLocal normal
+Set-NetTCPSetting -SettingName datacenter -AutoTuningLevelLocal normal
+Set-NetTCPSetting -SettingName compat -AutoTuningLevelLocal normal
+Set-NetTCPSetting -SettingName internet -EcnCapability enabled
+Set-NetTCPSetting -SettingName Internetcustom -EcnCapability enabled
+Set-NetTCPSetting -SettingName datacentercustom -EcnCapability enabled
+Set-NetTCPSetting -SettingName datacenter -EcnCapability enabled
+Set-NetTCPSetting -SettingName compat -EcnCapability enabled
+Set-NetTCPSetting -SettingName internet -Timestamps enabled
+Set-NetTCPSetting -SettingName Internetcustom -Timestamps enabled
+Set-NetTCPSetting -SettingName datacentercustom -Timestamps enabled
+Set-NetTCPSetting -SettingName datacenter -Timestamps enabled
+Set-NetTCPSetting -SettingName compat -Timestamps enabled
+Set-NetTCPSetting -SettingName internet -InitialRto 1000
+Set-NetTCPSetting -SettingName Internetcustom -InitialRto 1000
+Set-NetTCPSetting -SettingName datacentercustom -InitialRto 1000
+Set-NetTCPSetting -SettingName datacenter -InitialRto 1000
+Set-NetTCPSetting -SettingName compat -InitialRto 1000
 Set-NetTCPSetting -SettingName internet -ScalingHeuristics disabled #unneeded feature
 Set-NetTCPSetting -SettingName internetcustom -ScalingHeuristics disabled #unneeded feature
 Set-NetTCPSetting -SettingName datacentercustom -ScalingHeuristics disabled #unneeded feature
 Set-NetTCPSetting -SettingName datacenter -ScalingHeuristics disabled #unneeded feature
 Set-NetTCPSetting -SettingName compat -ScalingHeuristics disabled #unneeded feature
-
+Set-NetTCPSetting -SettingName internet -NonSackRttResiliency enabled
+Set-NetTCPSetting -SettingName Internetcustom -NonSackRttResiliency enabled
+Set-NetTCPSetting -SettingName datacentercustom -NonSackRttResiliency enabled
+Set-NetTCPSetting -SettingName datacenter -NonSackRttResiliency enabled
+Set-NetTCPSetting -SettingName compat -NonSackRttResiliency enabled
+Set-NetTCPSetting -SettingName internet -ForceWS enabled
+Set-NetTCPSetting -SettingName Internetcustom -ForceWS enabled
+Set-NetTCPSetting -SettingName datacentercustom -ForceWS enabled
+Set-NetTCPSetting -SettingName datacenter -ForceWS enabled
+Set-NetTCPSetting -SettingName compat -ForceWS enabled
 Set-NetTCPSetting -SettingName internet -MaxSynRetransmissions 2 #sets max retransmitions to 2!
 Set-NetTCPSetting -SettingName internetcustom -MaxSynRetransmissions 2 #sets max retransmitions to 2!
 Set-NetTCPSetting -SettingName datacentercustom -MaxSynRetransmissions 2 #sets max retransmitions to 2!
 Set-NetTCPSetting -SettingName datacenter -MaxSynRetransmissions 2 #sets max retransmitions to 2!
 Set-NetTCPSetting -SettingName compat -MaxSynRetransmissions 2 #sets max retransmitions to 2!
-
-Set-NetTCPSetting -SettingName Internet -InitialCongestionWindow 10 #raises the initial congestion window which makes a tcp connection start with more bandwidth
-Set-NetTCPSetting -SettingName Internetcustom -InitialCongestionWindow 10 #raises the initial congestion window which makes a tcp connection start with more bandwidth
-Set-NetTCPSetting -SettingName datacentercustom -InitialCongestionWindow 10 #raises the initial congestion window which makes a tcp connection start with more bandwidth
-Set-NetTCPSetting -SettingName datacenter -InitialCongestionWindow 10 #raises the initial congestion window which makes a tcp connection start with more bandwidth
-Set-NetTCPSetting -SettingName compat -InitialCongestionWindow 10 #raises the initial congestion window which makes a tcp connection start with more bandwidth
-
 Set-NetOffloadGlobalSetting -PacketCoalescingFilter Disabled  #disables more coalescing
 Set-NetOffloadGlobalSetting -ReceiveSegmentCoalescing Disabled #disables more coalescing
 Set-NetOffloadGlobalSetting -Chimney Disabled #forces cpu to handle network instead of NIC
