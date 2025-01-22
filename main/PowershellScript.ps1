@@ -1,3 +1,4 @@
+#force opens powershell 7 as admin.
 if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) { Start-Process pwsh.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs; exit }
 $forcestopservices = @(
 "wuauserv"
@@ -103,31 +104,40 @@ netsh int tcp set global rsc= disable #disables receive segment coalescing which
 netsh int teredo set state disabled #disables teredo (used for ipv6)
 netsh int ipv4 set dynamicport tcp start=1025 num=64511 #sets the ports tcp can use
 netsh int ipv4 set dynamicport udp start=1025 num=64511 #sets the ports tcp can use
+
 netsh int tcp set supplemental template=internet enablecwndrestart= enabled #enables cwndreset which help the congestion window to change faster allowing for more through put quicker
 netsh int tcp set supplemental template=custom enablecwndrestart= enabled #enables cwndreset which help the congestion window to change faster allowing for more through put quicker
 netsh int tcp set supplemental template=compat enablecwndrestart= enabled #enables cwndreset which help the congestion window to change faster allowing for more through put quicker
 netsh int tcp set supplemental template=datacenter enablecwndrestart= enabled #enables cwndreset which help the congestion window to change faster allowing for more through put quicker
+
 netsh int tcp set supplemental Template=Internet CongestionProvider=ctcp #sets tcp congestion provider to ctcp which is better for latency and stability
 netsh int tcp set supplemental Template=custom CongestionProvider=ctcp #sets tcp congestion provider to ctcp which is better for latency and stability
 netsh int tcp set supplemental Template=compat CongestionProvider=ctcp #sets tcp congestion provider to ctcp which is better for latency and stability
 netsh int tcp set supplemental Template=datacenter CongestionProvider=ctcp #sets tcp congestion provider to ctcp which is better for latency and stability
+
 Set-NetTCPSetting -SettingName internet -minrto 300 #lowers initial retransmition timout which helps latency
 Set-NetTCPSetting -SettingName Internetcustom -minrto 300 #lowers initial retransmition timout which helps latency
+Set-NetTCPSetting -SettingName datacentercustom -minrto 300 #lowers initial retransmition timout which helps latency
 Set-NetTCPSetting -SettingName compat -minrto 300 #lowers initial retransmition timout which helps latency
+
 Set-NetTCPSetting -SettingName internet -ScalingHeuristics disabled #unneeded feature
 Set-NetTCPSetting -SettingName internetcustom -ScalingHeuristics disabled #unneeded feature
 Set-NetTCPSetting -SettingName datacentercustom -ScalingHeuristics disabled #unneeded feature
-Set-NetTCPSetting -SettingName compat -ScalingHeuristics disabled #unneeded feature
 Set-NetTCPSetting -SettingName datacenter -ScalingHeuristics disabled #unneeded feature
+Set-NetTCPSetting -SettingName compat -ScalingHeuristics disabled #unneeded feature
+
 Set-NetTCPSetting -SettingName internet -MaxSynRetransmissions 2 #sets max retransmitions to 2!
 Set-NetTCPSetting -SettingName internetcustom -MaxSynRetransmissions 2 #sets max retransmitions to 2!
 Set-NetTCPSetting -SettingName datacentercustom -MaxSynRetransmissions 2 #sets max retransmitions to 2!
-Set-NetTCPSetting -SettingName compat -MaxSynRetransmissions 2 #sets max retransmitions to 2!
 Set-NetTCPSetting -SettingName datacenter -MaxSynRetransmissions 2 #sets max retransmitions to 2!
+Set-NetTCPSetting -SettingName compat -MaxSynRetransmissions 2 #sets max retransmitions to 2!
+
 Set-NetTCPSetting -SettingName Internet -InitialCongestionWindow 10 #raises the initial congestion window which makes a tcp connection start with more bandwidth
 Set-NetTCPSetting -SettingName Internetcustom -InitialCongestionWindow 10 #raises the initial congestion window which makes a tcp connection start with more bandwidth
+Set-NetTCPSetting -SettingName datacentercustom -InitialCongestionWindow 10 #raises the initial congestion window which makes a tcp connection start with more bandwidth
 Set-NetTCPSetting -SettingName datacenter -InitialCongestionWindow 10 #raises the initial congestion window which makes a tcp connection start with more bandwidth
-Set-NetTCPSetting -SettingName datacenter -InitialCongestionWindow 10 #raises the initial congestion window which makes a tcp connection start with more bandwidth
+Set-NetTCPSetting -SettingName compat -InitialCongestionWindow 10 #raises the initial congestion window which makes a tcp connection start with more bandwidth
+
 Set-NetOffloadGlobalSetting -PacketCoalescingFilter Disabled  #disables more coalescing
 Set-NetOffloadGlobalSetting -ReceiveSegmentCoalescing Disabled #disables more coalescing
 Set-NetOffloadGlobalSetting -Chimney Disabled #forces cpu to handle network instead of NIC
