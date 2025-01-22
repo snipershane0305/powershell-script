@@ -28,22 +28,6 @@ Windows Registry Editor Version 5.00
 ;disable windows update "updating" drivers
 [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\DriverSearching]
 "SearchOrderConfig"=dword:00000000
-;disabled throttling and disables slight delay in windows
-[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile]
-"NetworkThrottlingIndex"=dword:ffffffff
-"SystemResponsiveness"=dword:00000000
-;tcp optimization
-[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Psched]
-"NonBestEffortLimit"=dword:00000000
-;tcp optimization
-[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters]
-"EnableConnectionRateLimiting"=dword:00000000
-"MaxUserPort"=dword:00065534
-"TcpTimedWaitDelay"=dword:00000030
-"DefaultTTL"=dword:00000064
-;tcp optimization
-[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\AFD\Parameters]
-"FastSendDatagramThreshold"=dword:00064000
 ;privacy change
 [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location]
 "Value"="Deny"
