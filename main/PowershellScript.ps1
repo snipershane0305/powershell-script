@@ -67,8 +67,6 @@ Enable-MMAgent -mc #enabled memory compression (saves some memory but takes cpu 
 write-host "applying fsutil settings" -ForegroundColor red
 fsutil behavior set disablecompression 1 #disables ntfs compression which isnt effective
 fsutil behavior set encryptpagingfile 0 #disables encryption on the pagefile.sys file which is disk space that is used as memory and is less performant
-fsutil behavior set mftzone 4 #sets the mft zone to 800MB (the mft zone stores entries about everything about every file)
-fsutil behavior set quotanotify 7200 #sets quota report to 2 hours
 fsutil behavior set disabledeletenotify 0 #enables trim on disk
 fsutil behavior set disableLastAccess 1 #disables last access time stamp on directories
 fsutil behavior set disable8dot3 1 #unused
@@ -76,14 +74,13 @@ fsutil behavior set disable8dot3 1 #unused
 write-host "applying bcdedits" -ForegroundColor red
 bcdedit /set useplatformtick yes #uses a hardware timer for ticks which is most reliable
 bcdedit /set disabledynamictick yes #disables platform tick from being dynamic which is more stable
-bcdedit /set useplatformclock yes #enables HPET (high percision event timer)
+bcdedit /set useplatformclock yes #enables HPET (high percision event timer) //#DANGEROUS!!//
 bcdedit /set tscsyncpolicy enhanced #sets time stamp counter synchronization policy to enhanced
 bcdedit /set MSI Default #sets the use of interrupt type to message signaled interrupts which was added for PCI 2.2 which is newer than the old line based interrupts
 bcdedit /set x2apicpolicy Enable #uses the newer apic mode
 bcdedit /deletevalue uselegacyapicmode | Out-Null #deletes old legacy apic mode
 bcdedit /set usephysicaldestination no #disables physical apic for x2apicpolicy
 bcdedit /set usefirmwarepcisettings no #disables BIOS PCI resources
-bcdedit /set linearaddress57 OptOut #disables 57 bit virtual memory and keeps it at 48 bit (you dont need 128 petabytes of virtual memory!)
 bcdedit /set nx OptIn #enables data execution prevention which improves security
 
 write-host "applying network settings" -ForegroundColor red
