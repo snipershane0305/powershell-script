@@ -9,17 +9,6 @@ Windows Registry Editor Version 5.00
 [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\NlaSvc\Parameters\Internet]
 "EnableActiveProbing"=dword:00000000
 ;disables windows update
-[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU]
-"NoAutoUpdate"=dword:00000001
-"AUOptions"=dword:00000001
-"ExcludeWUDriversInQualityUpdate"=dword:00000001
-"NoAutoRebootWithLoggedOnUsers"=dword:00000001
-;disables windows update
-[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\DriverSearching]
-"DontPromptForWindowsUpdate"=dword:00000001
-"DontSearchWindowsUpdate"=dword:00000001
-"DriverUpdateWizardWuSearchEnabled"=dword:00000000
-;disables windows update
 [HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Device Metadata]
 "PreventDeviceMetadataFromNetwork"=dword:00000001
 ;disables windows update seeding with other computers
