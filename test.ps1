@@ -3,6 +3,7 @@ if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
 Import-Module ScheduledTasks
 Import-Module NetAdapter
 Import-Module NetTCPIP
+Import-Module DnsClient
 
 $updateservices = @(
 "wuauserv"
@@ -63,14 +64,14 @@ C:\"Program Files (x86)"\"Windows Defender"\MpCmdRun.exe -scan -scantype 1
 
 write-host "trimming C: drive" -ForegroundColor red
 $systemDrive = (Get-WmiObject -Class Win32_OperatingSystem).SystemDrive
-Optimize-Volume -DriveLetter $systemDrive -ReTrim | Out-Null
-Optimize-Volume -DriveLetter $systemDrive -SlabConsolidate | Out-Null
+Optimize-Volume -DriveLetter $systemDrive -ReTrim
+Optimize-Volume -DriveLetter $systemDrive -SlabConsolidate
 
 write-host "cleaning system" -ForegroundColor red
 Dism.exe /online /Cleanup-Image /StartComponentCleanup /ResetBase
 #clears temp folders
-Get-ChildItem -Path "$env:TEMP" *.* -Recurse | Remove-Item -Force -Recurse | Out-Null
-Get-ChildItem -Path "C:\Windows\Temp\" *.* -Recurse | Remove-Item -Force -Recurse | Out-Null
+Get-ChildItem -Path "$env:TEMP" *.* -Recurse | Remove-Item -Force -Recurse
+Get-ChildItem -Path "C:\Windows\Temp\" *.* -Recurse | Remove-Item -Force -Recurse
 
 write-host "setting timer resolution to 0.5" -ForegroundColor red
 $SetTimerResolution = "C:\SetTimerResolution.exe"
@@ -283,25 +284,25 @@ Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting
 Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Remote Assistance" -Name "fAllowToGetHelp" -Type DWord -Value 0
 
 #disabling scheduled tasks
-Disable-ScheduledTask -taskpath "\Microsoft\Windows\WindowsUpdate" -TaskName "Scheduled Start"
-Disable-ScheduledTask -taskpath "\Microsoft\Windows\Windows Error Reporting" -TaskName "QueueReporting"
-Disable-ScheduledTask -taskpath "\Microsoft\Windows\User Profile Service" -TaskName "HiveUploadTask"
-Disable-ScheduledTask -taskpath "\Microsoft\Windows\UpdateOrchestrator" -TaskName "Schedule Scan"
-Disable-ScheduledTask -taskpath "\Microsoft\Windows\UpdateOrchestrator" -TaskName "Schedule Scan Static Task"
-Disable-ScheduledTask -taskpath "\Microsoft\Windows\Maps" -TaskName "MapsUpdateTask"
-Disable-ScheduledTask -taskpath "\Microsoft\Windows\Application Experience" -TaskName "MareBackup"
-Disable-ScheduledTask -taskpath "\Microsoft\Windows\Application Experience" -TaskName "Microsoft Compatibility Appraiser"
-Disable-ScheduledTask -taskpath "\Microsoft\Windows\Application Experience" -TaskName "Microsoft Compatibility Appraiser Exp"
-Disable-ScheduledTask -taskpath "\Microsoft\Windows\Application Experience" -TaskName "StartupAppTask"
-Disable-ScheduledTask -taskpath "\Microsoft\Windows\Application Experience" -TaskName "PcaPatchDbTask"
-Disable-ScheduledTask -taskpath "\Microsoft\Windows\Autochk" -TaskName "Proxy"
-Disable-ScheduledTask -taskpath "\Microsoft\Windows\Customer Experience Improvement Program" -TaskName "Consolidator"
-Disable-ScheduledTask -taskpath "\Microsoft\Windows\Customer Experience Improvement Program" -TaskName "UsbCeip"
-Disable-ScheduledTask -taskpath "\Microsoft\Windows\DiskDiagnostic" -TaskName "Microsoft-Windows-DiskDiagnosticDataCollector"
-Disable-ScheduledTask -taskpath "\Microsoft\Windows\DiskDiagnostic" -TaskName "Microsoft-Windows-DiskDiagnosticResolver"
-Disable-ScheduledTask -taskpath "\Microsoft\Windows\Feedback\Siuf" -TaskName "DmClient"
-Disable-ScheduledTask -taskpath "\Microsoft\Windows\Feedback\Siuf" -TaskName "DmClientOnScenarioDownload"
-Disable-ScheduledTask -taskpath "\Microsoft\Windows\Windows Error Reporting" -TaskName "QueueReporting"
+Disable-ScheduledTask -taskpath "\Microsoft\Windows\WindowsUpdate" -TaskName "Scheduled Start" | Out-Null
+Disable-ScheduledTask -taskpath "\Microsoft\Windows\Windows Error Reporting" -TaskName "QueueReporting" | Out-Null
+Disable-ScheduledTask -taskpath "\Microsoft\Windows\User Profile Service" -TaskName "HiveUploadTask" | Out-Null
+Disable-ScheduledTask -taskpath "\Microsoft\Windows\UpdateOrchestrator" -TaskName "Schedule Scan" | Out-Null
+Disable-ScheduledTask -taskpath "\Microsoft\Windows\UpdateOrchestrator" -TaskName "Schedule Scan Static Task" | Out-Null
+Disable-ScheduledTask -taskpath "\Microsoft\Windows\Maps" -TaskName "MapsUpdateTask" | Out-Null
+Disable-ScheduledTask -taskpath "\Microsoft\Windows\Application Experience" -TaskName "MareBackup" | Out-Null
+Disable-ScheduledTask -taskpath "\Microsoft\Windows\Application Experience" -TaskName "Microsoft Compatibility Appraiser" | Out-Null
+Disable-ScheduledTask -taskpath "\Microsoft\Windows\Application Experience" -TaskName "Microsoft Compatibility Appraiser Exp" | Out-Null
+Disable-ScheduledTask -taskpath "\Microsoft\Windows\Application Experience" -TaskName "StartupAppTask" | Out-Null
+Disable-ScheduledTask -taskpath "\Microsoft\Windows\Application Experience" -TaskName "PcaPatchDbTask" | Out-Null
+Disable-ScheduledTask -taskpath "\Microsoft\Windows\Autochk" -TaskName "Proxy" | Out-Null
+Disable-ScheduledTask -taskpath "\Microsoft\Windows\Customer Experience Improvement Program" -TaskName "Consolidator" | Out-Null
+Disable-ScheduledTask -taskpath "\Microsoft\Windows\Customer Experience Improvement Program" -TaskName "UsbCeip" | Out-Null
+Disable-ScheduledTask -taskpath "\Microsoft\Windows\DiskDiagnostic" -TaskName "Microsoft-Windows-DiskDiagnosticDataCollector" | Out-Null
+Disable-ScheduledTask -taskpath "\Microsoft\Windows\DiskDiagnostic" -TaskName "Microsoft-Windows-DiskDiagnosticResolver" | Out-Null
+Disable-ScheduledTask -taskpath "\Microsoft\Windows\Feedback\Siuf" -TaskName "DmClient" | Out-Null
+Disable-ScheduledTask -taskpath "\Microsoft\Windows\Feedback\Siuf" -TaskName "DmClientOnScenarioDownload" | Out-Null
+Disable-ScheduledTask -taskpath "\Microsoft\Windows\Windows Error Reporting" -TaskName "QueueReporting" | Out-Null
 
 write-host "stopping services and processes" -ForegroundColor red
 #stops services i dont want running
