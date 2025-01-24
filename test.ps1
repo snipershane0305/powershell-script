@@ -1,5 +1,9 @@
 #force opens powershell 7 as admin.
 if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) { Start-Process pwsh.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs; exit }
+Import-Module ScheduledTasks
+Import-Module NetAdapter
+Import-Module NetTCPIP
+
 $updateservices = @(
 "wuauserv"
 "usosvc"
@@ -59,14 +63,14 @@ C:\"Program Files (x86)"\"Windows Defender"\MpCmdRun.exe -scan -scantype 1
 
 write-host "trimming C: drive" -ForegroundColor red
 $systemDrive = (Get-WmiObject -Class Win32_OperatingSystem).SystemDrive
-Optimize-Volume -DriveLetter $systemDrive -ReTrim
-Optimize-Volume -DriveLetter $systemDrive -SlabConsolidate
+Optimize-Volume -DriveLetter $systemDrive -ReTrim | Out-Null
+Optimize-Volume -DriveLetter $systemDrive -SlabConsolidate | Out-Null
 
 write-host "cleaning system" -ForegroundColor red
 Dism.exe /online /Cleanup-Image /StartComponentCleanup /ResetBase
 #clears temp folders
-Get-ChildItem -Path "$env:TEMP" *.* -Recurse | Remove-Item -Force -Recurse
-Get-ChildItem -Path "C:\Windows\Temp\" *.* -Recurse | Remove-Item -Force -Recurse
+Get-ChildItem -Path "$env:TEMP" *.* -Recurse | Remove-Item -Force -Recurse | Out-Null
+Get-ChildItem -Path "C:\Windows\Temp\" *.* -Recurse | Remove-Item -Force -Recurse | Out-Null
 
 write-host "setting timer resolution to 0.5" -ForegroundColor red
 $SetTimerResolution = "C:\SetTimerResolution.exe"
@@ -224,6 +228,7 @@ Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Explorer
 
 #Windows update
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config" -Name "DODownloadMode" -Type DWord -Value 0
+New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Device Metadata" -Force | Out-Null
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Device Metadata" -Name "PreventDeviceMetadataFromNetwork" -Type DWord -Value 1
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DriverSearching" -Name "SearchOrderConfig" -Type DWord -Value 0
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DriverSearching" -Name "DontPromptForWindowsUpdate" -Type DWord -Value 1
@@ -263,10 +268,12 @@ Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Capabili
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Sensor\Overrides\{BFA794E4-F964-4FDB-90F6-51056BFE4B44}" -Name "SensorPermissionState" -Type DWord -Value 0
 Set-ItemProperty -Path "HKLM:\SYSTEM\Maps" -Name "AutoUpdateEnabled" -Type DWord -Value 0
 Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters" -Name "EnableMDNS" -Type DWord -Value 0
+New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\DNSClient" -Force | Out-Null
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\DNSClient" -Name "EnableMulticast" -Type DWord -Value 0
 Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\NlaSvc\Parameters\Internet" -Name "EnableActiveProbing" -Type DWord -Value 0
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\PolicyManager\default\Wifi\AllowWiFiHotSpotReporting" -Name "Value" -Type DWord -Value 0
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\PolicyManager\default\Wifi\AllowAutoConnectToWiFiSenseHotspots" -Name "Value" -Type DWord -Value 0
+New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\StorageSense\Parameters\StoragePolicy" -Force | Out-Null
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\StorageSense\Parameters\StoragePolicy" -Name "01" -Type DWord -Value 0
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection" -Name "AllowTelemetry" -Type DWord -Value 0
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry" -Type DWord -Value 0
