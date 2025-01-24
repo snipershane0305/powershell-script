@@ -54,7 +54,6 @@ start-sleep -seconds 3
 #stops update services
 Stop-Service $updateservices
 Get-Service -Name $updateservices -ErrorAction SilentlyContinue | Set-Service -StartupType disabled
-
 write-host "starting defender quick scan" -ForegroundColor red
 C:\"Program Files (x86)"\"Windows Defender"\MpCmdRun.exe -scan -scantype 1
 
@@ -68,9 +67,6 @@ Dism.exe /online /Cleanup-Image /StartComponentCleanup /ResetBase
 #clears temp folders
 Get-ChildItem -Path "$env:TEMP" *.* -Recurse | Remove-Item -Force -Recurse
 Get-ChildItem -Path "C:\Windows\Temp\" *.* -Recurse | Remove-Item -Force -Recurse
-
-
-
 
 write-host "setting timer resolution to 0.5" -ForegroundColor red
 $SetTimerResolution = "C:\SetTimerResolution.exe"
@@ -120,7 +116,6 @@ Set-NetOffloadGlobalSetting -ReceiveSegmentCoalescing Disabled #disables more co
 Set-NetOffloadGlobalSetting -Chimney Disabled #forces cpu to handle network instead of NIC
 Enable-NetAdapterChecksumOffload -Name * #forces cpu to handle network instead of NIC
 Disable-NetAdapterLso -Name * #disables large send offload which uses NIC instead of cpu (using the cpu for handing network tasks can help latency if your cpu is strong enough)
-
 
 write-host "setting dns" -ForegroundColor red
 #sets dns server to quad9's secure and ENC capatible dns
