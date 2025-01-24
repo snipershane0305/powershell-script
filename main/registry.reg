@@ -8,27 +8,9 @@ Windows Registry Editor Version 5.00
 ;privacy
 [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\NlaSvc\Parameters\Internet]
 "EnableActiveProbing"=dword:00000000
-;disables windows update
-[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Device Metadata]
-"PreventDeviceMetadataFromNetwork"=dword:00000001
-;disables windows update seeding with other computers
-[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization]
-"DODownloadMode"=dword:00000000
 ;privacy change
 [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location]
 "Value"="Deny"
-;privacy change
-[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Sensor\Overrides\{BFA794E4-F964-4FDB-90F6-51056BFE4B44}]
-"SensorPermissionState"=dword:00000000
-;privacy change
-[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\lfsvc\Service\Configuration]
-"Status"=dword:00000000
-;privacy change
-[HKEY_LOCAL_MACHINE\SYSTEM\Maps]
-"AutoUpdateEnabled"=dword:00000000
-;privacy change
-[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CloudContent]
-"DisableWindowsConsumerFeatures"=dword:00000001
 ;privacy change
 [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PolicyManager\default\Wifi\AllowWiFiHotSpotReporting]
 "Value"=dword:00000000
