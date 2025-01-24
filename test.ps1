@@ -1,11 +1,5 @@
 #force opens powershell 7 as admin.
 if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) { Start-Process pwsh.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs; exit }
-$forcestopservices = @(
-"wuauserv"
-"usosvc"
-"bits"
-"sysmain"
-)
 $updateservices = @(
 "wuauserv"
 "usosvc"
@@ -22,7 +16,29 @@ $forcestopprocesses = @(
 "dism*"
 "WMI*"
 )
-
+$forcestopservices = @(
+"wuauserv"
+"usosvc"
+"bits"
+"sysmain"
+)
+$disabledservices = @(
+"WSearch"
+"SSDPSRV"
+"SysMain"
+"lmhosts"
+"RasMan"
+"RmSvc"
+"Spooler"
+"lfsvc"
+"DispBrokerDesktopSvc"
+"DisplayEnhancementService"
+"bthserv"
+)
+$manualservices = @(
+)
+$autoservices = @(
+)
 write-host "updating system" -ForegroundColor red
 #updates microsoft defender
 C:\"Program Files"\"Windows Defender"\MpCmdRun -SignatureUpdate
@@ -40,19 +56,37 @@ start-sleep -seconds 3
 Stop-Service $updateservices
 Get-Service -Name $updateservices -ErrorAction SilentlyContinue | Set-Service -StartupType disabled
 
+write-host "starting defender quick scan" -ForegroundColor red
+C:\"Program Files (x86)"\"Windows Defender"\MpCmdRun.exe -scan -scantype 1
+
+write-host "trimming C: drive" -ForegroundColor red
+$systemDrive = (Get-WmiObject -Class Win32_OperatingSystem).SystemDrive
+Optimize-Volume -DriveLetter $systemDrive -ReTrim
+Optimize-Volume -DriveLetter $systemDrive -SlabConsolidate
+
+write-host "cleaning system" -ForegroundColor red
+Dism.exe /online /Cleanup-Image /StartComponentCleanup /ResetBase
+#clears temp folders
+Get-ChildItem -Path "$env:TEMP" *.* -Recurse | Remove-Item -Force -Recurse
+Get-ChildItem -Path "C:\Windows\Temp\" *.* -Recurse | Remove-Item -Force -Recurse
+
+
+
+
 write-host "setting timer resolution to 0.5" -ForegroundColor red
 $SetTimerResolution = "C:\SetTimerResolution.exe"
 $resolution = "--resolution 5050 --no-console"
 start-process $SetTimerResolution $resolution
 
-write-host "removing home and gallery from explorer" -ForegroundColor red
-REG DELETE \"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Desktop\\NameSpace\\{e88865ea-0e1c-4e20-9aa6-edcd0212c87c}\" /f #removes buttons from explorer i dont use
-REG DELETE \"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Desktop\\NameSpace\\{f874310e-b6b7-47dc-bc84-b9e6b38f5903}\" /f #removes buttons from explorer i dont use 
-REG ADD \"HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced\" /f /v \"LaunchTo\" /t REG_DWORD /d \"1\" #removes buttons from explorer i dont use
-
 write-host "Disabling powershell telemetry" -ForegroundColor red
 #disables powershell 7 telemetry (sends data without benefit)
 [Environment]::SetEnvironmentVariable('POWERSHELL_TELEMETRY_OPTOUT', '1', 'Machine')
+
+write-host "disabling hibernation" -ForegroundColor red
+powercfg.exe /hibernate off #disables hiberation (writes memory to disk and saves power at cost of performance, only useful for laptops)
+
+write-host "enabling memory compression" -ForegroundColor red
+Enable-MMAgent -mc #enabled memory compression (saves some memory but takes cpu cycles to compress and uncompress the memory)
 
 write-host "setting dns" -ForegroundColor red
 #sets dns server to quad9's secure and ENC capatible dns
@@ -124,6 +158,14 @@ Add-MpPreference -ExclusionPath $env:SystemRoot"\System32\Configuration\Configur
 Add-MpPreference -ExclusionProcess ${env:ProgramFiles(x86)}"\Common Files\Steam\SteamService.exe"
 
 #registry changes
+Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" -Name "HwSchMode" -Type DWord -Value 2
+
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "AppsUseLightTheme" -Type DWord -Value 0
+
+Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "disableClearType" -Type DWord -Value 1
+
+Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "EnableAeroPeek" -Type DWord -Value 0
+
 Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseSpeed" -Type DWord -Value 0
 Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseThreshold1" -Type DWord -Value 0
 Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseThreshold2" -Type DWord -Value 0
@@ -168,34 +210,6 @@ Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" -Name "AUOptions" -Type DWord -Value 1
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" -Name "ExcludeWUDriversInQualityUpdate" -Type DWord -Value 1
 #privacy
-
-Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" -Name "HwSchMode" -Type DWord -Value 2
-
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "AppsUseLightTheme" -Type DWord -Value 0
-
-Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "disableClearType" -Type DWord -Value 1
-
-Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "EnableAeroPeek" -Type DWord -Value 0
-
-write-host "disabling hibernation" -ForegroundColor red
-powercfg.exe /hibernate off #disables hiberation (writes memory to disk and saves power at cost of performance, only useful for laptops)
-
-write-host "enabling memory compression" -ForegroundColor red
-Enable-MMAgent -mc #enabled memory compression (saves some memory but takes cpu cycles to compress and uncompress the memory)
-
-write-host "cleaning system" -ForegroundColor red
-Dism.exe /online /Cleanup-Image /StartComponentCleanup /ResetBase
-#clears temp folders
-Get-ChildItem -Path "$env:TEMP" *.* -Recurse | Remove-Item -Force -Recurse
-Get-ChildItem -Path "C:\Windows\Temp\" *.* -Recurse | Remove-Item -Force -Recurse
-
-write-host "starting defender quick scan" -ForegroundColor red
-C:\"Program Files (x86)"\"Windows Defender"\MpCmdRun.exe -scan -scantype 1
-
-write-host "trimming C: drive" -ForegroundColor red
-$systemDrive = (Get-WmiObject -Class Win32_OperatingSystem).SystemDrive
-Optimize-Volume -DriveLetter $systemDrive -ReTrim
-Optimize-Volume -DriveLetter $systemDrive -SlabConsolidate
 
 write-host "stopping services and processes" -ForegroundColor red
 #stops services i dont want running
