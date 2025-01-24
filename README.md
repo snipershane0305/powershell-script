@@ -1,5 +1,5 @@
 This repository is for my powershell script that was made to configure a bunch of settings to improve the privacy and performance for windows and to keep these settings because windows loves reverting changes randomly.
-This script changes ALOT so make sure this wont brick anything you need.
+This script changes ALOT so make sure this wont brick anything you need. You will need to set ExecutionPolicy to unrestricted with `Set-ExecutionPolicy unrestricted`
 
 Also check the wiki section for more information about these configurations. https://github.com/snipershane0305/powershell-script/wiki
 
