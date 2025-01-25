@@ -41,7 +41,6 @@ $forcestopservices = @(
 $disabledservices = @(
 "WSearch"
 "SSDPSRV"
-"SgrmBroker"
 "DiagTrack"
 "SysMain"
 "lmhosts"
@@ -51,7 +50,6 @@ $disabledservices = @(
 "UevAgentService"
 "edgeupdatem"
 "MicrosoftEdgeElevationService"
-"Sense"
 "RemoteRegistry"
 "RemoteAccess"
 "Spooler"
@@ -162,7 +160,6 @@ set-mppreference -DisableArchiveScanning $true
 set-mppreference -DisableCatchupFullScan $true #disables force scan if it misses a scheduled scan
 set-mppreference -DisableCatchupQuickScan $true #disables force scan if it misses a scheduled scan
 set-mppreference -DisableEmailScanning $true #disables emailscanning
-set-mppreference -DisableIOAVProtection $true #enables scanning of downloaded files
 set-mppreference -DisableNetworkProtectionPerfTelemetry $true #disables the sending of performance data to microsoft
 Set-MpPreference -DisableCoreServiceTelemetry $true #disables the sending of performance data to microsoft
 set-mppreference -DisableRemovableDriveScanning $true
@@ -306,8 +303,6 @@ Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Remote Assistance
 Disable-ScheduledTask -taskpath "\Microsoft\Windows\WindowsUpdate" -TaskName "Scheduled Start" | Out-Null
 Disable-ScheduledTask -taskpath "\Microsoft\Windows\Windows Error Reporting" -TaskName "QueueReporting" | Out-Null
 Disable-ScheduledTask -taskpath "\Microsoft\Windows\User Profile Service" -TaskName "HiveUploadTask" | Out-Null
-Disable-ScheduledTask -taskpath "\Microsoft\Windows\UpdateOrchestrator" -TaskName "Schedule Scan" | Out-Null
-Disable-ScheduledTask -taskpath "\Microsoft\Windows\UpdateOrchestrator" -TaskName "Schedule Scan Static Task" | Out-Null
 Disable-ScheduledTask -taskpath "\Microsoft\Windows\Maps" -TaskName "MapsUpdateTask" | Out-Null
 Disable-ScheduledTask -taskpath "\Microsoft\Windows\Application Experience" -TaskName "MareBackup" | Out-Null
 Disable-ScheduledTask -taskpath "\Microsoft\Windows\Application Experience" -TaskName "Microsoft Compatibility Appraiser" | Out-Null
