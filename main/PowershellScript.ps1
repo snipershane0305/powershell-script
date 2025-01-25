@@ -159,7 +159,6 @@ foreach ($adapter in $adapters) {
 write-host "setting defender settings" -ForegroundColor red
 set-mppreference -AllowSwitchToAsyncInspection $true #performance optimization
 set-mppreference -DisableArchiveScanning $true
-set-mppreference -DisableBehaviorMonitoring $true
 set-mppreference -DisableCatchupFullScan $true #disables force scan if it misses a scheduled scan
 set-mppreference -DisableCatchupQuickScan $true #disables force scan if it misses a scheduled scan
 set-mppreference -DisableEmailScanning $true #disables emailscanning
