@@ -165,7 +165,6 @@ set-mppreference -DisableEmailScanning $true #disables emailscanning
 set-mppreference -DisableIOAVProtection $true #enables scanning of downloaded files
 set-mppreference -DisableNetworkProtectionPerfTelemetry $true #disables the sending of performance data to microsoft
 Set-MpPreference -DisableCoreServiceTelemetry $true #disables the sending of performance data to microsoft
-set-mppreference -DisableRealtimeMonitoring $true
 set-mppreference -DisableRemovableDriveScanning $true
 set-mppreference -DisableRestorePoint $true #disables defender creating restore points (i have never had a restore point fix an issue!)
 set-mppreference -EnableLowCpuPriority $true #lowers the priority of defender
