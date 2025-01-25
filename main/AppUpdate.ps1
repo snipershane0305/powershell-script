@@ -1,8 +1,8 @@
 winget pin add Microsoft.EdgeWebView2Runtime
 winget pin add Microsoft.Edge
 winget pin add Discord.Discord
-winget pin add Google.Chrome
 winget pin add Logitech.GHUB
+winget pin add Spotify.Spotify
 winget source update
 winget update --all --include-unknown
 #important dependencies
