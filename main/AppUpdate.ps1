@@ -1,3 +1,4 @@
+start-sleep -seconds 75
 winget pin add Microsoft.EdgeWebView2Runtime
 winget pin add Microsoft.Edge
 winget pin add Discord.Discord
@@ -56,6 +57,7 @@ winget install EclipseAdoptium.Temurin.11.JRE
 winget install EclipseAdoptium.Temurin.8.JRE
 winget install pizzaboxer.Bloxstrap
 winget install qBittorrent.qBittorrent
+start-sleep -seconds 1
 #stops processes and services
 $services = @(
 "VSS"
@@ -68,5 +70,7 @@ $processes = @(
 "TrustedInstaller*"
 "msiexec*"
 )
+start-sleep -seconds 1
 Stop-Service $services -force
+start-sleep -seconds 1
 Get-Process -Name $processes -ErrorAction SilentlyContinue | Stop-Process -force
