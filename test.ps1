@@ -10,6 +10,10 @@ $updateservices = @(
 "bits"
 )
 $forcestopprocesses = @(
+"ApplicationFrameHost*"
+"dllhost*"
+"SecurityHealthService*"
+"WmiPrvSE*"
 )
 $forcestopservices = @(
 "WSearch"
@@ -322,13 +326,13 @@ Disable-ScheduledTask -taskpath "\Microsoft\Windows\Windows Error Reporting" -Ta
 
 write-host "stopping services and processes" -ForegroundColor red
 #stops services i dont want running
-Stop-Service $forcestopservices
+Stop-Service $forcestopservices -force
 Get-Service -Name $forcestopservices -ErrorAction SilentlyContinue | Set-Service -StartupType disabled
-Stop-Service $forcestopservices
+Stop-Service $forcestopservices -force
 
-Stop-Service $disabledservices
+Stop-Service $disabledservices -force
 Get-Service -Name $disabledservices -ErrorAction SilentlyContinue | Set-Service -StartupType disabled
-Stop-Service $disabledservices
+Stop-Service $disabledservices -force
 
 Get-Process -Name $forcestopprocesses -ErrorAction SilentlyContinue | Stop-Process -force
 write-host "releasing memory" -ForegroundColor red
