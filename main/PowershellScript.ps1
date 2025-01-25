@@ -14,6 +14,7 @@ $forcestopprocesses = @(
 "dllhost*"
 "SecurityHealthService*"
 "WmiPrvSE*"
+"taskhostw*"
 )
 $forcestopservices = @(
 "VSS"
