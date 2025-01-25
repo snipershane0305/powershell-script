@@ -39,7 +39,6 @@ $forcestopservices = @(
 "bthserv"
 )
 $disabledservices = @(
-"VSS"
 "WSearch"
 "SSDPSRV"
 "SgrmBroker"
