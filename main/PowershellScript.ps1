@@ -16,6 +16,7 @@ $forcestopprocesses = @(
 "WmiPrvSE*"
 )
 $forcestopservices = @(
+"VSS"
 "WSearch"
 "SSDPSRV"
 "SgrmBroker"
@@ -38,6 +39,7 @@ $forcestopservices = @(
 "bthserv"
 )
 $disabledservices = @(
+"VSS"
 "WSearch"
 "SSDPSRV"
 "SgrmBroker"
