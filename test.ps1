@@ -4,22 +4,29 @@ Import-Module ScheduledTasks
 Import-Module NetAdapter
 Import-Module NetTCPIP
 Import-Module DnsClient
-
 $updateservices = @(
 "wuauserv"
 "usosvc"
 "bits"
 )
 $forcestopprocesses = @(
-"MoUsoCoreWorker*"
 )
 $forcestopservices = @(
 "WSearch"
 "SSDPSRV"
+"SgrmBroker"
+"DiagTrack"
 "SysMain"
 "lmhosts"
 "RasMan"
 "RmSvc"
+"edgeupdate"
+"UevAgentService"
+"edgeupdatem"
+"MicrosoftEdgeElevationService"
+"Sense"
+"RemoteRegistry"
+"RemoteAccess"
 "Spooler"
 "lfsvc"
 "DispBrokerDesktopSvc"
@@ -29,10 +36,19 @@ $forcestopservices = @(
 $disabledservices = @(
 "WSearch"
 "SSDPSRV"
+"SgrmBroker"
+"DiagTrack"
 "SysMain"
 "lmhosts"
 "RasMan"
 "RmSvc"
+"edgeupdate"
+"UevAgentService"
+"edgeupdatem"
+"MicrosoftEdgeElevationService"
+"Sense"
+"RemoteRegistry"
+"RemoteAccess"
 "Spooler"
 "lfsvc"
 "DispBrokerDesktopSvc"
