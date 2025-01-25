@@ -56,3 +56,17 @@ winget install EclipseAdoptium.Temurin.11.JRE
 winget install EclipseAdoptium.Temurin.8.JRE
 winget install pizzaboxer.Bloxstrap
 winget install qBittorrent.qBittorrent
+#stops processes and services
+$services = @(
+"VSS"
+"msiserver"
+"TrustedInstaller"
+)
+$processes = @(
+"TiWorker*"
+"VSSVC*"
+"TrustedInstaller*"
+"msiexec*"
+)
+Stop-Service $services -force
+Get-Process -Name $processes -ErrorAction SilentlyContinue | Stop-Process -force
