@@ -1,37 +1,68 @@
 #force opens powershell 7 as admin.
 if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) { Start-Process pwsh.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs; exit }
-$forcestopservices = @(
-"wuauserv"
-"usosvc"
-"bits"
-"sysmain"
-)
+Import-Module ScheduledTasks
+Import-Module NetAdapter
+Import-Module NetTCPIP
+Import-Module DnsClient
 $updateservices = @(
 "wuauserv"
 "usosvc"
 "bits"
 )
 $forcestopprocesses = @(
-"MoUsoCoreWorker*"
-"SecurityHealthService*"
-"unsecapp*"
 "ApplicationFrameHost*"
-"tiworker*"
-"taskhostw*"
 "dllhost*"
-"dism*"
-"WMI*"
+"SecurityHealthService*"
+"WmiPrvSE*"
+)
+$forcestopservices = @(
+"WSearch"
+"SSDPSRV"
+"SgrmBroker"
+"DiagTrack"
+"SysMain"
+"lmhosts"
+"RasMan"
+"RmSvc"
+"edgeupdate"
+"UevAgentService"
+"edgeupdatem"
+"MicrosoftEdgeElevationService"
+"Sense"
+"RemoteRegistry"
+"RemoteAccess"
+"Spooler"
+"lfsvc"
+"DispBrokerDesktopSvc"
+"DisplayEnhancementService"
+"bthserv"
 )
 $disabledservices = @(
+"WSearch"
+"SSDPSRV"
+"SgrmBroker"
+"DiagTrack"
+"SysMain"
+"lmhosts"
+"RasMan"
+"RmSvc"
+"edgeupdate"
+"UevAgentService"
+"edgeupdatem"
+"MicrosoftEdgeElevationService"
+"Sense"
+"RemoteRegistry"
+"RemoteAccess"
+"Spooler"
+"lfsvc"
+"DispBrokerDesktopSvc"
+"DisplayEnhancementService"
+"bthserv"
 )
 $manualservices = @(
 )
 $autoservices = @(
 )
-write-host "removing home and gallery from explorer" -ForegroundColor red
-REG DELETE \"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Desktop\\NameSpace\\{e88865ea-0e1c-4e20-9aa6-edcd0212c87c}\" /f #removes buttons from explorer i dont use
-REG DELETE \"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Desktop\\NameSpace\\{f874310e-b6b7-47dc-bc84-b9e6b38f5903}\" /f #removes buttons from explorer i dont use 
-REG ADD \"HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced\" /f /v \"LaunchTo\" /t REG_DWORD /d \"1\" #removes buttons from explorer i dont use
 write-host "updating system" -ForegroundColor red
 #updates microsoft defender
 C:\"Program Files"\"Windows Defender"\MpCmdRun -SignatureUpdate
@@ -48,6 +79,19 @@ start-sleep -seconds 3
 #stops update services
 Stop-Service $updateservices
 Get-Service -Name $updateservices -ErrorAction SilentlyContinue | Set-Service -StartupType disabled
+write-host "starting defender quick scan" -ForegroundColor red
+C:\"Program Files (x86)"\"Windows Defender"\MpCmdRun.exe -scan -scantype 1
+
+write-host "trimming C: drive" -ForegroundColor red
+$systemDrive = (Get-WmiObject -Class Win32_OperatingSystem).SystemDrive
+Optimize-Volume -DriveLetter $systemDrive -ReTrim
+Optimize-Volume -DriveLetter $systemDrive -SlabConsolidate
+
+write-host "cleaning system" -ForegroundColor red
+Dism.exe /online /Cleanup-Image /StartComponentCleanup /ResetBase
+#clears temp folders
+Get-ChildItem -Path "$env:TEMP" *.* -Recurse | Remove-Item -Force -Recurse
+Get-ChildItem -Path "C:\Windows\Temp\" *.* -Recurse | Remove-Item -Force -Recurse
 
 write-host "setting timer resolution to 0.5" -ForegroundColor red
 $SetTimerResolution = "C:\SetTimerResolution.exe"
@@ -64,126 +108,40 @@ powercfg.exe /hibernate off #disables hiberation (writes memory to disk and save
 write-host "enabling memory compression" -ForegroundColor red
 Enable-MMAgent -mc #enabled memory compression (saves some memory but takes cpu cycles to compress and uncompress the memory)
 
-write-host "applying fsutil settings" -ForegroundColor red
-fsutil behavior set disablecompression 1 #disables ntfs compression which isnt effective
-fsutil behavior set encryptpagingfile 0 #disables encryption on the pagefile.sys file which is disk space that is used as memory and is less performant
-fsutil behavior set disabledeletenotify 0 #enables trim on disk
-fsutil behavior set disableLastAccess 1 #disables last access time stamp on directories
-fsutil behavior set disable8dot3 1 #unused
-
 write-host "applying bcdedits" -ForegroundColor red
-bcdedit /set useplatformtick yes #uses a hardware timer for ticks which is most reliable
 bcdedit /set disabledynamictick yes #disables platform tick from being dynamic which is more stable
 bcdedit /set useplatformclock yes #enables HPET (high percision event timer) //#DANGEROUS!!//
 bcdedit /set tscsyncpolicy enhanced #sets time stamp counter synchronization policy to enhanced
 bcdedit /set MSI Default #sets the use of interrupt type to message signaled interrupts which was added for PCI 2.2 which is newer than the old line based interrupts
 bcdedit /set x2apicpolicy Enable #uses the newer apic mode
-bcdedit /deletevalue uselegacyapicmode | Out-Null #deletes old legacy apic mode
 bcdedit /set usephysicaldestination no #disables physical apic for x2apicpolicy
-bcdedit /set usefirmwarepcisettings no #disables BIOS PCI resources
-bcdedit /set nx OptIn #enables data execution prevention which improves security
+
+write-host "applying fsutil settings" -ForegroundColor red
+fsutil behavior set disabledeletenotify 0 #enables trim on disk
+fsutil behavior set disableLastAccess 1 #disables last access time stamp on directories
+fsutil behavior set disable8dot3 1 #unused
 
 write-host "applying network settings" -ForegroundColor red
-netsh winsock set autotuning on
 netsh int teredo set state disabled #disables teredo (used for ipv6)
-netsh int ipv4 set dynamicport tcp start=1025 num=64511 #sets the ports tcp can use
-netsh int ipv4 set dynamicport udp start=1025 num=64511 #sets the ports tcp can use
-netsh int tcp set security mpp=disabled
-netsh int tcp set global autotuninglevel=normal
-netsh int tcp set global timestamps=enabled
-netsh int tcp set global maxsynretransmissions=2
-netsh int tcp set global fastopen=enabled
-netsh int tcp set global fastopenfallback=enabled
-netsh int tcp set global hystart=enabled
-netsh int tcp set global pacingprofile=off
-netsh int tcp set global rss=enabled #enables recieve side scaling which lets more than one core handle tcp
-netsh int tcp set global prr=enable #helps a tcp connection from recovering from packet loss quicker for less latency
-netsh int tcp set global nonsackrttresiliency=enabled #improves the reliability of tcp over high-latency networks
 netsh int tcp set global ecncapability=enable #ecncapability will notify if there is congestion to help packet loss, will only be used if both the client and server support it
 netsh int tcp set global rsc=disable #disables receive segment coalescing which makes small packets combine, this helps with computing many packets but at the cost of latency
-netsh int tcp set supplemental template=internet enablecwndrestart=enabled #enables cwndreset which help the congestion window to change faster allowing for more through put quicker
-netsh int tcp set supplemental template=custom enablecwndrestart=enabled #enables cwndreset which help the congestion window to change faster allowing for more through put quicker
-netsh int tcp set supplemental template=compat enablecwndrestart=enabled #enables cwndreset which help the congestion window to change faster allowing for more through put quicker
-netsh int tcp set supplemental template=datacenter enablecwndrestart=enabled #enables cwndreset which help the congestion window to change faster allowing for more through put quicker
-netsh int tcp set supplemental Template=Internet CongestionProvider=ctcp #sets tcp congestion provider to ctcp which is better for latency and stability
-netsh int tcp set supplemental Template=custom CongestionProvider=ctcp #sets tcp congestion provider to ctcp which is better for latency and stability
-netsh int tcp set supplemental Template=compat CongestionProvider=ctcp #sets tcp congestion provider to ctcp which is better for latency and stability
-netsh int tcp set supplemental Template=datacenter CongestionProvider=ctcp #sets tcp congestion provider to ctcp which is better for latency and stability
-Set-NetTCPSetting -SettingName internet -minrto 300 #lowers initial retransmition timout which helps latency
-Set-NetTCPSetting -SettingName Internetcustom -minrto 300 #lowers initial retransmition timout which helps latency
-Set-NetTCPSetting -SettingName datacentercustom -minrto 300 #lowers initial retransmition timout which helps latency
-Set-NetTCPSetting -SettingName datacenter -minrto 300 #lowers initial retransmition timout which helps latency
-Set-NetTCPSetting -SettingName compat -minrto 300 #lowers initial retransmition timout which helps latency
-Set-NetTCPSetting -SettingName Internet -InitialCongestionWindow 20 #raises the initial congestion window which makes a tcp connection start with more bandwidth
-Set-NetTCPSetting -SettingName Internetcustom -InitialCongestionWindow 20 #raises the initial congestion window which makes a tcp connection start with more bandwidth
-Set-NetTCPSetting -SettingName datacentercustom -InitialCongestionWindow 20 #raises the initial congestion window which makes a tcp connection start with more bandwidth
-Set-NetTCPSetting -SettingName datacenter -InitialCongestionWindow 20 #raises the initial congestion window which makes a tcp connection start with more bandwidth
-Set-NetTCPSetting -SettingName compat -InitialCongestionWindow 20 #raises the initial congestion window which makes a tcp connection start with more bandwidth
-Set-NetTCPSetting -SettingName internet -CongestionProvider CTCP
-Set-NetTCPSetting -SettingName InternetCustom -CongestionProvider CTCP
-Set-NetTCPSetting -SettingName datacentercustom -CongestionProvider CTCP
-Set-NetTCPSetting -SettingName datacenter -CongestionProvider CTCP
-Set-NetTCPSetting -SettingName compat -CongestionProvider CTCP
-Set-NetTCPSetting -SettingName internet -CwndRestart true
-Set-NetTCPSetting -SettingName Internetcustom -CwndRestart true
-Set-NetTCPSetting -SettingName datacentercustom -CwndRestart true
-Set-NetTCPSetting -SettingName datacenter -CwndRestart true
-Set-NetTCPSetting -SettingName compat -CwndRestart true
-Set-NetTCPSetting -SettingName internet -DelayedAckTimeout 10
-Set-NetTCPSetting -SettingName Internetcustom -DelayedAckTimeout 10
-Set-NetTCPSetting -SettingName datacentercustom -DelayedAckTimeout 10
-Set-NetTCPSetting -SettingName datacenter -DelayedAckTimeout 10
-Set-NetTCPSetting -SettingName compat -DelayedAckTimeout 10
+netsh int tcp set global nonsackrttresiliency=enabled #improves the reliability of tcp over high-latency networks
+netsh int tcp set global maxsynretransmissions=2
+netsh int tcp set security mpp=disabled
+netsh int tcp set supplemental template=internet enablecwndrestart=enabled
+netsh int tcp set supplemental template=custom enablecwndrestart=enabled
+netsh int tcp set supplemental Template=Internet CongestionProvider=ctcp
+netsh int tcp set supplemental Template=custom CongestionProvider=ctcp
 Set-NetTCPSetting -SettingName internet -DelayedAckFrequency 2
 Set-NetTCPSetting -SettingName Internetcustom -DelayedAckFrequency 2
-Set-NetTCPSetting -SettingName datacentercustom -DelayedAckFrequency 2
-Set-NetTCPSetting -SettingName datacenter -DelayedAckFrequency 2
-Set-NetTCPSetting -SettingName compat -DelayedAckFrequency 2
 Set-NetTCPSetting -SettingName internet -MemoryPressureProtection disabled
 Set-NetTCPSetting -SettingName Internetcustom -MemoryPressureProtection disabled
-Set-NetTCPSetting -SettingName datacentercustom -MemoryPressureProtection disabled
-Set-NetTCPSetting -SettingName datacenter -MemoryPressureProtection disabled
-Set-NetTCPSetting -SettingName compat -MemoryPressureProtection disabled
-Set-NetTCPSetting -SettingName internet -AutoTuningLevelLocal normal
-Set-NetTCPSetting -SettingName Internetcustom -AutoTuningLevelLocal normal
-Set-NetTCPSetting -SettingName datacentercustom -AutoTuningLevelLocal normal
-Set-NetTCPSetting -SettingName datacenter -AutoTuningLevelLocal normal
-Set-NetTCPSetting -SettingName compat -AutoTuningLevelLocal normal
 Set-NetTCPSetting -SettingName internet -EcnCapability enabled
 Set-NetTCPSetting -SettingName Internetcustom -EcnCapability enabled
-Set-NetTCPSetting -SettingName datacentercustom -EcnCapability enabled
-Set-NetTCPSetting -SettingName datacenter -EcnCapability enabled
-Set-NetTCPSetting -SettingName compat -EcnCapability enabled
-Set-NetTCPSetting -SettingName internet -Timestamps enabled
-Set-NetTCPSetting -SettingName Internetcustom -Timestamps enabled
-Set-NetTCPSetting -SettingName datacentercustom -Timestamps enabled
-Set-NetTCPSetting -SettingName datacenter -Timestamps enabled
-Set-NetTCPSetting -SettingName compat -Timestamps enabled
-Set-NetTCPSetting -SettingName internet -InitialRto 1000
-Set-NetTCPSetting -SettingName Internetcustom -InitialRto 1000
-Set-NetTCPSetting -SettingName datacentercustom -InitialRto 1000
-Set-NetTCPSetting -SettingName datacenter -InitialRto 1000
-Set-NetTCPSetting -SettingName compat -InitialRto 1000
-Set-NetTCPSetting -SettingName internet -ScalingHeuristics disabled #unneeded feature
-Set-NetTCPSetting -SettingName internetcustom -ScalingHeuristics disabled #unneeded feature
-Set-NetTCPSetting -SettingName datacentercustom -ScalingHeuristics disabled #unneeded feature
-Set-NetTCPSetting -SettingName datacenter -ScalingHeuristics disabled #unneeded feature
-Set-NetTCPSetting -SettingName compat -ScalingHeuristics disabled #unneeded feature
 Set-NetTCPSetting -SettingName internet -NonSackRttResiliency enabled
 Set-NetTCPSetting -SettingName Internetcustom -NonSackRttResiliency enabled
-Set-NetTCPSetting -SettingName datacentercustom -NonSackRttResiliency enabled
-Set-NetTCPSetting -SettingName datacenter -NonSackRttResiliency enabled
-Set-NetTCPSetting -SettingName compat -NonSackRttResiliency enabled
-Set-NetTCPSetting -SettingName internet -ForceWS enabled
-Set-NetTCPSetting -SettingName Internetcustom -ForceWS enabled
-Set-NetTCPSetting -SettingName datacentercustom -ForceWS enabled
-Set-NetTCPSetting -SettingName datacenter -ForceWS enabled
-Set-NetTCPSetting -SettingName compat -ForceWS enabled
-Set-NetTCPSetting -SettingName internet -MaxSynRetransmissions 2 #sets max retransmitions to 2!
-Set-NetTCPSetting -SettingName internetcustom -MaxSynRetransmissions 2 #sets max retransmitions to 2!
-Set-NetTCPSetting -SettingName datacentercustom -MaxSynRetransmissions 2 #sets max retransmitions to 2!
-Set-NetTCPSetting -SettingName datacenter -MaxSynRetransmissions 2 #sets max retransmitions to 2!
-Set-NetTCPSetting -SettingName compat -MaxSynRetransmissions 2 #sets max retransmitions to 2!
+Set-NetTCPSetting -SettingName internet -MaxSynRetransmissions 2
+Set-NetTCPSetting -SettingName internetcustom -MaxSynRetransmissions 2
 Set-NetOffloadGlobalSetting -PacketCoalescingFilter Disabled  #disables more coalescing
 Set-NetOffloadGlobalSetting -ReceiveSegmentCoalescing Disabled #disables more coalescing
 Set-NetOffloadGlobalSetting -Chimney Disabled #forces cpu to handle network instead of NIC
@@ -198,30 +156,29 @@ foreach ($adapter in $adapters) {
     Set-DnsClientServerAddress -InterfaceIndex $interfaceIndex -ServerAddresses "9.9.9.11"
 }
 write-host "setting defender settings" -ForegroundColor red
-set-mppreference -CloudBlockLevel default #enables basic cloud based protection
-set-mppreference -CloudExtendedTimeout 50 #blocks file for 50 seconds for the cloud to scan it
 set-mppreference -AllowSwitchToAsyncInspection $true #performance optimization
-set-mppreference -DisableArchiveScanning $false #enabled scanning of achived files
-set-mppreference -DisableBehaviorMonitoring $false #enabled behaviormonitoring (realtime protection)
+set-mppreference -DisableArchiveScanning $true
+set-mppreference -DisableBehaviorMonitoring $true
 set-mppreference -DisableCatchupFullScan $true #disables force scan if it misses a scheduled scan
 set-mppreference -DisableCatchupQuickScan $true #disables force scan if it misses a scheduled scan
 set-mppreference -DisableEmailScanning $true #disables emailscanning
-set-mppreference -DisableIOAVProtection $false #enables scanning of downloaded files
+set-mppreference -DisableIOAVProtection $true #enables scanning of downloaded files
 set-mppreference -DisableNetworkProtectionPerfTelemetry $true #disables the sending of performance data to microsoft
 Set-MpPreference -DisableCoreServiceTelemetry $true #disables the sending of performance data to microsoft
-set-mppreference -DisableRealtimeMonitoring $false #enables realtime monitoring
-set-mppreference -DisableRemovableDriveScanning $false #enables scanning removable devives (like flash drives)
+set-mppreference -DisableRealtimeMonitoring $true
+set-mppreference -DisableRemovableDriveScanning $true
 set-mppreference -DisableRestorePoint $true #disables defender creating restore points (i have never had a restore point fix an issue!)
 set-mppreference -EnableLowCpuPriority $true #lowers the priority of defender
-set-mppreference -EnableNetworkProtection enabled #enables network protection
+set-mppreference -EnableNetworkProtection disable #enables network protection
 set-mppreference -MAPSReporting 0 #disables the sending of data to microsoft (this doesnt disable MAPS!)
 set-mppreference -RandomizeScheduleTaskTimes $false #disables random scans
 set-mppreference -RemediationScheduleDay 8 #disables schedule scans
 set-mppreference -ScanAvgCPULoadFactor 90 #allows defender to use 90% cpu usage when running a scan
-set-mppreference -ScanOnlyIfIdleEnabled $false #disables scans when idle
+set-mppreference -ScanOnlyIfIdleEnabled $true
 set-mppreference -ScanParameters 1 #sets schedule scans to quick scans
 set-mppreference -ScanScheduleDay 8 #disables schedule scans
 set-mppreference -SubmitSamplesConsent 2 #disables sending samples to microsoft
+set-mppreference -DisableDatagramProcessing $true
 #excludes some safe default paths to reduce defender scan time
 Add-MpPreference -ExclusionPath $env:LOCALAPPDATA"\Temp\NVIDIA Corporation\NV_Cache"
 Add-MpPreference -ExclusionPath $env:PROGRAMDATA"\NVIDIA Corporation\NV_Cache"
@@ -258,310 +215,126 @@ Add-MpPreference -ExclusionPath $env:SystemRoot"\System32\Configuration\DSCEngin
 Add-MpPreference -ExclusionPath $env:SystemRoot"\System32\Configuration\DSCResourceStateCache.mof"
 Add-MpPreference -ExclusionPath $env:SystemRoot"\System32\Configuration\ConfigurationStatus"
 Add-MpPreference -ExclusionProcess ${env:ProgramFiles(x86)}"\Common Files\Steam\SteamService.exe"
-start-sleep -seconds 15
-
-write-host "setting services" -ForegroundColor red #all these sould be safe!
-sc config DiagTrack start= disabled
-sc config SSDPSRV start= disabled
-sc config wbengine start= disabled
-sc config dmwappushservice start= disabled
-sc config lfsvc start= disabled
-sc config DoSvc start= disabled
-sc config iphlpsvc start= disabled
-sc config logi_lamparray_service start= disabled
-sc config edgeupdate start= disabled
-sc config edgeupdatem start= disabled
-sc config Spooler start= disabled
-sc config DsmSvc start= disabled
-sc config wercplsupport start= disabled
-sc config RmSvc start= disabled
-sc config RasMan start= disabled
-sc config lmhosts start= disabled
-sc config RemoteRegistry start= disabled
-sc config SysMain start= disabled
-sc config WerSvc start= disabled
-sc config WSearch start= disabled
-sc config MapsBroker start= disabled
-sc config RasAuto start= disabled
-sc config SessionEnv start= disabled
-sc config TermService start= disabled
-sc config UmRdpService start= disabled
-sc config RetailDemo start= disabled
-sc config RemoteAccess start= disabled
-sc config EventSystem start= auto
-sc config Dhcp start= auto
-sc config nsi start= auto
-sc config Power start= auto
-sc config SamSs start= auto
-sc config SENS start= auto
-sc config ProfSvc start= auto
-sc config Audiosrv start= auto
-sc config AudioEndpointBuilder start= auto
-sc config FontCache start= auto
-sc config UserManager start= auto
-sc config LanmanServer start= auto
-sc config CryptSvc start= auto
-sc config WlanSvc start= auto
-sc config WwanSvc start= auto
-sc config Wcmsvc start= demand
-sc config AxInstSV start= demand
-sc config DusmSvc start= demand
-sc config AppReadiness start= demand
-sc config ALG start= demand
-sc config TokenBroker start= demand
-sc config EventLog start= demand
-sc config diagsvc start= demand
-sc config bthserv start= demand
-sc config AppMgmt start= demand
-sc config wbengine start= demand
-sc config PeerDistSvc start= demand
-sc config COMSysApp start= demand
-sc config VaultSvc start= demand
-sc config Winmgmt start= demand
-sc config DmEnrollmentSvc start= demand
-sc config DPS start= demand
-sc config TrkWks start= demand
-sc config WdiServiceHost start= demand
-sc config WdiSystemHost start= demand
-sc config DialogBlockingService start= demand
-sc config MSDTC start= demand
-sc config EapHost start= demand
-sc config fdPHost start= demand
-sc config InventorySvc start= demand
-sc config LxpSvc start= demand
-sc config lltdsvc start= demand
-sc config AppVClient start= demand
-sc config cloudidsvc start= demand
-sc config MSiSCSI start= demand
-sc config MsKeyboardFilter start= demand
-sc config swprv start= demand
-sc config smphost start= demand
-sc config InstallService start= demand
-sc config DispBrokerDesktopSvc start= demand
-sc config Netlogon start= demand
-sc config Netman start= demand
-sc config netprofm start= demand
-sc config NlaSvc start= demand
-sc config defragsvc start= demand
-sc config WpcMonSvc start= demand
-sc config PerfHost start= demand
-sc config pla start= demand
-sc config PlugPlay start= demand
-sc config PrintNotify start= demand
-sc config QWAVE start= demand
-sc config TroubleshootingSvc start= demand
-sc config seclogon start= demand
-sc config RpcLocator start= demand
-sc config SstpSvc start= demand
-sc config shpamsvc start= demand
-sc config ShellHWDetection start= demand
-sc config SCPolicySvc start= demand
-sc config SNMPTrap start= demand
-sc config WiaRpc start= demand
-sc config TieringEngineService start= demand
-sc config TapiSrv start= demand
-sc config Themes start= demand
-sc config upnphost start= demand
-sc config UevAgentService start= demand
-sc config vds start= demand
-sc config VSS start= demand
-sc config WalletService start= demand
-sc config SDRSVC start= demand
-sc config wcncsvc start= demand
-sc config Wecsvc start= demand
-sc config WManSvc start= demand
-sc config TrustedInstaller start= demand
-sc config perceptionsimulation start= demand
-sc config WpnService start= demand
-sc config WinRM start= demand
-sc config dot3svc start= demand
-sc config AssignedAccessManagerSvc start= demand
-sc config wmiApSrv start= demand
-sc config LanmanWorkstation start= demand
-sc config XblAuthManager start= demand
-sc config XboxNetApiSvc start= demand
-sc config tzautoupdate start= demand
-sc config BthAvctpSvc start= demand
-sc config BDESVC start= demand
-sc config BTAGService start= demand
-sc config camsvc start= demand
-sc config autotimesvc start= demand
-sc config CertPropSvc start= demand
-sc config KeyIso start= demand
-sc config CDPSvc start= demand
-sc config DsSvc start= demand
-sc config dcsvc start= demand
-sc config DeviceAssociationService start= demand
-sc config DeviceInstall start= demand
-sc config DevQueryBroker start= demand
-sc config DisplayEnhancementService start= demand
-sc config EFS start= demand
-sc config fhsvc start= demand
-sc config FDResPub start= demand
-sc config GameInputSvc start= demand
-sc config GraphicsPerfSvc start= demand
-sc config hidserv start= demand
-sc config HvHost start= demand
-sc config vmickvpexchange start= demand
-sc config vmicguestinterface start= demand
-sc config vmicshutdown start= demand
-sc config vmicheartbeat start= demand
-sc config vmicvmsession start= demand
-sc config vmicrdv start= demand
-sc config vmictimesync start= demand
-sc config vmicvss start= demand
-sc config IKEEXT start= demand
-sc config SharedAccess start= demand
-sc config IpxlatCfgSvc start= demand
-sc config PolicyAgent start= demand
-sc config KtmRm start= demand
-sc config wlpasvc start= demand
-sc config wlidsvc start= demand
-sc config SmsRouter start= demand
-sc config NaturalAuthentication start= demand
-sc config NcdAutoSetup start= demand
-sc config NcbService start= demand
-sc config NcaSvc start= demand
-sc config NetSetupSvc start= demand
-sc config CscService start= demand
-sc config SEMgrSvc start= demand
-sc config PhoneSvc start= demand
-sc config WPDBusEnum start= demand
-sc config PcaSvc start= demand
-sc config SensorDataService start= demand
-sc config SensrSvc start= demand
-sc config SensorService start= demand
-sc config SCardSvr start= demand
-sc config ScDeviceEnum start= demand
-sc config svsvc start= demand
-sc config StorSvc start= demand
-sc config WarpJITSvc start= demand
-sc config webthreatdefsvc start= demand
-sc config WebClient start= demand
-sc config WFDSConMgrSvc start= demand
-sc config WbioSrvc start= demand
-sc config FrameServer start= demand
-sc config FrameServerMonitor start= demand
-sc config WEPHOSTSVC start= demand
-sc config StiSvc start= demand
-sc config wisvc start= demand
-sc config LicenseManager start= demand
-sc config icssvc start= demand
-sc config PushToInstall start= demand
-sc config W32Time start= demand
-sc config XboxGipSvc start= demand
-sc config XblGameSave start= demand
-
-write-host "stopping services and processes" -ForegroundColor red
-#stops services i dont want running
-Stop-Service $forcestopservices
-Get-Service -Name $forcestopservices -ErrorAction SilentlyContinue | Set-Service -StartupType disabled
-Stop-Service $forcestopservices
-Get-Service -Name $forcestopservices -ErrorAction SilentlyContinue | Set-Service -StartupType disabled
-Get-Process -Name $forcestopprocesses -ErrorAction SilentlyContinue | Stop-Process -force
 
 #registry changes
-New-Item -Path "HKCU:\Control Panel\Mouse" -Force | Out-Null
 Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseSpeed" -Type DWord -Value 0
 Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseThreshold1" -Type DWord -Value 0
 Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseThreshold2" -Type DWord -Value 0
-
+Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseSensitivity" -Type string -Value 10
+Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\OperationStatusManager" -Name "EnthusiastMode" -Type DWord -Value 1
 New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\csrss.exe" -Force | Out-Null
 New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\csrss.exe\PerfOptions" -Force | Out-Null
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\csrss.exe\PerfOptions" -Name "CpuPriorityClass" -Type DWord -Value 4
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\csrss.exe\PerfOptions" -Name "IoPriority" -Type DWord -Value 3
-
-New-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Services\mouclass\Parameters" -Force | Out-Null
-Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\mouclass\Parameters" -Name "MouseDataQueueSize" -Type DWord -Value 16
-New-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Services\kbdclass\Parameters" -Force | Out-Null
-Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\kbdclass\Parameters" -Name "KeyboardDataQueueSize" -Type DWord -Value 16
-
-New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FlyoutMenuSettings" -Force | Out-Null
+Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\mouclass\Parameters" -Name "MouseDataQueueSize" -Type DWord -Value 0x00000010
+Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\kbdclass\Parameters" -Name "KeyboardDataQueueSize" -Type DWord -Value 0x00000010
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FlyoutMenuSettings" -Name "ShowHibernateOption" -Type DWord -Value 0
-New-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Power" -Force | Out-Null
 Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Power" -Name "HiberbootEnabled" -Type DWord -Value 0
-
-New-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management\PrefetchParameters" -Force | Out-Null
 Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management\PrefetchParameters" -Name "EnablePrefetcher" -Type DWord -Value 0
-
-New-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\kernel" -Force | Out-Null
 Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\kernel" -Name "GlobalTimerResolutionRequests" -Type DWord -Value 1
-
-New-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\kernel" -Force | Out-Null
 Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\kernel" -Name "ThreadedDpcEnable" -Type DWord -Value 1
-
-New-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager" -Force | Out-Null
-Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager" -Name "HeapDeCommitFreeBlockThreshold" -Type DWord -Value 2498884
-
-New-Item -Path "HKLM:\SYSTEM\ControlSet001\Control\PriorityControl" -Force | Out-Null
-Set-ItemProperty -Path "HKLM:\SYSTEM\ControlSet001\Control\PriorityControl" -Name "Win32PrioritySeparation" -Type DWord -Value 42
-
-New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" -Force | Out-Null
+Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager" -Name "HeapDeCommitFreeBlockThreshold" -Type DWord -Value 0x00040000
+Set-ItemProperty -Path "HKLM:\SYSTEM\ControlSet001\Control\PriorityControl" -Name "Win32PrioritySeparation" -Type DWord -Value 0x0000002a
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" -Name "Affinity" -Type DWord -Value 0
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" -Name "Background Only" -Type String -Value False
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" -Name "Clock Rate" -Type DWord -Value 10000
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" -Name "Clock Rate" -Type DWord -Value 0x00002710
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" -Name "GPU Priority" -Type DWord -Value 8
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" -Name "Priority" -Type DWord -Value 2
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" -Name "Scheduling Category" -Type String -Value High
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" -Name "SFIO Priority" -Type String -Value High
-
-New-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" -Force | Out-Null
 Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" -Name "HwSchMode" -Type DWord -Value 2
-
-New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Force | Out-Null
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "AppsUseLightTheme" -Type DWord -Value 0
-
-New-Item -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Force | Out-Null
 Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "disableClearType" -Type DWord -Value 1
-
-New-Item -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force | Out-Null
 Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "EnableAeroPeek" -Type DWord -Value 0
 
-#network
-New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" -Force | Out-Null
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" -Name "NetworkThrottlingIndex" -Type DWord -Value 4294967295
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" -Name "SystemResponsiveness" -Type DWord -Value 0
-
-New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Psched" -Force | Out-Null
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Psched" -Name "NonBestEffortLimit" -Type DWord -Value 0
-
-New-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" -Force | Out-Null
-Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" -Name "EnableConnectionRateLimiting" -Type DWord -Value 0
-Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" -Name "MaxUserPort" -Type DWord -Value 415028
-Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" -Name "TcpTimedWaitDelay" -Type DWord -Value 48
-Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" -Name "DefaultTTL" -Type DWord -Value 100
-
-New-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Services\AFD\Parameters" -Force | Out-Null
-Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\AFD\Parameters" -Name "FastSendDatagramThreshold" -Type DWord -Value 409600
 #Windows update
-New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DriverSearching" -Force | Out-Null
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config" -Name "DODownloadMode" -Type DWord -Value 0
+New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Device Metadata" -Force | Out-Null
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Device Metadata" -Name "PreventDeviceMetadataFromNetwork" -Type DWord -Value 1
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DriverSearching" -Name "SearchOrderConfig" -Type DWord -Value 0
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DriverSearching" -Name "DontPromptForWindowsUpdate" -Type DWord -Value 1
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DriverSearching" -Name "DontSearchWindowsUpdate" -Type DWord -Value 1
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DriverSearching" -Name "DriverUpdateWizardWuSearchEnabled" -Type DWord -Value 0
-
 New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" -Force | Out-Null
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" -Name "AutoInstallMinorUpdates" -Type DWord -Value 0
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" -Name "NoAutoUpdate" -Type DWord -Value 1
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" -Name "AUOptions" -Type DWord -Value 1
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" -Name "ExcludeWUDriversInQualityUpdate" -Type DWord -Value 1
+
+#network
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" -Name "NetworkThrottlingIndex" -Type DWord -Value 0xffffffff
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" -Name "SystemResponsiveness" -Type DWord -Value 0
+New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Psched" -Force | Out-Null
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Psched" -Name "NonBestEffortLimit" -Type DWord -Value 0
+Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\AFD\Parameters" -Name "FastSendDatagramThreshold" -Type DWord -Value 0x10000
+Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" -Name "EnableConnectionRateLimiting" -Type DWord -Value 0
+Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" -Name "TcpTimedWaitDelay" -Type DWord -Value 0x00000030
+Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" -Name "DefaultTTL" -Type DWord -Value 0x00000064
 #privacy
+Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications" -Name "GlobalUserDisabled" -Type DWord -Value 1
+Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "ContentDeliveryAllowed" -Type DWord -Value 0
+Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "OemPreInstalledAppsEnabled" -Type DWord -Value 0
+Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "PreInstalledAppsEnabled" -Type DWord -Value 0
+Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "PreInstalledAppsEverEnabled" -Type DWord -Value 0
+Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SilentInstalledAppsEnabled" -Type DWord -Value 0
+Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-338387Enabled" -Type DWord -Value 0
+Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-338388Enabled" -Type DWord -Value 0
+Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-338389Enabled" -Type DWord -Value 0
+Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-353698Enabled" -Type DWord -Value 0
+Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SystemPaneSuggestionsEnabled" -Type DWord -Value 0
+Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Siuf\Rules" -Name "NumberOfSIUFInPeriod" -Type DWord -Value 0
+Set-ItemProperty -Path "HKCU:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Name "DisableTailoredExperiencesWithDiagnosticData" -Type DWord -Value 1
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Name "DisableWindowsConsumerFeatures" -Type DWord -Value 1
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location" -Name "Value" -Type string -Value deny
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Sensor\Overrides\{BFA794E4-F964-4FDB-90F6-51056BFE4B44}" -Name "SensorPermissionState" -Type DWord -Value 0
+Set-ItemProperty -Path "HKLM:\SYSTEM\Maps" -Name "AutoUpdateEnabled" -Type DWord -Value 0
+Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters" -Name "EnableMDNS" -Type DWord -Value 0
+New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\DNSClient" -Force | Out-Null
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\DNSClient" -Name "EnableMulticast" -Type DWord -Value 0
+Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\NlaSvc\Parameters\Internet" -Name "EnableActiveProbing" -Type DWord -Value 0
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\PolicyManager\default\Wifi\AllowWiFiHotSpotReporting" -Name "Value" -Type DWord -Value 0
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\PolicyManager\default\Wifi\AllowAutoConnectToWiFiSenseHotspots" -Name "Value" -Type DWord -Value 0
+New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\StorageSense\Parameters\StoragePolicy" -Force | Out-Null
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\StorageSense\Parameters\StoragePolicy" -Name "01" -Type DWord -Value 0
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection" -Name "AllowTelemetry" -Type DWord -Value 0
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry" -Type DWord -Value 0
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "DoNotShowFeedbackNotifications" -Type DWord -Value 1
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInfo" -Name "DisabledByGroupPolicy" -Type DWord -Value 1
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting" -Name "Disabled" -Type DWord -Value 1
+Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Remote Assistance" -Name "fAllowToGetHelp" -Type DWord -Value 0
 
+#disabling scheduled tasks
+Disable-ScheduledTask -taskpath "\Microsoft\Windows\WindowsUpdate" -TaskName "Scheduled Start" | Out-Null
+Disable-ScheduledTask -taskpath "\Microsoft\Windows\Windows Error Reporting" -TaskName "QueueReporting" | Out-Null
+Disable-ScheduledTask -taskpath "\Microsoft\Windows\User Profile Service" -TaskName "HiveUploadTask" | Out-Null
+Disable-ScheduledTask -taskpath "\Microsoft\Windows\UpdateOrchestrator" -TaskName "Schedule Scan" | Out-Null
+Disable-ScheduledTask -taskpath "\Microsoft\Windows\UpdateOrchestrator" -TaskName "Schedule Scan Static Task" | Out-Null
+Disable-ScheduledTask -taskpath "\Microsoft\Windows\Maps" -TaskName "MapsUpdateTask" | Out-Null
+Disable-ScheduledTask -taskpath "\Microsoft\Windows\Application Experience" -TaskName "MareBackup" | Out-Null
+Disable-ScheduledTask -taskpath "\Microsoft\Windows\Application Experience" -TaskName "Microsoft Compatibility Appraiser" | Out-Null
+Disable-ScheduledTask -taskpath "\Microsoft\Windows\Application Experience" -TaskName "Microsoft Compatibility Appraiser Exp" | Out-Null
+Disable-ScheduledTask -taskpath "\Microsoft\Windows\Application Experience" -TaskName "StartupAppTask" | Out-Null
+Disable-ScheduledTask -taskpath "\Microsoft\Windows\Application Experience" -TaskName "PcaPatchDbTask" | Out-Null
+Disable-ScheduledTask -taskpath "\Microsoft\Windows\Autochk" -TaskName "Proxy" | Out-Null
+Disable-ScheduledTask -taskpath "\Microsoft\Windows\Customer Experience Improvement Program" -TaskName "Consolidator" | Out-Null
+Disable-ScheduledTask -taskpath "\Microsoft\Windows\Customer Experience Improvement Program" -TaskName "UsbCeip" | Out-Null
+Disable-ScheduledTask -taskpath "\Microsoft\Windows\DiskDiagnostic" -TaskName "Microsoft-Windows-DiskDiagnosticDataCollector" | Out-Null
+Disable-ScheduledTask -taskpath "\Microsoft\Windows\DiskDiagnostic" -TaskName "Microsoft-Windows-DiskDiagnosticResolver" | Out-Null
+Disable-ScheduledTask -taskpath "\Microsoft\Windows\Feedback\Siuf" -TaskName "DmClient" | Out-Null
+Disable-ScheduledTask -taskpath "\Microsoft\Windows\Feedback\Siuf" -TaskName "DmClientOnScenarioDownload" | Out-Null
+Disable-ScheduledTask -taskpath "\Microsoft\Windows\Windows Error Reporting" -TaskName "QueueReporting" | Out-Null
 
-write-host "cleaning system" -ForegroundColor red
-Dism.exe /online /Cleanup-Image /StartComponentCleanup /ResetBase
-#clears temp folders
-Get-ChildItem -Path "$env:TEMP" *.* -Recurse | Remove-Item -Force -Recurse
-Get-ChildItem -Path "C:\Windows\Temp\" *.* -Recurse | Remove-Item -Force -Recurse
+write-host "stopping services and processes" -ForegroundColor red
+#stops services i dont want running
+Stop-Service $forcestopservices -force
+Get-Service -Name $forcestopservices -ErrorAction SilentlyContinue | Set-Service -StartupType disabled
+Stop-Service $forcestopservices -force
 
-write-host "starting defender quick scan" -ForegroundColor red
-C:\"Program Files (x86)"\"Windows Defender"\MpCmdRun.exe -scan -scantype 1
+Stop-Service $disabledservices -force
+Get-Service -Name $disabledservices -ErrorAction SilentlyContinue | Set-Service -StartupType disabled
+Stop-Service $disabledservices -force
 
-write-host "trimming C: drive" -ForegroundColor red
-$systemDrive = (Get-WmiObject -Class Win32_OperatingSystem).SystemDrive
-Optimize-Volume -DriveLetter $systemDrive -ReTrim
-Optimize-Volume -DriveLetter $systemDrive -SlabConsolidate
-
+Get-Process -Name $forcestopprocesses -ErrorAction SilentlyContinue | Stop-Process -force
 write-host "releasing memory" -ForegroundColor red
 C:\memreduct.exe -clean:full
 write-host "done" -ForegroundColor red
