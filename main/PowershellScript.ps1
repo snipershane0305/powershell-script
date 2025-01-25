@@ -61,6 +61,11 @@ $manualservices = @(
 )
 $autoservices = @(
 )
+
+######################################################
+write-host "SYSTEM MAINTENANCE" -ForegroundColor white
+######################################################
+
 write-host "updating system" -ForegroundColor red
 #updates microsoft defender
 C:\"Program Files"\"Windows Defender"\MpCmdRun -SignatureUpdate
@@ -95,6 +100,12 @@ write-host "setting timer resolution to 0.5" -ForegroundColor red
 $SetTimerResolution = "C:\SetTimerResolution.exe"
 $resolution = "--resolution 5050 --no-console"
 start-process $SetTimerResolution $resolution
+
+
+########################################################
+write-host "SYSTEM CONFIGURATION" -ForegroundColor white
+########################################################
+
 
 write-host "Disabling powershell telemetry" -ForegroundColor red
 #disables powershell 7 telemetry (sends data without benefit)
@@ -168,7 +179,7 @@ set-mppreference -EnableNetworkProtection disable #enables network protection
 set-mppreference -MAPSReporting 0 #disables the sending of data to microsoft (this doesnt disable MAPS!)
 set-mppreference -RandomizeScheduleTaskTimes $false #disables random scans
 set-mppreference -RemediationScheduleDay 8 #disables schedule scans
-set-mppreference -ScanAvgCPULoadFactor 90 #allows defender to use 90% cpu usage when running a scan
+set-mppreference -ScanAvgCPULoadFactor 5 #allows defender to use 5% cpu usage when running a scan
 set-mppreference -ScanOnlyIfIdleEnabled $true
 set-mppreference -ScanParameters 1 #sets schedule scans to quick scans
 set-mppreference -ScanScheduleDay 8 #disables schedule scans
@@ -316,6 +327,10 @@ Disable-ScheduledTask -taskpath "\Microsoft\Windows\DiskDiagnostic" -TaskName "M
 Disable-ScheduledTask -taskpath "\Microsoft\Windows\Feedback\Siuf" -TaskName "DmClient" | Out-Null
 Disable-ScheduledTask -taskpath "\Microsoft\Windows\Feedback\Siuf" -TaskName "DmClientOnScenarioDownload" | Out-Null
 Disable-ScheduledTask -taskpath "\Microsoft\Windows\Windows Error Reporting" -TaskName "QueueReporting" | Out-Null
+
+##################################################
+write-host "SYSTEM CLEANUP" -ForegroundColor white
+##################################################
 
 write-host "stopping services and processes" -ForegroundColor red
 #stops services i dont want running
