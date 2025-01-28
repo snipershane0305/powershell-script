@@ -17,15 +17,9 @@ $forcestopprocesses = @(
 "taskhostw*"
 )
 $forcestopservices = @(
-"camsvc"
-"Appinfo"
 "AppXSvc"
-"VaultSvc"
 "DusmSvc"
 "DeviceAssociationService"
-"TokenBroker"
-"LicenseManager"
-"WpnService"
 "AssignedAccessManagerSvc"
 "tzautoupdate"
 "BITS"
