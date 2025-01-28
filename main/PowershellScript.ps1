@@ -18,6 +18,10 @@ $forcestopprocesses = @(
 )
 $forcestopservices = @(
 "AppXSvc"
+"ClipSVC"
+"smphost"
+"LanmanServer"
+"TokenBroker"
 "DusmSvc"
 "DeviceAssociationService"
 "AssignedAccessManagerSvc"
