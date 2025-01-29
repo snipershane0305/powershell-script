@@ -1,14 +1,17 @@
 #force opens powershell 7 as admin.
 if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) { Start-Process pwsh.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs; exit }
+
 Import-Module ScheduledTasks
 Import-Module NetAdapter
 Import-Module NetTCPIP
 Import-Module DnsClient
+
 $updateservices = @(
 "wuauserv"
 "usosvc"
 "bits"
 )
+
 $forcestopprocesses = @(
 "ApplicationFrameHost*"
 "dllhost*"
@@ -16,6 +19,7 @@ $forcestopprocesses = @(
 "WmiPrvSE*"
 "taskhostw*"
 )
+
 $forcestopservices = @(
 "AppXSvc"
 "ClipSVC"
@@ -65,6 +69,7 @@ $forcestopservices = @(
 "XblGameSave"
 "XboxNetApiSvc"
 )
+
 $disabledservices = @(
 "AssignedAccessManagerSvc"
 "tzautoupdate"
@@ -105,6 +110,7 @@ $disabledservices = @(
 "XblGameSave"
 "XboxNetApiSvc"
 )
+
 $manualservices = @(
 "AxInstSV"
 "AppReadiness"
@@ -234,6 +240,7 @@ $manualservices = @(
 "ApxSvc"
 "WwanSvc"
 )
+
 $autoservices = @(
 "EventSystem"
 "CryptSvc"
@@ -257,27 +264,34 @@ $autoservices = @(
 "LanmanWorkstation"
 )
 
+
 ######################################################
 write-host "SYSTEM MAINTENANCE" -ForegroundColor white
 ######################################################
 
+
 write-host "updating system" -ForegroundColor red
 #updates microsoft defender
 Update-MpSignature -UpdateSource MicrosoftUpdateServer
+
 #starts needed windows update services
 Get-Service -Name $updateservices -ErrorAction SilentlyContinue | Set-Service -StartupType manual
 Start-Service $updateservices
-start-sleep -seconds 3
+start-sleep -seconds 2
 #runs windows update
 Install-Module PSWindowsUpdate -Confirm:$false
 Add-WUServiceManager -MicrosoftUpdate -Confirm:$false
 Install-WindowsUpdate -MicrosoftUpdate -AcceptAll
-start-sleep -seconds 3
+start-sleep -seconds 2
 #stops update services
 Stop-Service $updateservices
 Get-Service -Name $updateservices -ErrorAction SilentlyContinue | Set-Service -StartupType disabled
+Stop-Service $updateservices
+
 write-host "starting defender quick scan" -ForegroundColor red
-C:\"Program Files (x86)"\"Windows Defender"\MpCmdRun.exe -scan -scantype 1
+cd "${Env:ProgramFiles(x86)}\Windows Defender"
+.\MpCmdRun.exe -scan -scantype 1
+cd ~
 
 write-host "trimming C: drive" -ForegroundColor red
 $systemDrive = (Get-WmiObject -Class Win32_OperatingSystem).SystemDrive
@@ -288,18 +302,18 @@ write-host "cleaning system" -ForegroundColor red
 Dism.exe /online /Cleanup-Image /StartComponentCleanup /ResetBase
 #clears temp folders
 Get-ChildItem -Path "$env:TEMP" *.* -Recurse | Remove-Item -Force -Recurse
-Get-ChildItem -Path "C:\Windows\Temp\" *.* -Recurse | Remove-Item -Force -Recurse
-
-write-host "setting timer resolution to 0.5" -ForegroundColor red
-$SetTimerResolution = "C:\SetTimerResolution.exe"
-$resolution = "--resolution 5050 --no-console"
-start-process $SetTimerResolution $resolution
+Get-ChildItem -Path "$env:windir\Temp\" *.* -Recurse | Remove-Item -Force -Recurse
 
 
 ########################################################
 write-host "SYSTEM CONFIGURATION" -ForegroundColor white
 ########################################################
 
+
+write-host "setting timer resolution to 0.5" -ForegroundColor red
+$SetTimerResolution = "C:\SetTimerResolution.exe"
+$resolution = "--resolution 5050 --no-console"
+start-process $SetTimerResolution $resolution
 
 write-host "Disabling powershell telemetry" -ForegroundColor red
 #disables powershell 7 telemetry (sends data without benefit)
@@ -522,9 +536,11 @@ Disable-ScheduledTask -taskpath "\Microsoft\Windows\Feedback\Siuf" -TaskName "Dm
 Disable-ScheduledTask -taskpath "\Microsoft\Windows\Feedback\Siuf" -TaskName "DmClientOnScenarioDownload" | Out-Null
 Disable-ScheduledTask -taskpath "\Microsoft\Windows\Windows Error Reporting" -TaskName "QueueReporting" | Out-Null
 
+
 ##################################################
 write-host "SYSTEM CLEANUP" -ForegroundColor white
 ##################################################
+
 
 write-host "stopping services and processes" -ForegroundColor red
 #stops services i dont want running 
