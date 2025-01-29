@@ -270,10 +270,12 @@ write-host "SYSTEM MAINTENANCE" -ForegroundColor white
 ######################################################
 
 
-write-host "updating system" -ForegroundColor red
+write-host "updating defender definitions" -ForegroundColor red
 #updates microsoft defender
 Update-MpSignature -UpdateSource MicrosoftUpdateServer
+write-host "done" -ForegroundColor red
 
+write-host "checking for windows udpates" -ForegroundColor red
 #starts needed windows update services
 Get-Service -Name $updateservices -ErrorAction SilentlyContinue | Set-Service -StartupType manual
 Start-Service $updateservices
@@ -282,6 +284,7 @@ start-sleep -seconds 2
 Install-Module PSWindowsUpdate -Confirm:$false
 Add-WUServiceManager -MicrosoftUpdate -Confirm:$false
 Install-WindowsUpdate -MicrosoftUpdate -AcceptAll
+write-host "done" -ForegroundColor red
 start-sleep -seconds 2
 #stops update services
 Stop-Service $updateservices
@@ -292,6 +295,7 @@ write-host "starting defender quick scan" -ForegroundColor red
 cd "${Env:ProgramFiles(x86)}\Windows Defender"
 .\MpCmdRun.exe -scan -scantype 1
 cd ~
+write-host "done" -ForegroundColor red
 
 write-host "trimming C: drive" -ForegroundColor red
 $systemDrive = (Get-WmiObject -Class Win32_OperatingSystem).SystemDrive
@@ -430,6 +434,7 @@ Add-MpPreference -ExclusionPath $env:SystemRoot"\System32\Configuration\DSCResou
 Add-MpPreference -ExclusionPath $env:SystemRoot"\System32\Configuration\ConfigurationStatus"
 Add-MpPreference -ExclusionProcess ${env:ProgramFiles(x86)}"\Common Files\Steam\SteamService.exe"
 
+write-host "changing registry settings" -ForegroundColor red
 #registry changes
 Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseSpeed" -Type DWord -Value 0
 Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseThreshold1" -Type DWord -Value 0
@@ -535,7 +540,7 @@ Disable-ScheduledTask -taskpath "\Microsoft\Windows\DiskDiagnostic" -TaskName "M
 Disable-ScheduledTask -taskpath "\Microsoft\Windows\Feedback\Siuf" -TaskName "DmClient" | Out-Null
 Disable-ScheduledTask -taskpath "\Microsoft\Windows\Feedback\Siuf" -TaskName "DmClientOnScenarioDownload" | Out-Null
 Disable-ScheduledTask -taskpath "\Microsoft\Windows\Windows Error Reporting" -TaskName "QueueReporting" | Out-Null
-
+write-host "done" -ForegroundColor red
 
 ##################################################
 write-host "SYSTEM CLEANUP" -ForegroundColor white
