@@ -263,7 +263,6 @@ write-host "SYSTEM MAINTENANCE" -ForegroundColor white
 
 write-host "updating system" -ForegroundColor red
 #updates microsoft defender
-C:\"Program Files"\"Windows Defender"\MpCmdRun -SignatureUpdate
 Update-MpSignature -UpdateSource MicrosoftUpdateServer
 #starts needed windows update services
 Get-Service -Name $updateservices -ErrorAction SilentlyContinue | Set-Service -StartupType manual
