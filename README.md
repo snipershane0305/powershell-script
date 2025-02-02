@@ -5,8 +5,9 @@ Also check the wiki section for more information about these configurations. htt
 
 Put the StartUpScript.ps1 file in `C:\Users\YOUR USERNAME HERE\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup` anything in this directory will start when windows boots and logins.
 
-Then put the PowershellScript.ps1, memreduct.exe, and SetTimerResolution.exe into the "C:\" directory
+Then put the PowershellScript.ps1, memreduct.exe, and SetTimerResolution.exe into the "C:" directory or whatever drive windows is installed on
 
 This will auto start every time you boot into windows, this script sets a bunch of settings and does some maintenance and improves privacy and security.
+
 This may improve some system performance and network performance by setting more performant configurations and lowering the system resources at idle but you WONT see big performance impact in GAMES. 
 video game performance is more impacted by your specific hardware and clock speeds. Consider overclocking/undervolting and better cooling solutions for better performance in GAMES!
