@@ -263,6 +263,13 @@ $autoservices = @(
 "WlanSvc"
 "LanmanWorkstation"
 )
+Stop-Service $forcestopservices -force
+Stop-Service $disabledservices -force
+Get-Service -Name $autoservices -ErrorAction SilentlyContinue | Set-Service -StartupType automatic
+Get-Service -Name $manualservices -ErrorAction SilentlyContinue | Set-Service -StartupType manual
+Get-Service -Name $disabledservices -ErrorAction SilentlyContinue | Set-Service -StartupType disabled
+Stop-Service $forcestopservices -force
+Stop-Service $disabledservices -force
 
 
 ######################################################
@@ -281,8 +288,10 @@ Get-Service -Name $updateservices -ErrorAction SilentlyContinue | Set-Service -S
 Start-Service $updateservices
 start-sleep -seconds 2
 #runs windows update
-Install-Module PSWindowsUpdate -Confirm:$false
+Install-Module -Name PSWindowsUpdate -Force
+Import-Module PSWindowsUpdate
 Add-WUServiceManager -MicrosoftUpdate -Confirm:$false
+Get-WindowsUpdate
 Install-WindowsUpdate -MicrosoftUpdate -AcceptAll
 write-host "done" -ForegroundColor red
 start-sleep -seconds 2
@@ -376,6 +385,7 @@ foreach ($adapter in $adapters) {
     $interfaceIndex = $adapter.ifIndex
     Set-DnsClientServerAddress -InterfaceIndex $interfaceIndex -ServerAddresses "9.9.9.11"
 }
+
 write-host "setting defender settings" -ForegroundColor red
 set-mppreference -AllowSwitchToAsyncInspection $true #performance optimization
 set-mppreference -DisableArchiveScanning $true
@@ -465,7 +475,6 @@ Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" 
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "AppsUseLightTheme" -Type DWord -Value 0
 Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "disableClearType" -Type DWord -Value 1
 Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "EnableAeroPeek" -Type DWord -Value 0
-
 #Windows update
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config" -Name "DODownloadMode" -Type DWord -Value 0
 New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Device Metadata" -Force | Out-Null
@@ -479,7 +488,6 @@ Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" -Name "NoAutoUpdate" -Type DWord -Value 1
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" -Name "AUOptions" -Type DWord -Value 1
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" -Name "ExcludeWUDriversInQualityUpdate" -Type DWord -Value 1
-
 #network
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" -Name "NetworkThrottlingIndex" -Type DWord -Value 0xffffffff
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" -Name "SystemResponsiveness" -Type DWord -Value 0
@@ -521,7 +529,6 @@ Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInfo" -Name "DisabledByGroupPolicy" -Type DWord -Value 1
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting" -Name "Disabled" -Type DWord -Value 1
 Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Remote Assistance" -Name "fAllowToGetHelp" -Type DWord -Value 0
-
 #disabling scheduled tasks
 Disable-ScheduledTask -taskpath "\Microsoft\Windows\WindowsUpdate" -TaskName "Scheduled Start" | Out-Null
 Disable-ScheduledTask -taskpath "\Microsoft\Windows\Windows Error Reporting" -TaskName "QueueReporting" | Out-Null
@@ -542,6 +549,7 @@ Disable-ScheduledTask -taskpath "\Microsoft\Windows\Feedback\Siuf" -TaskName "Dm
 Disable-ScheduledTask -taskpath "\Microsoft\Windows\Windows Error Reporting" -TaskName "QueueReporting" | Out-Null
 write-host "done" -ForegroundColor red
 
+
 ##################################################
 write-host "SYSTEM CLEANUP" -ForegroundColor white
 ##################################################
@@ -551,17 +559,13 @@ write-host "stopping services and processes" -ForegroundColor red
 #stops services i dont want running 
 Stop-Service $forcestopservices -force
 Stop-Service $disabledservices -force
-
 Get-Service -Name $autoservices -ErrorAction SilentlyContinue | Set-Service -StartupType automatic
-
 Get-Service -Name $manualservices -ErrorAction SilentlyContinue | Set-Service -StartupType manual
-
 Get-Service -Name $disabledservices -ErrorAction SilentlyContinue | Set-Service -StartupType disabled
-
 Stop-Service $forcestopservices -force
 Stop-Service $disabledservices -force
-
 Get-Process -Name $forcestopprocesses -ErrorAction SilentlyContinue | Stop-Process -force
+
 write-host "releasing memory" -ForegroundColor red
 C:\memreduct.exe -clean:full
 write-host "done" -ForegroundColor red
