@@ -271,6 +271,7 @@ Get-Service -Name $disabledservices -ErrorAction SilentlyContinue | Set-Service 
 Stop-Service $forcestopservices -force
 Stop-Service $disabledservices -force
 Get-Process -Name $forcestopprocesses -ErrorAction SilentlyContinue | Stop-Process -force
+start-sleep -seconds 1
 
 
 ######################################################
@@ -283,7 +284,7 @@ write-host "updating defender definitions" -ForegroundColor red
 Update-MpSignature -UpdateSource MicrosoftUpdateServer
 write-host "done" -ForegroundColor red
 
-write-host "checking for windows udpates" -ForegroundColor red
+write-host "checking for windows updates" -ForegroundColor red
 #starts needed windows update services
 Get-Service -Name $updateservices -ErrorAction SilentlyContinue | Set-Service -StartupType manual
 Start-Service $updateservices
@@ -338,6 +339,7 @@ powercfg.exe /hibernate off #disables hiberation (writes memory to disk and save
 
 write-host "enabling memory compression" -ForegroundColor red
 Enable-MMAgent -mc #enabled memory compression (saves some memory but takes cpu cycles to compress and uncompress the memory)
+start-sleep -seconds 1
 
 write-host "applying bcdedits" -ForegroundColor red
 bcdedit /deletevalue disabledynamictick
@@ -348,17 +350,19 @@ bcdedit /deletevalue x2apicpolicy
 bcdedit /deletevalue usephysicaldestination
 bcdedit /set useplatformtick yes #uses a hardware timer for ticks which is most reliable
 bcdedit /set disabledynamictick yes #disables platform tick from being dynamic which is a power saving feature
-bcdedit /set useplatformclock no #disables HPET (high percision event timer) //#DANGEROUS!!//
-bcdedit /set tscsyncpolicy enhanced #sets time stamp counter synchronization policy to enhanced
+bcdedit /set useplatformclock no #disables HPET (high percision event timer) and uses TSC (time stamp counter) //#DANGEROUS!!//
+bcdedit /set tscsyncpolicy legacy #sets time stamp counter synchronization policy to legacy
 bcdedit /set MSI Default #sets the use of interrupt type to message signaled interrupts which was added for PCI 2.2 which is newer than the old line based interrupts
 bcdedit /set x2apicpolicy Enable #uses the newer apic mode
-bcdedit /set usephysicaldestination no #disables physical apic for x2apicpolicy
+bcdedit /set usephysicaldestination no #disables physical apic for x2apicpolicy //#DANGEROUS!!//
 bcdedit /set nx OptIn #enables data execution prevention which improves security
+start-sleep -seconds 1
 
 write-host "applying fsutil settings" -ForegroundColor red
 fsutil behavior set disabledeletenotify 0 #enables trim on disk
 fsutil behavior set disableLastAccess 1 #disables last access time stamp on directories
 fsutil behavior set disable8dot3 1 #unused
+start-sleep -seconds 1
 
 write-host "applying network settings" -ForegroundColor red
 netsh int teredo set state disabled #disables teredo (used for ipv6)
@@ -386,6 +390,7 @@ Set-NetOffloadGlobalSetting -ReceiveSegmentCoalescing Disabled #disables more co
 Set-NetOffloadGlobalSetting -Chimney Disabled #forces cpu to handle network instead of NIC
 Enable-NetAdapterChecksumOffload -Name * #forces cpu to handle network instead of NIC
 Disable-NetAdapterLso -Name * #disables large send offload which uses NIC instead of cpu (using the cpu for handing network tasks can help latency if your cpu is strong enough)
+start-sleep -seconds 1
 
 write-host "setting dns" -ForegroundColor red
 #sets dns server to quad9's secure and ENC capatible dns
