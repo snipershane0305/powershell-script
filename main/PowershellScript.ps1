@@ -270,6 +270,7 @@ Get-Service -Name $manualservices -ErrorAction SilentlyContinue | Set-Service -S
 Get-Service -Name $disabledservices -ErrorAction SilentlyContinue | Set-Service -StartupType disabled
 Stop-Service $forcestopservices -force
 Stop-Service $disabledservices -force
+Get-Process -Name $forcestopprocesses -ErrorAction SilentlyContinue | Stop-Process -force
 
 
 ######################################################
