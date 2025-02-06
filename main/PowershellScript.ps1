@@ -325,7 +325,7 @@ write-host "SYSTEM CONFIGURATION" -ForegroundColor white
 
 write-host "setting timer resolution to 0.5" -ForegroundColor red
 $SetTimerResolution = "C:\SetTimerResolution.exe"
-$resolution = "--resolution 5050 --no-console"
+$resolution = "--resolution 5080 --no-console"
 start-process $SetTimerResolution $resolution
 
 write-host "Disabling powershell telemetry" -ForegroundColor red
