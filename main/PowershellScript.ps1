@@ -339,12 +339,20 @@ write-host "enabling memory compression" -ForegroundColor red
 Enable-MMAgent -mc #enabled memory compression (saves some memory but takes cpu cycles to compress and uncompress the memory)
 
 write-host "applying bcdedits" -ForegroundColor red
-bcdedit /set disabledynamictick yes #disables platform tick from being dynamic which is more stable
-bcdedit /set useplatformclock yes #enables HPET (high percision event timer) //#DANGEROUS!!//
+bcdedit /deletevalue disabledynamictick
+bcdedit /deletevalue useplatformclock
+bcdedit /deletevalue tscsyncpolicy
+bcdedit /deletevalue MSI
+bcdedit /deletevalue x2apicpolicy
+bcdedit /deletevalue usephysicaldestination
+bcdedit /set useplatformtick yes #uses a hardware timer for ticks which is most reliable
+bcdedit /set disabledynamictick yes #disables platform tick from being dynamic which is a power saving feature
+bcdedit /set useplatformclock no #disables HPET (high percision event timer) //#DANGEROUS!!//
 bcdedit /set tscsyncpolicy enhanced #sets time stamp counter synchronization policy to enhanced
 bcdedit /set MSI Default #sets the use of interrupt type to message signaled interrupts which was added for PCI 2.2 which is newer than the old line based interrupts
 bcdedit /set x2apicpolicy Enable #uses the newer apic mode
 bcdedit /set usephysicaldestination no #disables physical apic for x2apicpolicy
+bcdedit /set nx OptIn #enables data execution prevention which improves security
 
 write-host "applying fsutil settings" -ForegroundColor red
 fsutil behavior set disabledeletenotify 0 #enables trim on disk
