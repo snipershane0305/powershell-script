@@ -279,12 +279,12 @@ write-host "SYSTEM MAINTENANCE" -ForegroundColor white
 ######################################################
 
 
-write-host "updating defender definitions" -ForegroundColor red
+write-host "Updating Defender Definitions" -ForegroundColor red
 #updates microsoft defender
 Update-MpSignature -UpdateSource MicrosoftUpdateServer
 write-host "done" -ForegroundColor red
 
-write-host "checking for windows updates" -ForegroundColor red
+write-host "Checking for windows Updates" -ForegroundColor red
 #starts needed windows update services
 Get-Service -Name $updateservices -ErrorAction SilentlyContinue | Set-Service -StartupType manual
 Start-Service $updateservices
@@ -302,18 +302,18 @@ Stop-Service $updateservices
 Get-Service -Name $updateservices -ErrorAction SilentlyContinue | Set-Service -StartupType disabled
 Stop-Service $updateservices
 
-write-host "starting defender quick scan" -ForegroundColor red
+write-host "Starting defender Quick Scan" -ForegroundColor red
 cd "${Env:ProgramFiles(x86)}\Windows Defender"
 .\MpCmdRun.exe -scan -scantype 1
 cd ~
 write-host "done" -ForegroundColor red
 
-write-host "trimming C: drive" -ForegroundColor red
+write-host "Trimming C: Drive" -ForegroundColor red
 $systemDrive = (Get-WmiObject -Class Win32_OperatingSystem).SystemDrive
 Optimize-Volume -DriveLetter $systemDrive -ReTrim
 Optimize-Volume -DriveLetter $systemDrive -SlabConsolidate
 
-write-host "cleaning system" -ForegroundColor red
+write-host "Cleaning System" -ForegroundColor red
 Dism.exe /online /Cleanup-Image /StartComponentCleanup /ResetBase
 #clears temp folders
 Get-ChildItem -Path "$env:TEMP" *.* -Recurse | Remove-Item -Force -Recurse
@@ -325,23 +325,23 @@ write-host "SYSTEM CONFIGURATION" -ForegroundColor white
 ########################################################
 
 
-write-host "setting timer resolution to 0.5" -ForegroundColor red
+write-host "Setting Timer Resolution to 0.5" -ForegroundColor red
 $SetTimerResolution = "C:\SetTimerResolution.exe"
 $resolution = "--resolution 5080 --no-console"
 start-process $SetTimerResolution $resolution
 
-write-host "Disabling powershell telemetry" -ForegroundColor red
+write-host "Disabling Powershell Telemetry" -ForegroundColor red
 #disables powershell 7 telemetry (sends data without benefit)
 [Environment]::SetEnvironmentVariable('POWERSHELL_TELEMETRY_OPTOUT', '1', 'Machine')
 
-write-host "disabling hibernation" -ForegroundColor red
+write-host "Disabling Hibernation" -ForegroundColor red
 powercfg.exe /hibernate off #disables hiberation (writes memory to disk and saves power at cost of performance, only useful for laptops)
 
-write-host "enabling memory compression" -ForegroundColor red
+write-host "Enabling Memory Compression" -ForegroundColor red
 Enable-MMAgent -mc #enabled memory compression (saves some memory but takes cpu cycles to compress and uncompress the memory)
 start-sleep -seconds 1
 
-write-host "applying bcdedits" -ForegroundColor red
+write-host "cChanging bcdedit Settings" -ForegroundColor red
 bcdedit /deletevalue disabledynamictick
 bcdedit /deletevalue useplatformclock
 bcdedit /deletevalue tscsyncpolicy
@@ -358,13 +358,13 @@ bcdedit /set usephysicaldestination no #disables physical apic for x2apicpolicy 
 bcdedit /set nx OptIn #enables data execution prevention which improves security
 start-sleep -seconds 1
 
-write-host "applying fsutil settings" -ForegroundColor red
+write-host "Changing fsutil Settings" -ForegroundColor red
 fsutil behavior set disabledeletenotify 0 #enables trim on disk
 fsutil behavior set disableLastAccess 1 #disables last access time stamp on directories
 fsutil behavior set disable8dot3 1 #unused
 start-sleep -seconds 1
 
-write-host "applying network settings" -ForegroundColor red
+write-host "Changing Network Settings" -ForegroundColor red
 netsh int teredo set state disabled #disables teredo (used for ipv6)
 netsh int tcp set global ecncapability=enable #ecncapability will notify if there is congestion to help packet loss, will only be used if both the client and server support it
 netsh int tcp set global rsc=disable #disables receive segment coalescing which makes small packets combine, this helps with computing many packets but at the cost of latency
@@ -392,7 +392,7 @@ Enable-NetAdapterChecksumOffload -Name * #forces cpu to handle network instead o
 Disable-NetAdapterLso -Name * #disables large send offload which uses NIC instead of cpu (using the cpu for handing network tasks can help latency if your cpu is strong enough)
 start-sleep -seconds 1
 
-write-host "setting dns" -ForegroundColor red
+write-host "Setting dns to 9.9.9.11" -ForegroundColor red
 #sets dns server to quad9's secure and ENC capatible dns
 $adapters = Get-NetAdapter | Where-Object { $_.Status -eq 'Up' }
 foreach ($adapter in $adapters) {
@@ -400,7 +400,7 @@ foreach ($adapter in $adapters) {
     Set-DnsClientServerAddress -InterfaceIndex $interfaceIndex -ServerAddresses "9.9.9.11"
 }
 
-write-host "setting defender settings" -ForegroundColor red
+write-host "Changing Defender Settings" -ForegroundColor red
 set-mppreference -AllowSwitchToAsyncInspection $true #performance optimization
 set-mppreference -DisableArchiveScanning $true
 set-mppreference -DisableCatchupFullScan $true #disables force scan if it misses a scheduled scan
@@ -458,7 +458,7 @@ Add-MpPreference -ExclusionPath $env:SystemRoot"\System32\Configuration\DSCResou
 Add-MpPreference -ExclusionPath $env:SystemRoot"\System32\Configuration\ConfigurationStatus"
 Add-MpPreference -ExclusionProcess ${env:ProgramFiles(x86)}"\Common Files\Steam\SteamService.exe"
 
-write-host "changing registry settings" -ForegroundColor red
+write-host "Changing Registry Settings" -ForegroundColor red
 #registry changes
 Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseSpeed" -Type DWord -Value 0
 Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseThreshold1" -Type DWord -Value 0
@@ -569,7 +569,7 @@ write-host "SYSTEM CLEANUP" -ForegroundColor white
 ##################################################
 
 
-write-host "stopping services and processes" -ForegroundColor red
+write-host "Stopping Services and Processes" -ForegroundColor red
 #stops services i dont want running 
 Stop-Service $forcestopservices -force
 Stop-Service $disabledservices -force
@@ -583,4 +583,5 @@ Get-Process -Name $forcestopprocesses -ErrorAction SilentlyContinue | Stop-Proce
 write-host "releasing memory" -ForegroundColor red
 C:\memreduct.exe -clean:full
 write-host "done" -ForegroundColor red
+start-sleep -seconds 1
 pause
