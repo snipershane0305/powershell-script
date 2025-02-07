@@ -398,25 +398,25 @@ foreach ($adapter in $adapters) {
 }
 
 write-host "Changing Defender Settings" -ForegroundColor red
-set-mppreference -AllowSwitchToAsyncInspection $true #performance optimization
+set-mppreference -AllowSwitchToAsyncInspection $true
 set-mppreference -DisableArchiveScanning $true
-set-mppreference -DisableCatchupFullScan $true #disables force scan if it misses a scheduled scan
-set-mppreference -DisableCatchupQuickScan $true #disables force scan if it misses a scheduled scan
-set-mppreference -DisableEmailScanning $true #disables emailscanning
-set-mppreference -DisableNetworkProtectionPerfTelemetry $true #disables the sending of performance data to microsoft
-Set-MpPreference -DisableCoreServiceTelemetry $true #disables the sending of performance data to microsoft
+set-mppreference -DisableCatchupFullScan $true
+set-mppreference -DisableCatchupQuickScan $true
+set-mppreference -DisableEmailScanning $true
+set-mppreference -DisableNetworkProtectionPerfTelemetry $true
+Set-MpPreference -DisableCoreServiceTelemetry $true
 set-mppreference -DisableRemovableDriveScanning $true
-set-mppreference -DisableRestorePoint $true #disables defender creating restore points (i have never had a restore point fix an issue!)
-set-mppreference -EnableLowCpuPriority $true #lowers the priority of defender
-set-mppreference -EnableNetworkProtection disable #enables network protection
-set-mppreference -MAPSReporting 0 #disables the sending of data to microsoft (this doesnt disable MAPS!)
-set-mppreference -RandomizeScheduleTaskTimes $false #disables random scans
-set-mppreference -RemediationScheduleDay 8 #disables schedule scans
-set-mppreference -ScanAvgCPULoadFactor 5 #allows defender to use 5% cpu usage when running a scan
+set-mppreference -DisableRestorePoint $true
+set-mppreference -EnableLowCpuPriority $true
+set-mppreference -EnableNetworkProtection disable
+set-mppreference -MAPSReporting 0
+set-mppreference -RandomizeScheduleTaskTimes $false
+set-mppreference -RemediationScheduleDay 8
+set-mppreference -ScanAvgCPULoadFactor 5
 set-mppreference -ScanOnlyIfIdleEnabled $true
-set-mppreference -ScanParameters 1 #sets schedule scans to quick scans
-set-mppreference -ScanScheduleDay 8 #disables schedule scans
-set-mppreference -SubmitSamplesConsent 2 #disables sending samples to microsoft
+set-mppreference -ScanParameters 1
+set-mppreference -ScanScheduleDay 8
+set-mppreference -SubmitSamplesConsent 2
 set-mppreference -DisableDatagramProcessing $true
 #excludes some safe default paths to reduce defender scan time
 Add-MpPreference -ExclusionPath $env:LOCALAPPDATA"\Temp\NVIDIA Corporation\NV_Cache"
