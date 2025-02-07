@@ -1,11 +1,9 @@
 #force opens powershell 7 as admin.
 if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) { Start-Process pwsh.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs; exit }
-
 Import-Module ScheduledTasks
 Import-Module NetAdapter
 Import-Module NetTCPIP
 Import-Module DnsClient
-
 $updateservices = @(
 "wuauserv"
 "usosvc"
@@ -284,7 +282,7 @@ write-host "Updating Defender Definitions" -ForegroundColor red
 Update-MpSignature -UpdateSource MicrosoftUpdateServer
 write-host "done" -ForegroundColor red
 
-write-host "Checking for windows Updates" -ForegroundColor red
+write-host "Checking for Windows Updates" -ForegroundColor red
 #starts needed windows update services
 Get-Service -Name $updateservices -ErrorAction SilentlyContinue | Set-Service -StartupType manual
 Start-Service $updateservices
@@ -302,7 +300,7 @@ Stop-Service $updateservices
 Get-Service -Name $updateservices -ErrorAction SilentlyContinue | Set-Service -StartupType disabled
 Stop-Service $updateservices
 
-write-host "Starting defender Quick Scan" -ForegroundColor red
+write-host "Starting Defender Quick Scan" -ForegroundColor red
 cd "${Env:ProgramFiles(x86)}\Windows Defender"
 .\MpCmdRun.exe -scan -scantype 1
 cd ~
@@ -328,47 +326,46 @@ write-host "SYSTEM CONFIGURATION" -ForegroundColor white
 write-host "Setting Timer Resolution to 0.5" -ForegroundColor red
 $SetTimerResolution = "C:\SetTimerResolution.exe"
 $resolution = "--resolution 5080 --no-console"
-start-process $SetTimerResolution $resolution
+start-process $SetTimerResolution $Resolution
 
 write-host "Disabling Powershell Telemetry" -ForegroundColor red
-#disables powershell 7 telemetry (sends data without benefit)
 [Environment]::SetEnvironmentVariable('POWERSHELL_TELEMETRY_OPTOUT', '1', 'Machine')
 
 write-host "Disabling Hibernation" -ForegroundColor red
-powercfg.exe /hibernate off #disables hiberation (writes memory to disk and saves power at cost of performance, only useful for laptops)
+powercfg.exe /hibernate off
 
 write-host "Enabling Memory Compression" -ForegroundColor red
-Enable-MMAgent -mc #enabled memory compression (saves some memory but takes cpu cycles to compress and uncompress the memory)
+Enable-MMAgent -mc
 start-sleep -seconds 1
 
-write-host "cChanging bcdedit Settings" -ForegroundColor red
+write-host "Changing bcdedit Settings" -ForegroundColor red
 bcdedit /deletevalue disabledynamictick
 bcdedit /deletevalue useplatformclock
 bcdedit /deletevalue tscsyncpolicy
 bcdedit /deletevalue MSI
 bcdedit /deletevalue x2apicpolicy
 bcdedit /deletevalue usephysicaldestination
-bcdedit /set useplatformtick yes #uses a hardware timer for ticks which is most reliable
-bcdedit /set disabledynamictick yes #disables platform tick from being dynamic which is a power saving feature
-bcdedit /set useplatformclock no #disables HPET (high percision event timer) and uses TSC (time stamp counter) //#DANGEROUS!!//
-bcdedit /set tscsyncpolicy legacy #sets time stamp counter synchronization policy to legacy
-bcdedit /set MSI Default #sets the use of interrupt type to message signaled interrupts which was added for PCI 2.2 which is newer than the old line based interrupts
-bcdedit /set x2apicpolicy Enable #uses the newer apic mode
-bcdedit /set usephysicaldestination no #disables physical apic for x2apicpolicy //#DANGEROUS!!//
-bcdedit /set nx OptIn #enables data execution prevention which improves security
+bcdedit /set useplatformtick yes
+bcdedit /set disabledynamictick yes
+bcdedit /set useplatformclock no #//DANGEROUS!!//
+bcdedit /set tscsyncpolicy legacy
+bcdedit /set MSI Default
+bcdedit /set x2apicpolicy Enable
+bcdedit /set usephysicaldestination no #//DANGEROUS!!//
+bcdedit /set nx OptIn
 start-sleep -seconds 1
 
 write-host "Changing fsutil Settings" -ForegroundColor red
-fsutil behavior set disabledeletenotify 0 #enables trim on disk
-fsutil behavior set disableLastAccess 1 #disables last access time stamp on directories
-fsutil behavior set disable8dot3 1 #unused
+fsutil behavior set disabledeletenotify 0
+fsutil behavior set disableLastAccess 1
+fsutil behavior set disable8dot3 1
 start-sleep -seconds 1
 
 write-host "Changing Network Settings" -ForegroundColor red
-netsh int teredo set state disabled #disables teredo (used for ipv6)
-netsh int tcp set global ecncapability=enable #ecncapability will notify if there is congestion to help packet loss, will only be used if both the client and server support it
-netsh int tcp set global rsc=disable #disables receive segment coalescing which makes small packets combine, this helps with computing many packets but at the cost of latency
-netsh int tcp set global nonsackrttresiliency=enabled #improves the reliability of tcp over high-latency networks
+netsh int teredo set state disabled
+netsh int tcp set global ecncapability=enable
+netsh int tcp set global rsc=disable
+netsh int tcp set global nonsackrttresiliency=enabled
 netsh int tcp set global maxsynretransmissions=2
 netsh int tcp set security mpp=disabled
 netsh int tcp set supplemental template=internet enablecwndrestart=enabled
@@ -385,11 +382,11 @@ Set-NetTCPSetting -SettingName internet -NonSackRttResiliency enabled
 Set-NetTCPSetting -SettingName Internetcustom -NonSackRttResiliency enabled
 Set-NetTCPSetting -SettingName internet -MaxSynRetransmissions 2
 Set-NetTCPSetting -SettingName internetcustom -MaxSynRetransmissions 2
-Set-NetOffloadGlobalSetting -PacketCoalescingFilter Disabled  #disables more coalescing
-Set-NetOffloadGlobalSetting -ReceiveSegmentCoalescing Disabled #disables more coalescing
-Set-NetOffloadGlobalSetting -Chimney Disabled #forces cpu to handle network instead of NIC
-Enable-NetAdapterChecksumOffload -Name * #forces cpu to handle network instead of NIC
-Disable-NetAdapterLso -Name * #disables large send offload which uses NIC instead of cpu (using the cpu for handing network tasks can help latency if your cpu is strong enough)
+Set-NetOffloadGlobalSetting -PacketCoalescingFilter Disabled
+Set-NetOffloadGlobalSetting -ReceiveSegmentCoalescing Disabled
+Set-NetOffloadGlobalSetting -Chimney Disabled
+Enable-NetAdapterChecksumOffload -Name *
+Disable-NetAdapterLso -Name *
 start-sleep -seconds 1
 
 write-host "Setting dns to 9.9.9.11" -ForegroundColor red
