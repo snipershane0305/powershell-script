@@ -363,6 +363,7 @@ fsutil behavior set disable8dot3 1
 start-sleep -seconds 1
 
 write-host "Changing Network Settings" -ForegroundColor red
+netsh int tcp set global rss=enabled
 netsh int teredo set state disabled
 netsh int tcp set global ecncapability=enable
 netsh int tcp set global rsc=disable
