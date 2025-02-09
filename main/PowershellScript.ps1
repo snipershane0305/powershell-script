@@ -306,7 +306,7 @@ cd "${Env:ProgramFiles(x86)}\Windows Defender"
 cd ~
 write-host "done" -ForegroundColor red
 
-write-host "Trimming C: Drive" -ForegroundColor red
+write-host "Trimming Windows Drive" -ForegroundColor red
 $systemDrive = (Get-WmiObject -Class Win32_OperatingSystem).SystemDrive
 Optimize-Volume -DriveLetter $systemDrive -ReTrim
 Optimize-Volume -DriveLetter $systemDrive -SlabConsolidate
@@ -324,7 +324,8 @@ write-host "SYSTEM CONFIGURATION" -ForegroundColor white
 
 
 write-host "Setting Timer Resolution to 0.5" -ForegroundColor red
-$SetTimerResolution = "C:\SetTimerResolution.exe"
+cd $systemDrive\
+$SetTimerResolution = ".\SetTimerResolution.exe"
 $resolution = "--resolution 5080 --no-console"
 start-process $SetTimerResolution $Resolution
 
@@ -582,7 +583,8 @@ Stop-Service $disabledservices -force
 Get-Process -Name $forcestopprocesses -ErrorAction SilentlyContinue | Stop-Process -force
 
 write-host "releasing memory" -ForegroundColor red
-C:\memreduct.exe -clean:full
+cd $systemDrive\
+.\memreduct.exe -clean:full
 write-host "done" -ForegroundColor red
 start-sleep -seconds 1
 pause
