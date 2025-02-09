@@ -389,6 +389,7 @@ Set-NetOffloadGlobalSetting -ReceiveSegmentCoalescing Disabled
 Set-NetOffloadGlobalSetting -Chimney Disabled
 Enable-NetAdapterChecksumOffload -Name *
 Disable-NetAdapterLso -Name *
+Enable-NetAdapterRss -Name *
 start-sleep -seconds 1
 
 write-host "Setting dns to 9.9.9.11" -ForegroundColor red
