@@ -11,3 +11,17 @@ Then put the PowershellScript.ps1, memreduct.exe, and SetTimerResolution.exe int
 
 This may improve some system stability, performance, and network performance by setting more performant configurations and lowering the system resources at idle but you WONT see big performance impact in GAMES. 
 video game performance is more impacted by your specific hardware and clock speeds. Consider overclocking/undervolting and better cooling solutions for better performance in GAMES!
+
+# Extra Information
+
+https://github.com/valleyofdoom/PC-Tuning
+
+https://github.com/BoringBoredom/PC-Optimization-Hub
+
+https://docs.google.com/document/d/1c2-lUJq74wuYK1WrA_bIvgb89dUN0sj8-hO3vqmrau4
+
+https://github.com/djdallmann/GamingPCSetup
+
+https://docs.google.com/document/d/14ma-_Os3rNzio85yBemD-YSpF_1z75mZJz1UdzmW8GE
+
+https://github.com/ChrisTitusTech/winutil
