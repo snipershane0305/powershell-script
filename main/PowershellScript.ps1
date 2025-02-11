@@ -277,35 +277,6 @@ write-host "SYSTEM MAINTENANCE" -ForegroundColor white
 ######################################################
 
 
-write-host "Updating Defender Definitions" -ForegroundColor red
-#updates microsoft defender
-Update-MpSignature -UpdateSource MicrosoftUpdateServer
-write-host "done" -ForegroundColor red
-
-write-host "Checking for Windows Updates" -ForegroundColor red
-#starts needed windows update services
-Get-Service -Name $updateservices -ErrorAction SilentlyContinue | Set-Service -StartupType manual
-Start-Service $updateservices
-start-sleep -seconds 2
-#runs windows update
-Install-Module -Name PSWindowsUpdate -Force
-Import-Module PSWindowsUpdate
-Add-WUServiceManager -MicrosoftUpdate -Confirm:$false
-Get-WindowsUpdate
-Install-WindowsUpdate -MicrosoftUpdate -AcceptAll
-write-host "done" -ForegroundColor red
-start-sleep -seconds 2
-#stops update services
-Stop-Service $updateservices
-Get-Service -Name $updateservices -ErrorAction SilentlyContinue | Set-Service -StartupType disabled
-Stop-Service $updateservices
-
-write-host "Starting Defender Quick Scan" -ForegroundColor red
-cd "${Env:ProgramFiles(x86)}\Windows Defender"
-.\MpCmdRun.exe -scan -scantype 1
-cd ~
-write-host "done" -ForegroundColor red
-
 write-host "Trimming Windows Drive" -ForegroundColor red
 $systemDrive = (Get-WmiObject -Class Win32_OperatingSystem).SystemDrive
 Optimize-Volume -DriveLetter $systemDrive -ReTrim
@@ -346,7 +317,7 @@ bcdedit /deletevalue tscsyncpolicy
 bcdedit /deletevalue MSI
 bcdedit /deletevalue x2apicpolicy
 bcdedit /deletevalue usephysicaldestination
-bcdedit /set useplatformtick yes
+bcdedit /set useplatformtick yes #//DANGEROUS!!//
 bcdedit /set disabledynamictick yes
 bcdedit /set useplatformclock no #//DANGEROUS!!//
 bcdedit /set tscsyncpolicy legacy
