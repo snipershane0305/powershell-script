@@ -10,6 +10,8 @@ write-host "Updating Defender Definitions" -ForegroundColor red
 Update-MpSignature -UpdateSource MicrosoftUpdateServer
 write-host "done" -ForegroundColor red
 
+start-sleep -seconds 10
+
 write-host "Checking for Windows Updates" -ForegroundColor red
 #starts needed windows update services
 Get-Service -Name $updateservices -ErrorAction SilentlyContinue | Set-Service -StartupType manual
