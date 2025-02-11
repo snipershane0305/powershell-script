@@ -7,7 +7,7 @@ Also check the wiki section for more information about these configurations. htt
 
 To use this script as intended, put the StartUpScript.ps1 file in `C:\Users\YOUR USERNAME HERE\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup` folder, anything in this directory will start when you login to windows.
 
-Then put the PowershellScript.ps1, memreduct.exe, and SetTimerResolution.exe into the "C:" directory or whatever drive windows is installed on.
+Then put the PowershellScript.ps1, memreduct.exe, SystemUpdate.ps1, and SetTimerResolution.exe into the "C:" directory or whatever drive windows is installed on.
 
 This may improve some system stability, performance, and network performance by setting more performant configurations and lowering the system resources at idle but you WONT see big performance impact in GAMES. 
 video game performance is more impacted by your specific hardware and clock speeds. Consider overclocking/undervolting and better cooling solutions for better performance in GAMES!
