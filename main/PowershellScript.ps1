@@ -373,62 +373,26 @@ foreach ($adapter in $adapters) {
 }
 
 write-host "Changing Defender Settings" -ForegroundColor red
-set-mppreference -AllowSwitchToAsyncInspection $true
-set-mppreference -DisableArchiveScanning $true
-set-mppreference -DisableCatchupFullScan $true
-set-mppreference -DisableCatchupQuickScan $true
-set-mppreference -DisableEmailScanning $true
-set-mppreference -DisableNetworkProtectionPerfTelemetry $true
-Set-MpPreference -DisableCoreServiceTelemetry $true
-set-mppreference -DisableRemovableDriveScanning $true
-set-mppreference -DisableRestorePoint $true
-set-mppreference -EnableLowCpuPriority $true
-set-mppreference -EnableNetworkProtection disable
-set-mppreference -MAPSReporting 0
-set-mppreference -RandomizeScheduleTaskTimes $false
-set-mppreference -RemediationScheduleDay 8
-set-mppreference -ScanAvgCPULoadFactor 5
-set-mppreference -ScanOnlyIfIdleEnabled $true
-set-mppreference -ScanParameters 1
-set-mppreference -ScanScheduleDay 8
-set-mppreference -SubmitSamplesConsent 2
-set-mppreference -DisableDatagramProcessing $true
-#excludes some safe default paths to reduce defender scan time
-Add-MpPreference -ExclusionPath $env:LOCALAPPDATA"\Temp\NVIDIA Corporation\NV_Cache"
-Add-MpPreference -ExclusionPath $env:PROGRAMDATA"\NVIDIA Corporation\NV_Cache"
-Add-MpPreference -ExclusionPath $env:LOCALAPPDATA"\AMD\DX9Cache"
-Add-MpPreference -ExclusionPath $env:LOCALAPPDATA"\AMD\DxCache"
-Add-MpPreference -ExclusionPath $env:LOCALAPPDATA"\AMD\DxcCache"
-Add-MpPreference -ExclusionPath $env:LOCALAPPDATA"\AMD\OglCache"
-Add-MpPreference -ExclusionPath $env:windir"\SoftwareDistribution\Datastore\Datastore.edb"
-Add-MpPreference -ExclusionPath $env:windir"\SoftwareDistribution\Datastore\Logs\Edb*.jrs"
-Add-MpPreference -ExclusionPath $env:windir"\SoftwareDistribution\Datastore\Logs\Edb.chk"
-Add-MpPreference -ExclusionPath $env:windir"\SoftwareDistribution\Datastore\Logs\Tmp.edb"
-Add-MpPreference -ExclusionPath $env:windir"\SoftwareDistribution\Datastore\Logs\*.log"
-Add-MpPreference -ExclusionPath $env:windir"\Security\Database\*.edb"
-Add-MpPreference -ExclusionPath $env:windir"\Security\Database\*.sdb"
-Add-MpPreference -ExclusionPath $env:windir"\Security\Database\*.log"
-Add-MpPreference -ExclusionPath $env:windir"\Security\Database\*.chk"
-Add-MpPreference -ExclusionPath $env:windir"\Security\Database\*.jrs"
-Add-MpPreference -ExclusionPath $env:windir"\Security\Database\*.xml"
-Add-MpPreference -ExclusionPath $env:windir"\Security\Database\*.csv"
-Add-MpPreference -ExclusionPath $env:windir"\Security\Database\*.cmtx"
-Add-MpPreference -ExclusionPath $env:SystemRoot"\System32\GroupPolicy\Machine\Registry.pol"
-Add-MpPreference -ExclusionPath $env:SystemRoot"\System32\GroupPolicy\Machine\Registry.tmp"
-Add-MpPreference -ExclusionPath $env:userprofile"\NTUser.dat"
-Add-MpPreference -ExclusionPath $env:SystemRoot"\System32\sru\*.log"
-Add-MpPreference -ExclusionPath $env:SystemRoot"\System32\sru\*.dat"
-Add-MpPreference -ExclusionPath $env:SystemRoot"\System32\sru\*.chk"
-Add-MpPreference -ExclusionPath $env:SystemRoot"\System32\Configuration\MetaConfig.mof"
-Add-MpPreference -ExclusionPath $env:SystemRoot"\System32\winevt\Logs\*.evtx"
-Add-MpPreference -ExclusionPath $env:windir"\apppatch\sysmain.sdb"
-Add-MpPreference -ExclusionPath $env:windir"\EventLog\Data\lastalive?.dat"
-Add-MpPreference -ExclusionPath $env:SystemRoot"\System32\WindowsPowerShell\v1.0\Modules"
-Add-MpPreference -ExclusionPath $env:SystemRoot"\System32\Configuration\DSCStatusHistory.mof"
-Add-MpPreference -ExclusionPath $env:SystemRoot"\System32\Configuration\DSCEngineCache.mof"
-Add-MpPreference -ExclusionPath $env:SystemRoot"\System32\Configuration\DSCResourceStateCache.mof"
-Add-MpPreference -ExclusionPath $env:SystemRoot"\System32\Configuration\ConfigurationStatus"
-Add-MpPreference -ExclusionProcess ${env:ProgramFiles(x86)}"\Common Files\Steam\SteamService.exe"
+set-mppreference -AllowSwitchToAsyncInspection $true 2>$null
+set-mppreference -DisableArchiveScanning $true 2>$null
+set-mppreference -DisableCatchupFullScan $true 2>$null
+set-mppreference -DisableCatchupQuickScan $true 2>$null
+set-mppreference -DisableEmailScanning $true 2>$null
+set-mppreference -DisableNetworkProtectionPerfTelemetry $true 2>$null
+Set-MpPreference -DisableCoreServiceTelemetry $true 2>$null
+set-mppreference -DisableRemovableDriveScanning $true 2>$null
+set-mppreference -DisableRestorePoint $true 2>$null 
+set-mppreference -EnableLowCpuPriority $true 2>$null 
+set-mppreference -EnableNetworkProtection disable 2>$null
+set-mppreference -MAPSReporting 0 2>$null
+set-mppreference -RandomizeScheduleTaskTimes $false 2>$null
+set-mppreference -RemediationScheduleDay 8 2>$null
+set-mppreference -ScanAvgCPULoadFactor 5 2>$null
+set-mppreference -ScanOnlyIfIdleEnabled $true 2>$null
+set-mppreference -ScanParameters 1 2>$null
+set-mppreference -ScanScheduleDay 8 2>$null
+set-mppreference -SubmitSamplesConsent 2 2>$null
+set-mppreference -DisableDatagramProcessing $true 2>$null
 
 write-host "Changing Registry Settings" -ForegroundColor red
 #registry changes
@@ -444,6 +408,7 @@ Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image
 Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\mouclass\Parameters" -Name "MouseDataQueueSize" -Type DWord -Value 0x00000010
 Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\kbdclass\Parameters" -Name "KeyboardDataQueueSize" -Type DWord -Value 0x00000010
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FlyoutMenuSettings" -Name "ShowHibernateOption" -Type DWord -Value 0
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FlyoutMenuSettings" -Name "ShowSleepOption" -Type DWord -Value 0
 Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Power" -Name "HiberbootEnabled" -Type DWord -Value 0
 Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management\PrefetchParameters" -Name "EnablePrefetcher" -Type DWord -Value 0
 Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\kernel" -Name "GlobalTimerResolutionRequests" -Type DWord -Value 1
@@ -577,6 +542,11 @@ write-host "SYSTEM CLEANUP" -ForegroundColor white
 ##################################################
 
 
+write-host "releasing memory" -ForegroundColor red
+cd $systemDrive\
+.\memreduct.exe -clean:full
+start-sleep -seconds 30
+
 write-host "Stopping Services and Processes" -ForegroundColor red
 #stops services i dont want running 
 Stop-Service $forcestopservices -force
@@ -587,10 +557,4 @@ Get-Service -Name $disabledservices -ErrorAction SilentlyContinue | Set-Service 
 Stop-Service $forcestopservices -force
 Stop-Service $disabledservices -force
 Get-Process -Name $forcestopprocesses -ErrorAction SilentlyContinue | Stop-Process -force
-
-write-host "releasing memory" -ForegroundColor red
-cd $systemDrive\
-.\memreduct.exe -clean:full
-write-host "done" -ForegroundColor red
-start-sleep -seconds 1
 pause
