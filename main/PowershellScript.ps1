@@ -265,7 +265,6 @@ Get-Service -Name $disabledservices -ErrorAction SilentlyContinue | Set-Service 
 Stop-Service $forcestopservices -force
 Stop-Service $disabledservices -force
 Get-Process -Name $forcestopprocesses -ErrorAction SilentlyContinue | Stop-Process -force
-start-sleep -seconds 1
 
 
 ######################################################
@@ -303,7 +302,6 @@ powercfg.exe /hibernate off
 
 write-host "Enabling Memory Compression" -ForegroundColor red
 Enable-MMAgent -mc
-start-sleep -seconds 1
 
 write-host "Changing bcdedit Settings" -ForegroundColor red
 bcdedit /deletevalue disabledynamictick
@@ -320,13 +318,11 @@ bcdedit /set MSI Default
 bcdedit /set x2apicpolicy Enable
 bcdedit /set usephysicaldestination no #//DANGEROUS!!//
 bcdedit /set nx OptIn
-start-sleep -seconds 1
 
 write-host "Changing fsutil Settings" -ForegroundColor red
 fsutil behavior set disabledeletenotify 0
 fsutil behavior set disableLastAccess 1
 fsutil behavior set disable8dot3 1
-start-sleep -seconds 1
 
 write-host "Changing Network Settings" -ForegroundColor red
 netsh int tcp set global rss=enabled
@@ -356,7 +352,6 @@ Set-NetOffloadGlobalSetting -Chimney Disabled
 Enable-NetAdapterChecksumOffload -Name *
 Disable-NetAdapterLso -Name *
 Enable-NetAdapterRss -Name *
-start-sleep -seconds 1
 
 write-host "Setting dns to 9.9.9.11" -ForegroundColor red
 #sets dns server to quad9's secure and ENC capatible dns
