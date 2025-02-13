@@ -280,7 +280,7 @@ Optimize-Volume -DriveLetter $env:SystemDrive -SlabConsolidate 2>$null
 write-host "Cleaning System" -ForegroundColor red
 Dism.exe /online /Cleanup-Image /StartComponentCleanup /ResetBase
 #clears temp folders
-Get-ChildItem -Path "$env:TEMP" *.* -Recurse | Remove-Item -Force -Recurse
+Get-ChildItem -Path "$env:TEMP\" *.* -Recurse | Remove-Item -Force -Recurse
 Get-ChildItem -Path "$env:windir\Temp\" *.* -Recurse | Remove-Item -Force -Recurse
 
 
