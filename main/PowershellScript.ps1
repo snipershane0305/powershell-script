@@ -4,12 +4,7 @@ Import-Module ScheduledTasks
 Import-Module NetAdapter
 Import-Module NetTCPIP
 Import-Module DnsClient
-Import-Module ConfigDefender
-$updateservices = @(
-"wuauserv"
-"usosvc"
-"bits"
-)
+Import-Module ConfigDefender -SkipEditionCheck
 
 $forcestopprocesses = @(
 "ApplicationFrameHost*"
@@ -280,8 +275,8 @@ write-host "SYSTEM MAINTENANCE" -ForegroundColor white
 
 write-host "Trimming Windows Drive" -ForegroundColor red
 $systemDrive = (Get-WmiObject -Class Win32_OperatingSystem).SystemDrive
-Optimize-Volume -DriveLetter $systemDrive -ReTrim
-Optimize-Volume -DriveLetter $systemDrive -SlabConsolidate
+Optimize-Volume -DriveLetter $systemDrive -ReTrim 2>$null
+Optimize-Volume -DriveLetter $systemDrive -SlabConsolidate 2>$null
 
 write-host "Cleaning System" -ForegroundColor red
 Dism.exe /online /Cleanup-Image /StartComponentCleanup /ResetBase
