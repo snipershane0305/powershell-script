@@ -274,9 +274,8 @@ write-host "SYSTEM MAINTENANCE" -ForegroundColor white
 
 
 write-host "Trimming Windows Drive" -ForegroundColor red
-$systemDrive = (Get-WmiObject -Class Win32_OperatingSystem).SystemDrive
-Optimize-Volume -DriveLetter $systemDrive -ReTrim 2>$null
-Optimize-Volume -DriveLetter $systemDrive -SlabConsolidate 2>$null
+Optimize-Volume -DriveLetter $env:SystemDrive -ReTrim 2>$null
+Optimize-Volume -DriveLetter $env:SystemDrive -SlabConsolidate 2>$null
 
 write-host "Cleaning System" -ForegroundColor red
 Dism.exe /online /Cleanup-Image /StartComponentCleanup /ResetBase
@@ -291,7 +290,7 @@ write-host "SYSTEM CONFIGURATION" -ForegroundColor white
 
 
 write-host "Setting Timer Resolution to 0.5" -ForegroundColor red
-cd $systemDrive\
+cd $env:SystemDrive\
 $SetTimerResolution = ".\SetTimerResolution.exe"
 $resolution = "--resolution 5080 --no-console"
 start-process $SetTimerResolution $Resolution
@@ -540,7 +539,7 @@ write-host "SYSTEM CLEANUP" -ForegroundColor white
 
 
 write-host "releasing memory" -ForegroundColor red
-cd $systemDrive\
+cd $env:SystemDrive\
 .\memreduct.exe -clean:full
 start-sleep -seconds 30
 
