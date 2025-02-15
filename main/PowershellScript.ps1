@@ -341,32 +341,46 @@ fsutil behavior set disable8dot3 1
 
 write-host "Changing Network Settings" -ForegroundColor red
 netsh int tcp set global rss=enabled
+Enable-NetAdapterRss -Name *
+
 netsh int teredo set state disabled
+
 netsh int tcp set global ecncapability=enable
-netsh int tcp set global rsc=disable
-netsh int tcp set global nonsackrttresiliency=enabled
-netsh int tcp set global maxsynretransmissions=2
-netsh int tcp set security mpp=disabled
-netsh int tcp set supplemental template=internet enablecwndrestart=enabled
-netsh int tcp set supplemental template=custom enablecwndrestart=enabled
-netsh int tcp set supplemental Template=Internet CongestionProvider=ctcp
-netsh int tcp set supplemental Template=custom CongestionProvider=ctcp
-Set-NetTCPSetting -SettingName internet -DelayedAckFrequency 2
-Set-NetTCPSetting -SettingName Internetcustom -DelayedAckFrequency 2
-Set-NetTCPSetting -SettingName internet -MemoryPressureProtection disabled
-Set-NetTCPSetting -SettingName Internetcustom -MemoryPressureProtection disabled
 Set-NetTCPSetting -SettingName internet -EcnCapability enabled
 Set-NetTCPSetting -SettingName Internetcustom -EcnCapability enabled
+
+netsh int tcp set global rsc=disable
+Set-NetOffloadGlobalSetting -ReceiveSegmentCoalescing Disabled
+
+netsh int tcp set global nonsackrttresiliency=enabled
 Set-NetTCPSetting -SettingName internet -NonSackRttResiliency enabled
 Set-NetTCPSetting -SettingName Internetcustom -NonSackRttResiliency enabled
+
+netsh int tcp set global maxsynretransmissions=2
 Set-NetTCPSetting -SettingName internet -MaxSynRetransmissions 2
 Set-NetTCPSetting -SettingName internetcustom -MaxSynRetransmissions 2
+
+netsh int tcp set security mpp=disabled
+Set-NetTCPSetting -SettingName internet -MemoryPressureProtection disabled
+Set-NetTCPSetting -SettingName Internetcustom -MemoryPressureProtection disabled
+
+netsh int tcp set supplemental template=internet enablecwndrestart=enabled
+netsh int tcp set supplemental template=custom enablecwndrestart=enabled
+
+netsh int tcp set supplemental Template=Internet CongestionProvider=ctcp
+netsh int tcp set supplemental Template=custom CongestionProvider=ctcp
+Set-NetTCPSetting -SettingName Internet -CongestionProvider CTCP
+
+Set-NetTCPSetting -SettingName internet -DelayedAckFrequency 2
+Set-NetTCPSetting -SettingName Internetcustom -DelayedAckFrequency 2
+
 Set-NetOffloadGlobalSetting -PacketCoalescingFilter Disabled
-Set-NetOffloadGlobalSetting -ReceiveSegmentCoalescing Disabled
+
 Set-NetOffloadGlobalSetting -Chimney Disabled
+
 Enable-NetAdapterChecksumOffload -Name *
+
 Disable-NetAdapterLso -Name *
-Enable-NetAdapterRss -Name *
 
 write-host "Setting DNS server to 9.9.9.11" -ForegroundColor red
 #sets dns server to quad9's secure and ENC capatible dns
