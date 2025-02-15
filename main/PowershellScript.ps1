@@ -13,6 +13,7 @@ $forcestopprocesses = @(
 "SecurityHealthService*"
 "WmiPrvSE*"
 "taskhostw*"
+"DataExchangeHost*"
 )
 
 $forcestopservices = @(
@@ -23,6 +24,12 @@ $forcestopservices = @(
 "TokenBroker"
 "DusmSvc"
 "DeviceAssociationService"
+"DPS"
+"WdiSystemHost"
+"InstallService"
+"PcaSvc"
+"TokenBroker"
+"DoSvc"
 "AssignedAccessManagerSvc"
 "tzautoupdate"
 "BITS"
@@ -261,9 +268,9 @@ $autoservices = @(
 
 Stop-Service $forcestopservices -force
 Stop-Service $disabledservices -force
-Get-Service -Name $autoservices -ErrorAction SilentlyContinue | Set-Service -StartupType automatic
-Get-Service -Name $manualservices -ErrorAction SilentlyContinue | Set-Service -StartupType manual
-Get-Service -Name $disabledservices -ErrorAction SilentlyContinue | Set-Service -StartupType disabled
+Get-Service -Name $autoservices -ErrorAction SilentlyContinue | Set-Service -StartupType automatic -force
+Get-Service -Name $manualservices -ErrorAction SilentlyContinue | Set-Service -StartupType manual -force
+Get-Service -Name $disabledservices -ErrorAction SilentlyContinue | Set-Service -StartupType disabled -force
 Stop-Service $forcestopservices -force
 Stop-Service $disabledservices -force
 Get-Process -Name $forcestopprocesses -ErrorAction SilentlyContinue | Stop-Process -force
@@ -273,6 +280,11 @@ Get-Process -Name $forcestopprocesses -ErrorAction SilentlyContinue | Stop-Proce
 write-host "SYSTEM MAINTENANCE" -ForegroundColor white
 ######################################################
 
+
+write-host "Releasing Memory" -ForegroundColor red
+cd $env:SystemDrive\
+.\memreduct.exe -clean:full
+write-host "done" -ForegroundColor red
 
 write-host "Trimming Windows Drive" -ForegroundColor red
 Optimize-Volume -DriveLetter $env:SystemDrive -ReTrim 2>$null
@@ -544,17 +556,19 @@ write-host "SYSTEM CLEANUP" -ForegroundColor white
 write-host "Releasing Memory" -ForegroundColor red
 cd $env:SystemDrive\
 .\memreduct.exe -clean:full
+write-host "done" -ForegroundColor red
 start-sleep -seconds 30
 
 write-host "Stopping Services and Processes" -ForegroundColor red
 #stops services i dont want running 
 Stop-Service $forcestopservices -force
 Stop-Service $disabledservices -force
-Get-Service -Name $autoservices -ErrorAction SilentlyContinue | Set-Service -StartupType automatic
-Get-Service -Name $manualservices -ErrorAction SilentlyContinue | Set-Service -StartupType manual
-Get-Service -Name $disabledservices -ErrorAction SilentlyContinue | Set-Service -StartupType disabled
+Get-Service -Name $autoservices -ErrorAction SilentlyContinue | Set-Service -StartupType automatic -force
+Get-Service -Name $manualservices -ErrorAction SilentlyContinue | Set-Service -StartupType manual -force
+Get-Service -Name $disabledservices -ErrorAction SilentlyContinue | Set-Service -StartupType disabled -force
 Stop-Service $forcestopservices -force
 Stop-Service $disabledservices -force
 Get-Process -Name $forcestopprocesses -ErrorAction SilentlyContinue | Stop-Process -force
+write-host "done" -ForegroundColor red
 
 pause
