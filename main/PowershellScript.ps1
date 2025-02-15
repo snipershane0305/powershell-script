@@ -318,20 +318,21 @@ write-host "Enabling Memory Compression" -ForegroundColor red
 Enable-MMAgent -mc
 
 write-host "Changing bcdedit Settings" -ForegroundColor red
+bcdedit /deletevalue useplatformtick
 bcdedit /deletevalue disabledynamictick
 bcdedit /deletevalue useplatformclock
 bcdedit /deletevalue tscsyncpolicy
 bcdedit /deletevalue MSI
 bcdedit /deletevalue x2apicpolicy
-bcdedit /deletevalue usephysicaldestination
+bcdedit /deletevalue vsmlaunchtype
 bcdedit /set useplatformtick yes #//DANGEROUS!!//
 bcdedit /set disabledynamictick yes
 bcdedit /set useplatformclock no #//DANGEROUS!!//
 bcdedit /set tscsyncpolicy legacy
 bcdedit /set MSI Default
 bcdedit /set x2apicpolicy Enable
-bcdedit /set usephysicaldestination no #//DANGEROUS!!//
 bcdedit /set nx OptIn
+bcdedit /set vsmlaunchtype off
 
 write-host "Changing fsutil Settings" -ForegroundColor red
 fsutil behavior set disabledeletenotify 0
