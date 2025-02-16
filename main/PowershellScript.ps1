@@ -1,6 +1,7 @@
 #force opens powershell 7 as admin.
 if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) { Start-Process pwsh.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs; exit }
 
+#imports modules so they can be used to configure settings
 Import-Module ScheduledTasks
 Import-Module NetAdapter
 Import-Module NetTCPIP
@@ -266,6 +267,7 @@ $autoservices = @(
 "LanmanWorkstation"
 )
 
+#set services to manual/disabled and stops background processes
 Stop-Service $forcestopservices -force
 Stop-Service $disabledservices -force
 Get-Service -Name $autoservices -ErrorAction SilentlyContinue | Set-Service -StartupType automatic -force
@@ -284,15 +286,17 @@ write-host "SYSTEM MAINTENANCE" -ForegroundColor white
 write-host "Releasing Memory" -ForegroundColor red
 cd $env:SystemDrive\
 .\memreduct.exe -clean:full
-write-host "done" -ForegroundColor red
+start-sleep -seconds 10
+taskkill /IM memreduct.exe
 
+#trims system drive
 write-host "Trimming Windows Drive" -ForegroundColor red
 Optimize-Volume -DriveLetter $env:SystemDrive -ReTrim 2>$null
 Optimize-Volume -DriveLetter $env:SystemDrive -SlabConsolidate 2>$null
 
+#cleans temp and winSxs folder
 write-host "Cleaning System" -ForegroundColor red
 Dism.exe /online /Cleanup-Image /StartComponentCleanup /ResetBase
-#clears temp folders
 Get-ChildItem -Path "$env:TEMP\" *.* -Recurse | Remove-Item -Force -Recurse
 Get-ChildItem -Path "$env:windir\Temp\" *.* -Recurse | Remove-Item -Force -Recurse
 
@@ -317,6 +321,7 @@ powercfg.exe /hibernate off
 write-host "Enabling Memory Compression" -ForegroundColor red
 Enable-MMAgent -mc
 
+#changes boot settings
 write-host "Changing bcdedit Settings" -ForegroundColor red
 bcdedit /deletevalue useplatformtick
 bcdedit /deletevalue disabledynamictick
@@ -334,6 +339,7 @@ bcdedit /set x2apicpolicy Enable
 bcdedit /set nx OptIn
 bcdedit /set vsmlaunchtype off
 
+#changesw file system settings
 write-host "Changing fsutil Settings" -ForegroundColor red
 fsutil behavior set disabledeletenotify 0
 fsutil behavior set disableLastAccess 1
@@ -342,44 +348,31 @@ fsutil behavior set disable8dot3 1
 write-host "Changing Network Settings" -ForegroundColor red
 netsh int tcp set global rss=enabled
 Enable-NetAdapterRss -Name *
-
 netsh int teredo set state disabled
-
 netsh int tcp set global ecncapability=enable
 Set-NetTCPSetting -SettingName internet -EcnCapability enabled
 Set-NetTCPSetting -SettingName Internetcustom -EcnCapability enabled
-
 netsh int tcp set global rsc=disable
 Set-NetOffloadGlobalSetting -ReceiveSegmentCoalescing Disabled
-
 netsh int tcp set global nonsackrttresiliency=enabled
 Set-NetTCPSetting -SettingName internet -NonSackRttResiliency enabled
 Set-NetTCPSetting -SettingName Internetcustom -NonSackRttResiliency enabled
-
 netsh int tcp set global maxsynretransmissions=2
 Set-NetTCPSetting -SettingName internet -MaxSynRetransmissions 2
 Set-NetTCPSetting -SettingName internetcustom -MaxSynRetransmissions 2
-
 netsh int tcp set security mpp=disabled
 Set-NetTCPSetting -SettingName internet -MemoryPressureProtection disabled
 Set-NetTCPSetting -SettingName Internetcustom -MemoryPressureProtection disabled
-
 netsh int tcp set supplemental template=internet enablecwndrestart=enabled
 netsh int tcp set supplemental template=custom enablecwndrestart=enabled
-
 netsh int tcp set supplemental Template=Internet CongestionProvider=ctcp
 netsh int tcp set supplemental Template=custom CongestionProvider=ctcp
 Set-NetTCPSetting -SettingName Internet -CongestionProvider CTCP
-
 Set-NetTCPSetting -SettingName internet -DelayedAckFrequency 2
 Set-NetTCPSetting -SettingName Internetcustom -DelayedAckFrequency 2
-
 Set-NetOffloadGlobalSetting -PacketCoalescingFilter Disabled
-
 Set-NetOffloadGlobalSetting -Chimney Disabled
-
 Enable-NetAdapterChecksumOffload -Name *
-
 Disable-NetAdapterLso -Name *
 
 write-host "Setting DNS server to 9.9.9.11" -ForegroundColor red
@@ -414,12 +407,12 @@ set-mppreference -DisableDatagramProcessing $true 2>$null
 
 write-host "Changing Registry Settings" -ForegroundColor red
 #registry changes
+#safe
 Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseSpeed" -Type DWord -Value 0
 Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseThreshold1" -Type DWord -Value 0
 Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseThreshold2" -Type DWord -Value 0
 Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseSensitivity" -Type string -Value 10
 Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "MenuShowDelay" -Type string -Value 0
-Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\DWM" -Name "DisableHardwareAcceleration" -Type string -Value 1
 Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\OperationStatusManager" -Name "EnthusiastMode" -Type DWord -Value 1
 $SystemMemory = (Get-CimInstance -ClassName Win32_PhysicalMemory | Measure-Object -Property Capacity -Sum).Sum / 1KB
 Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control" -Name "SvcHostSplitThresholdInKB" -Type DWord -Value $SystemMemory
@@ -449,12 +442,9 @@ Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\P
 Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "disableClearType" -Type DWord -Value 1
 Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "EnableAeroPeek" -Type DWord -Value 0
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "EnableTransparency" -Type DWord -Value 0
-#disables spectre and meltdown
-Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" -Name "FeatureSettingsOverride" -Type DWord -Value 3
-Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" -Name "FeatureSettingsOverrideMask" -Type DWord -Value 3
-#disables spectre and meltdown
 
 #Windows update
+#safe
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config" -Name "DODownloadMode" -Type DWord -Value 0
 New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Device Metadata" -Force | Out-Null
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Device Metadata" -Name "PreventDeviceMetadataFromNetwork" -Type DWord -Value 1
@@ -479,6 +469,7 @@ Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DriverSearchin
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DriverSearching" -Name "DontSearchWindowsUpdate" -Type DWord -Value 1
 
 #network
+#safe
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" -Name "NetworkThrottlingIndex" -Type DWord -Value 0xffffffff
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" -Name "SystemResponsiveness" -Type DWord -Value 0
 New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Psched" -Force | Out-Null
@@ -489,6 +480,7 @@ Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters
 Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" -Name "DefaultTTL" -Type DWord -Value 0x00000064
 
 #privacy
+#unsafe
 Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications" -Name "GlobalUserDisabled" -Type DWord -Value 1
 Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "ContentDeliveryAllowed" -Type DWord -Value 0
 Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "OemPreInstalledAppsEnabled" -Type DWord -Value 0
@@ -560,7 +552,6 @@ Disable-ScheduledTask -taskpath "\Microsoft\Windows\DiskDiagnostic" -TaskName "M
 Disable-ScheduledTask -taskpath "\Microsoft\Windows\Feedback\Siuf" -TaskName "DmClient" | Out-Null
 Disable-ScheduledTask -taskpath "\Microsoft\Windows\Feedback\Siuf" -TaskName "DmClientOnScenarioDownload" | Out-Null
 Disable-ScheduledTask -taskpath "\Microsoft\Windows\Windows Error Reporting" -TaskName "QueueReporting" | Out-Null
-write-host "done" -ForegroundColor red
 
 
 ##################################################
@@ -571,11 +562,10 @@ write-host "SYSTEM CLEANUP" -ForegroundColor white
 write-host "Releasing Memory" -ForegroundColor red
 cd $env:SystemDrive\
 .\memreduct.exe -clean:full
-write-host "done" -ForegroundColor red
-start-sleep -seconds 30
+start-sleep -seconds 25
 
+#set services to manual/disabled and stops background processes
 write-host "Stopping Services and Processes" -ForegroundColor red
-#stops services i dont want running 
 Stop-Service $forcestopservices -force
 Stop-Service $disabledservices -force
 Get-Service -Name $autoservices -ErrorAction SilentlyContinue | Set-Service -StartupType automatic -force
