@@ -354,9 +354,9 @@ Set-NetTCPSetting -SettingName internet -EcnCapability enabled
 Set-NetTCPSetting -SettingName Internetcustom -EcnCapability enabled
 netsh int tcp set global rsc=disable
 Set-NetOffloadGlobalSetting -ReceiveSegmentCoalescing Disabled
-netsh int tcp set global nonsackrttresiliency=enabled
-Set-NetTCPSetting -SettingName internet -NonSackRttResiliency enabled
-Set-NetTCPSetting -SettingName Internetcustom -NonSackRttResiliency enabled
+netsh int tcp set global nonsackrttresiliency=disabled
+Set-NetTCPSetting -SettingName internet -NonSackRttResiliency disabled
+Set-NetTCPSetting -SettingName Internetcustom -NonSackRttResiliency disabled
 netsh int tcp set global maxsynretransmissions=2
 Set-NetTCPSetting -SettingName internet -MaxSynRetransmissions 2
 Set-NetTCPSetting -SettingName internetcustom -MaxSynRetransmissions 2
