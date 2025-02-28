@@ -386,6 +386,7 @@ set-mppreference -ScanParameters 1 2>$null
 set-mppreference -ScanScheduleDay 8 2>$null
 set-mppreference -SubmitSamplesConsent 2 2>$null
 set-mppreference -DisableDatagramProcessing $true 2>$null
+Set-MpPreference -EnableControlledFolderAccess Disabled 2>$null
 write-host "Changing Registry Settings" -ForegroundColor red
 #registry changes
 Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseSpeed" -Type DWord -Value 0
