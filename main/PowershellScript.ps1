@@ -1,13 +1,11 @@
 #force opens powershell 7 as admin.
 if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) { Start-Process pwsh.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs; exit }
-
 #imports modules so they can be used to configure settings
 Import-Module ScheduledTasks
 Import-Module NetAdapter
 Import-Module NetTCPIP
 Import-Module DnsClient
 Import-Module ConfigDefender -SkipEditionCheck
-
 $forcestopprocesses = @(
 "ApplicationFrameHost*"
 "dllhost*"
@@ -266,8 +264,6 @@ $autoservices = @(
 "WlanSvc"
 "LanmanWorkstation"
 )
-
-#set services to manual/disabled and stops background processes
 Stop-Service $forcestopservices -force
 Stop-Service $disabledservices -force
 Get-Service -Name $autoservices -ErrorAction SilentlyContinue | Set-Service -StartupType automatic -force
@@ -288,13 +284,9 @@ cd $env:SystemDrive\
 .\memreduct.exe -clean:full
 start-sleep -seconds 10
 taskkill /IM memreduct.exe
-
-#trims system drive
 write-host "Trimming Windows Drive" -ForegroundColor red
 Optimize-Volume -DriveLetter $env:SystemDrive -ReTrim 2>$null
 Optimize-Volume -DriveLetter $env:SystemDrive -SlabConsolidate 2>$null
-
-#cleans temp and winSxs folder
 write-host "Cleaning System" -ForegroundColor red
 Dism.exe /online /Cleanup-Image /StartComponentCleanup /ResetBase
 Get-ChildItem -Path "$env:TEMP\" *.* -Recurse | Remove-Item -Force -Recurse
@@ -311,17 +303,12 @@ cd $env:SystemDrive\
 $SetTimerResolution = ".\SetTimerResolution.exe"
 $resolution = "--resolution 5080 --no-console"
 start-process $SetTimerResolution $Resolution
-
 write-host "Disabling Powershell Telemetry" -ForegroundColor red
 [Environment]::SetEnvironmentVariable('POWERSHELL_TELEMETRY_OPTOUT', '1', 'Machine')
-
 write-host "Disabling Hibernation" -ForegroundColor red
 powercfg.exe /hibernate off
-
 write-host "Enabling Memory Compression" -ForegroundColor red
 Enable-MMAgent -mc
-
-#changes boot settings
 write-host "Changing bcdedit Settings" -ForegroundColor red
 bcdedit /deletevalue useplatformtick
 bcdedit /deletevalue disabledynamictick
@@ -338,13 +325,10 @@ bcdedit /set MSI Default
 bcdedit /set x2apicpolicy Enable
 bcdedit /set nx OptIn
 bcdedit /set vsmlaunchtype off
-
-#changesw file system settings
 write-host "Changing fsutil Settings" -ForegroundColor red
 fsutil behavior set disabledeletenotify 0
 fsutil behavior set disableLastAccess 1
 fsutil behavior set disable8dot3 1
-
 write-host "Changing Network Settings" -ForegroundColor red
 netsh int tcp set global rss=enabled
 Enable-NetAdapterRss -Name *
@@ -374,7 +358,6 @@ Set-NetOffloadGlobalSetting -PacketCoalescingFilter Disabled
 Set-NetOffloadGlobalSetting -Chimney Disabled
 Enable-NetAdapterChecksumOffload -Name *
 Disable-NetAdapterLso -Name *
-
 write-host "Setting DNS server to 9.9.9.11" -ForegroundColor red
 #sets dns server to quad9's secure and ENC capatible dns
 $adapters = Get-NetAdapter | Where-Object { $_.Status -eq 'Up' }
@@ -382,7 +365,6 @@ foreach ($adapter in $adapters) {
     $interfaceIndex = $adapter.ifIndex
     Set-DnsClientServerAddress -InterfaceIndex $interfaceIndex -ServerAddresses "9.9.9.11"
 }
-
 write-host "Changing Defender Settings" -ForegroundColor red
 set-mppreference -AllowSwitchToAsyncInspection $true 2>$null
 set-mppreference -DisableArchiveScanning $true 2>$null
@@ -404,10 +386,8 @@ set-mppreference -ScanParameters 1 2>$null
 set-mppreference -ScanScheduleDay 8 2>$null
 set-mppreference -SubmitSamplesConsent 2 2>$null
 set-mppreference -DisableDatagramProcessing $true 2>$null
-
 write-host "Changing Registry Settings" -ForegroundColor red
 #registry changes
-#safe
 Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseSpeed" -Type DWord -Value 0
 Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseThreshold1" -Type DWord -Value 0
 Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseThreshold2" -Type DWord -Value 0
@@ -437,7 +417,6 @@ Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Explorer
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "EnableTransparency" -Type DWord -Value 0
 
 #Windows update
-#safe
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config" -Name "DODownloadMode" -Type DWord -Value 0
 New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Device Metadata" -Force | Out-Null
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Device Metadata" -Name "PreventDeviceMetadataFromNetwork" -Type DWord -Value 1
@@ -462,7 +441,6 @@ Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DriverSearchin
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DriverSearching" -Name "DontSearchWindowsUpdate" -Type DWord -Value 1
 
 #network
-#safe
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" -Name "NetworkThrottlingIndex" -Type DWord -Value 0xffffffff
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" -Name "SystemResponsiveness" -Type DWord -Value 0
 New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Psched" -Force | Out-Null
@@ -473,7 +451,6 @@ Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters
 Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" -Name "DefaultTTL" -Type DWord -Value 0x00000064
 
 #privacy
-#unsafe
 Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications" -Name "GlobalUserDisabled" -Type DWord -Value 1
 Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "ContentDeliveryAllowed" -Type DWord -Value 0
 Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "OemPreInstalledAppsEnabled" -Type DWord -Value 0
@@ -555,8 +532,9 @@ write-host "SYSTEM CLEANUP" -ForegroundColor white
 write-host "Releasing Memory" -ForegroundColor red
 cd $env:SystemDrive\
 .\memreduct.exe -clean:full
-start-sleep -seconds 25
-
+start-sleep -seconds 15
+taskkill /IM memreduct.exe
+start-sleep -seconds 15
 #set services to manual/disabled and stops background processes
 write-host "Stopping Services and Processes" -ForegroundColor red
 Stop-Service $forcestopservices -force
@@ -568,5 +546,4 @@ Stop-Service $forcestopservices -force
 Stop-Service $disabledservices -force
 Get-Process -Name $forcestopprocesses -ErrorAction SilentlyContinue | Stop-Process -force
 write-host "done" -ForegroundColor red
-
 pause
