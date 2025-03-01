@@ -556,5 +556,14 @@ Get-Service -Name $disabledservices -ErrorAction SilentlyContinue | Set-Service 
 Stop-Service $forcestopservices -force 2>$null
 Stop-Service $disabledservices -force 2>$null
 Get-Process -Name $forcestopprocesses -ErrorAction SilentlyContinue | Stop-Process -force 2>$null
+sc config BITS start=disabled
+sc config UsoSvc start=disabled
+sc config wuauserv start=disabled
+net stop AppXSvc
+net stop InstallService
+net stop TokenBroker
+net stop BITS
+net stop UsoSvc
+net stop wuauserv
 write-host "done" -ForegroundColor red
 pause
