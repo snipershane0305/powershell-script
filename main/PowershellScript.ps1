@@ -1,11 +1,11 @@
 #force opens powershell 7 as admin.
 if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) { Start-Process pwsh.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs; exit }
 #imports modules so they can be used to configure settings
-Import-Module ScheduledTasks
-Import-Module NetAdapter
-Import-Module NetTCPIP
-Import-Module DnsClient
-Import-Module ConfigDefender -SkipEditionCheck
+Import-Module ScheduledTasks 2>$null
+Import-Module NetAdapter 2>$null
+Import-Module NetTCPIP 2>$null 
+Import-Module DnsClient 2>$null
+Import-Module ConfigDefender -SkipEditionCheck 2>$null
 $forcestopprocesses = @(
 "ApplicationFrameHost*"
 "dllhost*"
@@ -36,8 +36,6 @@ $forcestopservices = @(
 "PeerDistSvc"
 "DiagTrack"
 "DialogBlockingService"
-"DisplayEnhancementService"
-"DispBrokerDesktopSvc"
 "MapsBroker"
 "lfsvc"
 "iphlpsvc"
@@ -79,8 +77,6 @@ $disabledservices = @(
 "PeerDistSvc"
 "DiagTrack"
 "DialogBlockingService"
-"DisplayEnhancementService"
-"DispBrokerDesktopSvc"
 "MapsBroker"
 "lfsvc"
 "iphlpsvc"
@@ -264,14 +260,14 @@ $autoservices = @(
 "WlanSvc"
 "LanmanWorkstation"
 )
-Stop-Service $forcestopservices -force
-Stop-Service $disabledservices -force
-Get-Service -Name $autoservices -ErrorAction SilentlyContinue | Set-Service -StartupType automatic -force
-Get-Service -Name $manualservices -ErrorAction SilentlyContinue | Set-Service -StartupType manual -force
-Get-Service -Name $disabledservices -ErrorAction SilentlyContinue | Set-Service -StartupType disabled -force
-Stop-Service $forcestopservices -force
-Stop-Service $disabledservices -force
-Get-Process -Name $forcestopprocesses -ErrorAction SilentlyContinue | Stop-Process -force
+Stop-Service $forcestopservices -force 2>$null
+Stop-Service $disabledservices -force 2>$null
+Get-Service -Name $autoservices -ErrorAction SilentlyContinue | Set-Service -StartupType automatic -force 2>$null
+Get-Service -Name $manualservices -ErrorAction SilentlyContinue | Set-Service -StartupType manual -force 2>$null
+Get-Service -Name $disabledservices -ErrorAction SilentlyContinue | Set-Service -StartupType disabled -force 2>$null
+Stop-Service $forcestopservices -force 2>$null
+Stop-Service $disabledservices -force 2>$null
+Get-Process -Name $forcestopprocesses -ErrorAction SilentlyContinue | Stop-Process -force 2>$null
 
 
 ######################################################
@@ -282,7 +278,7 @@ write-host "SYSTEM MAINTENANCE" -ForegroundColor white
 write-host "Releasing Memory" -ForegroundColor red
 cd $env:SystemDrive\
 .\memreduct.exe -clean:full
-start-sleep -seconds 10
+start-sleep -seconds 5
 taskkill /IM memreduct.exe
 write-host "Trimming Windows Drive" -ForegroundColor red
 Optimize-Volume -DriveLetter $env:SystemDrive -ReTrim 2>$null
@@ -543,18 +539,18 @@ write-host "SYSTEM CLEANUP" -ForegroundColor white
 write-host "Releasing Memory" -ForegroundColor red
 cd $env:SystemDrive\
 .\memreduct.exe -clean:full
-start-sleep -seconds 15
+start-sleep -seconds 10
 taskkill /IM memreduct.exe
-start-sleep -seconds 15
+start-sleep -seconds 20
 #set services to manual/disabled and stops background processes
 write-host "Stopping Services and Processes" -ForegroundColor red
-Stop-Service $forcestopservices -force
-Stop-Service $disabledservices -force
-Get-Service -Name $autoservices -ErrorAction SilentlyContinue | Set-Service -StartupType automatic -force
-Get-Service -Name $manualservices -ErrorAction SilentlyContinue | Set-Service -StartupType manual -force
-Get-Service -Name $disabledservices -ErrorAction SilentlyContinue | Set-Service -StartupType disabled -force
-Stop-Service $forcestopservices -force
-Stop-Service $disabledservices -force
-Get-Process -Name $forcestopprocesses -ErrorAction SilentlyContinue | Stop-Process -force
+Stop-Service $forcestopservices -force 2>$null
+Stop-Service $disabledservices -force 2>$null
+Get-Service -Name $autoservices -ErrorAction SilentlyContinue | Set-Service -StartupType automatic -force 2>$null
+Get-Service -Name $manualservices -ErrorAction SilentlyContinue | Set-Service -StartupType manual -force 2>$null
+Get-Service -Name $disabledservices -ErrorAction SilentlyContinue | Set-Service -StartupType disabled -force 2>$null
+Stop-Service $forcestopservices -force 2>$null
+Stop-Service $disabledservices -force 2>$null
+Get-Process -Name $forcestopprocesses -ErrorAction SilentlyContinue | Stop-Process -force 2>$null
 write-host "done" -ForegroundColor red
 pause
