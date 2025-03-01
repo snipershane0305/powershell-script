@@ -16,6 +16,8 @@ $forcestopprocesses = @(
 )
 
 $forcestopservices = @(
+"sshd"
+"ssh-agent"
 "AppXSvc"
 "ClipSVC"
 "smphost"
@@ -236,6 +238,8 @@ $manualservices = @(
 "W32Time"
 "ApxSvc"
 "WwanSvc"
+"sshd"
+"ssh-agent"
 )
 
 $autoservices = @(
